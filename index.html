@@ -262,14 +262,15 @@
             ⚠️ <b>Atenção:</b> Você abriu o app por dentro de outro aplicativo (WhatsApp ou Instagram). Por segurança do Google, o login está bloqueado aqui.<br><br>
             Para entrar, toque no ícone de <b>opções</b> (os três pontinhos ou a bússola) no topo ou fundo da tela e escolha <b>"Abrir no Navegador"</b> (Safari/Chrome).
         </div>
-        <button class="login-btn" style="background: #f2f2f7; color: #1c1c1e;" onclick="window.iniciarLoginGoogle()">
+        <button id="btn-login-google" class="login-btn" style="background: #f2f2f7; color: #1c1c1e;" onclick="window.iniciarLoginGoogle()">
             <svg width="20" height="20" viewBox="0 0 24 24" style="margin-right:8px"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Entrar com Google
+            <span id="btn-login-google-label">Entrar com Google</span>
         </button>
-        <button class="login-btn" style="background: #f2f2f7; color: #8e8e93;" onclick="window.iniciarVisitante()">👤 Acessar como Visitante</button>
+        <button id="btn-login-visitante" class="login-btn" style="background: #f2f2f7; color: #8e8e93;" onclick="window.iniciarVisitante()">👤 Acessar como Visitante</button>
+        <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
-            Desenvolvido por <span style="color: #007aff; font-weight: 700;">Pedro Sarpi</span><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.17.2</span>
+            Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.17.3</span>
         </div>
     </div>
 
@@ -875,14 +876,13 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.17.2</h3>
+      <h3 style="font-weight:800;">Novidades — v1.17.3</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.17.2 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.17.3 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>☐ Checklist só no Pix:</b> parcelas e assinaturas com pagamento Pix têm checklist; cartão e débito entram no saldo na hora.</li>
-        <li style="margin-bottom:8px;"><b>📋 Pendente de pagamento:</b> nova seção na aba Gastos com Pix ainda não marcados — ao marcar aqui ou na linha original, os dois ficam sincronizados.</li>
-        <li style="margin-bottom:8px;"><b>🗓️ Novos meses e cadastros:</b> checklist começa desmarcado até você confirmar o pagamento.</li>
+        <li style="margin-bottom:8px;"><b>⚡ Login mais rápido:</b> carregamento da nuvem com feedback, tratamento de erros e menos peso nos backups (evita travar no “Entrar com Google”).</li>
+        <li style="margin-bottom:8px;"><b>☁️ Site:</b> publicado em <b>appsarpi.github.io/controle-financeiro</b> (novo login GitHub).</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -906,15 +906,66 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    window.MAX_BACKUPS = 5;
+    window._syncInFlight = null;
+    window._lastBackupAt = 0;
+    window.isCloudLoading = false;
+
+    window.setLoginBusy = function(busy, msg) {
+        const btn = document.getElementById('btn-login-google');
+        const lbl = document.getElementById('btn-login-google-label');
+        const vis = document.getElementById('btn-login-visitante');
+        const st = document.getElementById('login-status');
+        if (btn) btn.disabled = !!busy;
+        if (vis) vis.disabled = !!busy;
+        if (lbl) lbl.textContent = busy ? 'Entrando…' : 'Entrar com Google';
+        if (st) {
+            st.style.display = busy ? 'block' : 'none';
+            if (msg) st.textContent = msg;
+        }
+    };
+
+    window.trimBackups = function() {
+        if (!window.S) return;
+        window.S.backups = Array.isArray(window.S.backups) ? window.S.backups : [];
+        if (window.S.backups.length > window.MAX_BACKUPS) window.S.backups = window.S.backups.slice(0, window.MAX_BACKUPS);
+    };
+
+    window.defaultUserState = function(name) {
+        return { userName: name || "Visitante", config: {dolarMode: 'none', freq: 'mensal', onboardingDone: false, bancos: [], customBanks: [], darkMode: false, mostrarLocalMeta: 'dentro'}, gastosFixos: [], metas: [], dataByMonth: {}, backups: [], catDict: {} };
+    };
+
+    window.msgAuthError = function(e) {
+        const code = (e && e.code) || '';
+        if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return null;
+        if (code === 'auth/unauthorized-domain') {
+            return 'Domínio não autorizado no Firebase.\n\nNo Console Firebase → Authentication → Settings → Authorized domains, adicione:\nappsarpi.github.io';
+        }
+        if (code === 'auth/popup-blocked') return 'O popup do Google foi bloqueado. Permita popups neste site e tente de novo.';
+        if (code === 'auth/network-request-failed') return 'Falha de rede no login. Verifique a internet e tente novamente.';
+        return 'Não foi possível entrar com Google.\nSe estiver no Instagram/WhatsApp, abra no Safari ou Chrome.\n\n' + (code ? '(' + code + ')' : '');
+    };
+
     window.iniciarLoginGoogle = () => {
-        signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
-            alert("Atenção: Houve um erro no login. Se você estiver usando o navegador do Instagram/WhatsApp, tente abrir no Safari ou Chrome.");
-        });
+        if (window._loginInProgress) return;
+        window._loginInProgress = true;
+        window.setLoginBusy(true, 'Abrindo conta Google…');
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        signInWithPopup(auth, provider)
+            .then(() => { window.setLoginBusy(true, 'Carregando seus dados da nuvem…'); })
+            .catch(e => {
+                console.error('login google', e);
+                window._loginInProgress = false;
+                window.setLoginBusy(false);
+                const msg = window.msgAuthError(e);
+                if (msg) alert(msg);
+            });
     };
 
     window.iniciarVisitante = () => {
         window.currentUserUID = null;
-        window.S = { userName: "Visitante", config: {dolarMode: 'none', freq: 'mensal', onboardingDone: false, bancos: [], customBanks: [], darkMode: false, mostrarLocalMeta: 'dentro'}, gastosFixos: [], metas: [], dataByMonth: {}, backups: [], catDict: {} };
+        window.S = window.defaultUserState("Visitante");
         window.iniciarApp("Visitante");
     };
 
@@ -923,19 +974,48 @@
         signOut(auth).then(() => location.reload());
     };
 
-    window.isCloudLoading = false;
-
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            window.isCloudLoading = true;
-            window.currentUserUID = user.uid;
-            document.getElementById("cloud-status").textContent = "☁️...";
-            const docSnap = await getDoc(doc(db, "usuarios", user.uid));
-            window.S = docSnap.exists() ? docSnap.data() : { userName: user.displayName, config: {dolarMode: 'none', freq: 'mensal', onboardingDone: false, bancos: [], customBanks: [], darkMode: false, mostrarLocalMeta: 'dentro'}, gastosFixos: [], metas: [], dataByMonth: {}, backups: [], catDict: {} };
-            if(!window.S.config) window.S.config = {};
-            if(window.S.config.darkMode !== true) window.S.config.darkMode = false;
+        if (!user) {
+            window._loginInProgress = false;
+            window.setLoginBusy(false);
+            return;
+        }
+        window.isCloudLoading = true;
+        window.currentUserUID = user.uid;
+        window.setLoginBusy(true, 'Carregando seus dados da nuvem…');
+        const cloudEl = document.getElementById("cloud-status");
+        if (cloudEl) cloudEl.textContent = "☁️ Carregando…";
+        try {
+            const docRef = doc(db, "usuarios", user.uid);
+            const docSnap = await Promise.race([
+                getDoc(docRef),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout-firestore')), 20000))
+            ]);
+            window.S = docSnap.exists() ? docSnap.data() : window.defaultUserState(user.displayName);
+            if (!window.S.config) window.S.config = {};
+            if (window.S.config.darkMode !== true) window.S.config.darkMode = false;
+            if (!window.S.dataByMonth) window.S.dataByMonth = {};
+            if (!window.S.gastosFixos) window.S.gastosFixos = [];
+            if (!window.S.metas) window.S.metas = [];
+            if (!window.S.catDict) window.S.catDict = {};
+            const rawBackupsLen = Array.isArray(window.S.backups) ? window.S.backups.length : 0;
+            window.trimBackups();
             window.isCloudLoading = false;
+            window._loginInProgress = false;
             window.iniciarApp(user.displayName);
+            if (cloudEl) cloudEl.textContent = "☁️";
+            // Compacta backups antigos na nuvem em background (não trava a UI)
+            if (rawBackupsLen > window.MAX_BACKUPS) window.scheduleSync();
+        } catch (e) {
+            console.error('carregar usuario', e);
+            window.isCloudLoading = false;
+            window._loginInProgress = false;
+            window.setLoginBusy(false);
+            const isTimeout = String(e && e.message || e).includes('timeout');
+            alert(isTimeout
+                ? 'A nuvem demorou demais para responder. Verifique a internet e tente de novo.\nSe o problema continuar, os backups na conta podem estar muito grandes — entre como visitante e reporte.'
+                : 'Erro ao carregar seus dados da nuvem. Tente novamente em alguns segundos.');
+            if (cloudEl) cloudEl.textContent = "Erro";
         }
     });
 
@@ -953,22 +1033,39 @@
     };
 
     window.syncFirebase = () => {
-        if (window.currentUserUID && !window.isCloudLoading) {
-            document.getElementById("cloud-status").textContent = "Salvando...";
-            let currentDataStr = JSON.stringify({ dataByMonth: window.S.dataByMonth, gastosFixos: window.S.gastosFixos, metas: window.S.metas, config: window.S.config, catDict: window.S.catDict });
+        if (!window.currentUserUID || window.isCloudLoading) return Promise.resolve();
+        if (window._syncInFlight) return window._syncInFlight;
+        const cloudEl = document.getElementById("cloud-status");
+        if (cloudEl) cloudEl.textContent = "Salvando...";
+        try {
+            const currentDataStr = JSON.stringify({ dataByMonth: window.S.dataByMonth, gastosFixos: window.S.gastosFixos, metas: window.S.metas, config: window.S.config, catDict: window.S.catDict });
             window.S.backups = window.S.backups || [];
-            if (window.S.backups.length === 0 || window.S.backups[0].dataStr !== currentDataStr) {
-                window.S.backups.unshift({ date: Date.now(), dataStr: currentDataStr });
-                if (window.S.backups.length > 20) window.S.backups.pop();
+            const now = Date.now();
+            const last = window.S.backups[0];
+            const changed = !last || last.dataStr !== currentDataStr;
+            const cooled = (now - (window._lastBackupAt || 0)) > 60000;
+            if (changed && (window.S.backups.length === 0 || cooled)) {
+                window.S.backups.unshift({ date: now, dataStr: currentDataStr });
+                window._lastBackupAt = now;
             }
+            window.trimBackups();
             const btnUndo = document.getElementById("btn-undo");
-            if(btnUndo) btnUndo.style.display = window.S.backups.length > 1 ? "block" : "none";
+            if (btnUndo) btnUndo.style.display = window.S.backups.length > 1 ? "block" : "none";
             const payload = window.sanitizeForFirestore(window.S);
-            return setDoc(doc(db, "usuarios", window.currentUserUID), payload)
-                .then(() => { document.getElementById("cloud-status").textContent = "Salvo na Nuvem"; })
-                .catch(() => { document.getElementById("cloud-status").textContent = "Erro ao salvar"; });
+            window._syncInFlight = setDoc(doc(db, "usuarios", window.currentUserUID), payload)
+                .then(() => { if (cloudEl) cloudEl.textContent = "Salvo na Nuvem"; })
+                .catch((err) => {
+                    console.error('syncFirebase', err);
+                    if (cloudEl) cloudEl.textContent = "Erro ao salvar";
+                })
+                .finally(() => { window._syncInFlight = null; });
+            return window._syncInFlight;
+        } catch (e) {
+            console.error('syncFirebase build', e);
+            if (cloudEl) cloudEl.textContent = "Erro ao salvar";
+            window._syncInFlight = null;
+            return Promise.resolve();
         }
-        return Promise.resolve();
     };
 </script>
 
