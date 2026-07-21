@@ -270,7 +270,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.17.3</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.17.4</span>
         </div>
     </div>
 
@@ -876,13 +876,12 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.17.3</h3>
+      <h3 style="font-weight:800;">Novidades — v1.17.4</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.17.3 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.17.4 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>⚡ Login mais rápido:</b> carregamento da nuvem com feedback, tratamento de erros e menos peso nos backups (evita travar no “Entrar com Google”).</li>
-        <li style="margin-bottom:8px;"><b>☁️ Site:</b> publicado em <b>appsarpi.github.io/controle-financeiro</b> (novo login GitHub).</li>
+        <li style="margin-bottom:8px;"><b>🔧 Login corrigido:</b> removido o erro “demorou demais” e melhorada a conexão com a nuvem (Firestore) no celular.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -891,7 +890,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCJ_KD1Tc72SGfe9a8wGPWvfkdWZfj_hS4",
@@ -904,7 +903,8 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    // Long polling evita getDoc “travado” em alguns celulares / redes / GitHub Pages
+    const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
     window.MAX_BACKUPS = 5;
     window._syncInFlight = null;
@@ -980,17 +980,21 @@
             window.setLoginBusy(false);
             return;
         }
+        if (window._authBootForUid === user.uid) return;
+        window._authBootForUid = user.uid;
         window.isCloudLoading = true;
         window.currentUserUID = user.uid;
         window.setLoginBusy(true, 'Carregando seus dados da nuvem…');
         const cloudEl = document.getElementById("cloud-status");
         if (cloudEl) cloudEl.textContent = "☁️ Carregando…";
+        let progressTimer = setInterval(() => {
+            window.setLoginBusy(true, 'Ainda carregando da nuvem… (pode demorar na 1ª vez)');
+        }, 8000);
         try {
+            // Garante token pronto antes do Firestore (evita hang em alguns aparelhos)
+            await user.getIdToken(true);
             const docRef = doc(db, "usuarios", user.uid);
-            const docSnap = await Promise.race([
-                getDoc(docRef),
-                new Promise((_, rej) => setTimeout(() => rej(new Error('timeout-firestore')), 20000))
-            ]);
+            const docSnap = await getDoc(docRef);
             window.S = docSnap.exists() ? docSnap.data() : window.defaultUserState(user.displayName);
             if (!window.S.config) window.S.config = {};
             if (window.S.config.darkMode !== true) window.S.config.darkMode = false;
@@ -1002,19 +1006,21 @@
             window.trimBackups();
             window.isCloudLoading = false;
             window._loginInProgress = false;
+            clearInterval(progressTimer);
             window.iniciarApp(user.displayName);
             if (cloudEl) cloudEl.textContent = "☁️";
             // Compacta backups antigos na nuvem em background (não trava a UI)
             if (rawBackupsLen > window.MAX_BACKUPS) window.scheduleSync();
         } catch (e) {
+            clearInterval(progressTimer);
             console.error('carregar usuario', e);
             window.isCloudLoading = false;
             window._loginInProgress = false;
+            window._authBootForUid = null;
             window.setLoginBusy(false);
-            const isTimeout = String(e && e.message || e).includes('timeout');
-            alert(isTimeout
-                ? 'A nuvem demorou demais para responder. Verifique a internet e tente de novo.\nSe o problema continuar, os backups na conta podem estar muito grandes — entre como visitante e reporte.'
-                : 'Erro ao carregar seus dados da nuvem. Tente novamente em alguns segundos.');
+            const code = (e && e.code) || '';
+            const detail = code ? `\n\n(${code})` : '';
+            alert('Erro ao carregar seus dados da nuvem. Verifique a internet e tente de novo.' + detail);
             if (cloudEl) cloudEl.textContent = "Erro";
         }
     });
