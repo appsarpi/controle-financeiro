@@ -270,7 +270,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.17.4</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.17.5</span>
         </div>
     </div>
 
@@ -876,12 +876,13 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.17.4</h3>
+      <h3 style="font-weight:800;">Novidades — v1.17.5</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.17.4 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.17.5 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>🔧 Login corrigido:</b> removido o erro “demorou demais” e melhorada a conexão com a nuvem (Firestore) no celular.</li>
+        <li style="margin-bottom:8px;"><b>🔐 Sessão salva no aparelho:</b> se você já entrou com Google neste celular/navegador, o app abre direto — sem pedir login de novo.</li>
+        <li style="margin-bottom:8px;"><b>⚡ Abertura rápida:</b> mostra seus dados salvos na hora e sincroniza a nuvem em segundo plano.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -889,7 +890,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
     import { initializeFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -910,6 +911,8 @@
     window._syncInFlight = null;
     window._lastBackupAt = 0;
     window.isCloudLoading = false;
+    window.LS_SESSION_KEY = 'cf_auth_v1';
+    window.LS_DATA_KEY = uid => 'cf_data_v1_' + uid;
 
     window.setLoginBusy = function(busy, msg) {
         const btn = document.getElementById('btn-login-google');
@@ -935,6 +938,56 @@
         return { userName: name || "Visitante", config: {dolarMode: 'none', freq: 'mensal', onboardingDone: false, bancos: [], customBanks: [], darkMode: false, mostrarLocalMeta: 'dentro'}, gastosFixos: [], metas: [], dataByMonth: {}, backups: [], catDict: {} };
     };
 
+    window.loadLocalSession = function() {
+        try { return JSON.parse(localStorage.getItem(window.LS_SESSION_KEY) || 'null'); } catch (e) { return null; }
+    };
+    window.saveLocalSession = function(user) {
+        try {
+            localStorage.setItem(window.LS_SESSION_KEY, JSON.stringify({
+                uid: user.uid,
+                name: user.displayName || '',
+                at: Date.now()
+            }));
+        } catch (e) {}
+    };
+    window.loadLocalData = function(uid) {
+        try { return JSON.parse(localStorage.getItem(window.LS_DATA_KEY(uid)) || 'null'); } catch (e) { return null; }
+    };
+    window.saveLocalData = function() {
+        if (!window.currentUserUID || !window.S) return;
+        try {
+            const payload = {
+                userName: window.S.userName,
+                config: window.S.config,
+                gastosFixos: window.S.gastosFixos,
+                metas: window.S.metas,
+                dataByMonth: window.S.dataByMonth,
+                catDict: window.S.catDict
+            };
+            localStorage.setItem(window.LS_DATA_KEY(window.currentUserUID), JSON.stringify(payload));
+        } catch (e) { console.warn('cache local', e); }
+    };
+    window.clearLocalSession = function() {
+        try {
+            const s = window.loadLocalSession();
+            localStorage.removeItem(window.LS_SESSION_KEY);
+            if (s && s.uid) localStorage.removeItem(window.LS_DATA_KEY(s.uid));
+        } catch (e) {}
+    };
+
+    window.applyCloudUserData = function(data, displayName) {
+        window.S = data || window.defaultUserState(displayName);
+        if (!window.S.config) window.S.config = {};
+        if (window.S.config.darkMode !== true) window.S.config.darkMode = false;
+        if (!window.S.dataByMonth) window.S.dataByMonth = {};
+        if (!window.S.gastosFixos) window.S.gastosFixos = [];
+        if (!window.S.metas) window.S.metas = [];
+        if (!window.S.catDict) window.S.catDict = {};
+        const rawBackupsLen = Array.isArray(window.S.backups) ? window.S.backups.length : 0;
+        window.trimBackups();
+        return rawBackupsLen;
+    };
+
     window.msgAuthError = function(e) {
         const code = (e && e.code) || '';
         if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return null;
@@ -953,7 +1006,7 @@
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
         signInWithPopup(auth, provider)
-            .then(() => { window.setLoginBusy(true, 'Carregando seus dados da nuvem…'); })
+            .then(() => { window.setLoginBusy(true, 'Carregando seus dados…'); })
             .catch(e => {
                 console.error('login google', e);
                 window._loginInProgress = false;
@@ -964,6 +1017,7 @@
     };
 
     window.iniciarVisitante = () => {
+        window.clearLocalSession();
         window.currentUserUID = null;
         window.S = window.defaultUserState("Visitante");
         window.iniciarApp("Visitante");
@@ -971,59 +1025,109 @@
 
     window.fazerLogout = () => {
         clearTimeout(syncTimer); clearTimeout(recalcTimeout);
+        window.clearLocalSession();
         signOut(auth).then(() => location.reload());
     };
 
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            window._loginInProgress = false;
-            window.setLoginBusy(false);
-            return;
+    window.bootFromLocalCache = function() {
+        const cached = window.loadLocalSession();
+        if (!cached || !cached.uid) return false;
+        const localData = window.loadLocalData(cached.uid);
+        if (!localData) {
+            window.setLoginBusy(true, 'Abrindo sua conta…');
+            const btn = document.getElementById('btn-login-google');
+            const vis = document.getElementById('btn-login-visitante');
+            if (btn) btn.style.display = 'none';
+            if (vis) vis.style.display = 'none';
+            return true;
         }
-        if (window._authBootForUid === user.uid) return;
-        window._authBootForUid = user.uid;
+        window.currentUserUID = cached.uid;
+        window.S = Object.assign(window.defaultUserState(cached.name), localData, { backups: [] });
+        window._bootedFromCache = true;
         window.isCloudLoading = true;
-        window.currentUserUID = user.uid;
-        window.setLoginBusy(true, 'Carregando seus dados da nuvem…');
-        const cloudEl = document.getElementById("cloud-status");
-        if (cloudEl) cloudEl.textContent = "☁️ Carregando…";
-        let progressTimer = setInterval(() => {
-            window.setLoginBusy(true, 'Ainda carregando da nuvem… (pode demorar na 1ª vez)');
-        }, 8000);
-        try {
-            // Garante token pronto antes do Firestore (evita hang em alguns aparelhos)
-            await user.getIdToken(true);
-            const docRef = doc(db, "usuarios", user.uid);
-            const docSnap = await getDoc(docRef);
-            window.S = docSnap.exists() ? docSnap.data() : window.defaultUserState(user.displayName);
-            if (!window.S.config) window.S.config = {};
-            if (window.S.config.darkMode !== true) window.S.config.darkMode = false;
-            if (!window.S.dataByMonth) window.S.dataByMonth = {};
-            if (!window.S.gastosFixos) window.S.gastosFixos = [];
-            if (!window.S.metas) window.S.metas = [];
-            if (!window.S.catDict) window.S.catDict = {};
-            const rawBackupsLen = Array.isArray(window.S.backups) ? window.S.backups.length : 0;
-            window.trimBackups();
-            window.isCloudLoading = false;
-            window._loginInProgress = false;
-            clearInterval(progressTimer);
-            window.iniciarApp(user.displayName);
-            if (cloudEl) cloudEl.textContent = "☁️";
-            // Compacta backups antigos na nuvem em background (não trava a UI)
-            if (rawBackupsLen > window.MAX_BACKUPS) window.scheduleSync();
-        } catch (e) {
-            clearInterval(progressTimer);
-            console.error('carregar usuario', e);
-            window.isCloudLoading = false;
-            window._loginInProgress = false;
-            window._authBootForUid = null;
-            window.setLoginBusy(false);
-            const code = (e && e.code) || '';
-            const detail = code ? `\n\n(${code})` : '';
-            alert('Erro ao carregar seus dados da nuvem. Verifique a internet e tente de novo.' + detail);
-            if (cloudEl) cloudEl.textContent = "Erro";
+        window.setLoginBusy(true, 'Abrindo sua conta…');
+        if (typeof window.iniciarApp === 'function') {
+            window.iniciarApp(cached.name || localData.userName || 'Usuário');
+            const cloudEl = document.getElementById('cloud-status');
+            if (cloudEl) cloudEl.textContent = 'Sincronizando…';
         }
-    });
+        return true;
+    };
+
+    (async function startAuth() {
+        try { await setPersistence(auth, browserLocalPersistence); } catch (e) { console.warn('persistence', e); }
+        window.bootFromLocalCache();
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window._loginInProgress = false;
+                window._authBootForUid = null;
+                window._cloudSyncedForUid = null;
+                if (window._bootedFromCache) {
+                    window.clearLocalSession();
+                    window._bootedFromCache = false;
+                    location.reload();
+                    return;
+                }
+                window.setLoginBusy(false);
+                const btn = document.getElementById('btn-login-google');
+                const vis = document.getElementById('btn-login-visitante');
+                if (btn) btn.style.display = '';
+                if (vis) vis.style.display = '';
+                return;
+            }
+
+            window.saveLocalSession(user);
+            window.currentUserUID = user.uid;
+
+            // Já sincronizou nuvem nesta sessão para este UID
+            if (window._cloudSyncedForUid === user.uid) return;
+
+            window.isCloudLoading = true;
+            if (!window._bootedFromCache) {
+                window.setLoginBusy(true, 'Carregando seus dados…');
+            }
+            const cloudEl = document.getElementById("cloud-status");
+            if (cloudEl) cloudEl.textContent = window._bootedFromCache ? "Sincronizando…" : "☁️ Carregando…";
+
+            try {
+                // Sem force refresh: usa token já salvo no aparelho (bem mais rápido)
+                await user.getIdToken();
+                const docSnap = await getDoc(doc(db, "usuarios", user.uid));
+                const rawBackupsLen = window.applyCloudUserData(
+                    docSnap.exists() ? docSnap.data() : null,
+                    user.displayName
+                );
+                window.saveLocalData();
+                window.isCloudLoading = false;
+                window._loginInProgress = false;
+                window._cloudSyncedForUid = user.uid;
+                window._authBootForUid = user.uid;
+
+                if (window._bootedFromCache) {
+                    window.setMonthData(activeM, activeY);
+                } else {
+                    window.iniciarApp(user.displayName);
+                }
+                if (cloudEl) cloudEl.textContent = "☁️";
+                if (rawBackupsLen > window.MAX_BACKUPS) window.scheduleSync();
+            } catch (e) {
+                console.error('carregar usuario', e);
+                window.isCloudLoading = false;
+                window._loginInProgress = false;
+                if (window._bootedFromCache) {
+                    // Mantém o app aberto com cache local
+                    if (cloudEl) cloudEl.textContent = "Offline";
+                    return;
+                }
+                window._authBootForUid = null;
+                window.setLoginBusy(false);
+                const code = (e && e.code) || '';
+                alert('Erro ao carregar seus dados da nuvem. Verifique a internet e tente de novo.' + (code ? '\n\n(' + code + ')' : ''));
+                if (cloudEl) cloudEl.textContent = "Erro";
+            }
+        });
+    })();
 
     window.sanitizeForFirestore = function(obj) {
         if (obj === null || obj === undefined) return null;
@@ -1057,6 +1161,7 @@
             window.trimBackups();
             const btnUndo = document.getElementById("btn-undo");
             if (btnUndo) btnUndo.style.display = window.S.backups.length > 1 ? "block" : "none";
+            window.saveLocalData();
             const payload = window.sanitizeForFirestore(window.S);
             window._syncInFlight = setDoc(doc(db, "usuarios", window.currentUserUID), payload)
                 .then(() => { if (cloudEl) cloudEl.textContent = "Salvo na Nuvem"; })
