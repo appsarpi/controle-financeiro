@@ -270,7 +270,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.17.5</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.18</span>
         </div>
     </div>
 
@@ -424,6 +424,19 @@
                     <div id="hist-view-chart" style="display:none; width: 100%; height: 260px; position: relative; margin-top: 10px;">
                         <canvas id="hist-canvas"></canvas>
                     </div>
+                </div>
+                <div class="card" style="margin-top:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; flex-wrap:wrap;">
+                        <span style="font-weight:700; font-size:16px;">Gastos por categoria</span>
+                        <label style="font-size:12px; font-weight:600; color:#3c3c43; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                            <input type="checkbox" id="hist-pie-outros" onchange="window.renderHistPieChart()"> Incluir Outros
+                        </label>
+                    </div>
+                    <p style="font-size:11px;color:#8e8e93;margin-bottom:8px;line-height:1.35;">Mês em foco: <span id="hist-pie-mes-label" style="font-weight:700;color:#1c1c1e;"></span></p>
+                    <div style="width:100%; height:240px; position:relative;">
+                        <canvas id="hist-pie-canvas"></canvas>
+                    </div>
+                    <div id="hist-pie-empty" style="display:none; text-align:center; color:#8e8e93; font-size:13px; padding:20px 0;">Sem gastos neste mês para montar o gráfico.</div>
                 </div>
                 <div class="card" style="margin-top:12px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -688,7 +701,7 @@
     </div>
     <div class="input-group">
       <label class="input-label">Categoria (IA / Manual)</label>
-      <select class="form-sel" id="mg-cat">
+      <select class="form-sel" id="mg-cat" onchange="window.onMgCatChange()">
         <option value="Outros 🏷️">Outros 🏷️</option>
         <option value="Compras Online 📦">Compras Online 📦</option>
         <option value="Transporte 🚗">Transporte 🚗</option>
@@ -873,16 +886,31 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-metas-fluxo">
+  <div class="modal-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="font-weight:800;" id="mmf-titulo">Histórico do mês</h3>
+      <button class="btn-close-modal" onclick="window.fecharModal('modal-metas-fluxo')">&times;</button>
+    </div>
+    <p style="font-size:12px; color:#8e8e93; margin-bottom:12px;" id="mmf-sub"></p>
+    <div id="mmf-lista" style="display:flex; flex-direction:column; gap:8px; max-height:min(55vh,420px); overflow-y:auto;"></div>
+    <button class="btn-primary" style="background:#f2f2f7; color:#1c1c1e; margin-top:16px;" onclick="window.fecharModal('modal-metas-fluxo')">Fechar</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.17.5</h3>
+      <h3 style="font-weight:800;">Novidades — v1.18</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.17.5 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.18 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>🔐 Sessão salva no aparelho:</b> se você já entrou com Google neste celular/navegador, o app abre direto — sem pedir login de novo.</li>
-        <li style="margin-bottom:8px;"><b>⚡ Abertura rápida:</b> mostra seus dados salvos na hora e sincroniza a nuvem em segundo plano.</li>
+        <li style="margin-bottom:8px;"><b>✈️ Emoji único:</b> corrige emoji repetido no nome do gasto (ex.: vários aviões em “viagem…”).</li>
+        <li style="margin-bottom:8px;"><b>🏷️ Categoria → emoji:</b> ao editar a categoria, o emoji do nome atualiza junto.</li>
+        <li style="margin-bottom:8px;"><b>📅 Editar parcelado:</b> opção “este mês / próximo mês” também na edição.</li>
+        <li style="margin-bottom:8px;"><b>🥧 Histórico:</b> gráfico de pizza por categoria, com opção de incluir ou ocultar “Outros”.</li>
+        <li style="margin-bottom:8px;"><b>🎯 Metas:</b> toque em Aportes, Saídas ou Líquido para ver o histórico detalhado do mês.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -1200,6 +1228,8 @@
     window.needVal = "sim";
     window.currentHistView = 'table';
     let histChartInstance = null;
+    let histPieChartInstance = null;
+    window.histPieIncluirOutros = false;
     // Controle do mês de pagamento no modal de gasto
     window.mgMesPgto = 'este'; // 'este' ou 'prox'
 
@@ -1507,15 +1537,15 @@
         document.getElementById("mg-pay").innerHTML=html;
     };
 
-    // Quando troca pagamento, esconde pergunta de mês se for PIX
+    // Quando troca pagamento / tipo, mostra pergunta de mês (novo e edição)
     window.onPayChange=function(){
         const pay=document.getElementById("mg-pay").value;
         const tipo=document.getElementById("mg-tipo").value;
         const div=document.getElementById("mg-mes-pgto-div");
-        const editId=(document.getElementById('mg-edit-id').value||'').trim();
-        if(editId){div.style.display='none';return;}
+        if(!div)return;
         if(pay==='pix'||pay==='none'){div.style.display='none';}
         else if(tipo==='fixo'||tipo==='var'){div.style.display='block';}
+        else{div.style.display='none';}
     };
 
     window.selecionarMesPgto=function(v){
@@ -1765,7 +1795,6 @@
         document.getElementById('mg-numparc-div').style.display=(tipo==='fixo')?'block':'none';
         const subFreqDiv=document.getElementById('mg-sub-freq-div');
         if(subFreqDiv)subFreqDiv.style.display=(tipo==='sub')?'block':'none';
-        document.getElementById('mg-mes-pgto-div').style.display='none';
         ['fixo','var','sub'].forEach(t=>{
             const b=document.getElementById('mg-tbtn-'+t);
             if(b){b.classList.toggle('active',t===tipo);if(t===tipo){b.style.background='#007aff';b.style.color='#fff';b.style.borderColor='#007aff';}else{b.style.background='';b.style.color='';b.style.borderColor='';}}
@@ -1820,14 +1849,17 @@
                 if(totalMeses>0)numParc=String(totalMeses);
             }
         }
-        document.getElementById('mg-nome').value=nome.replace(/^[\uD800-\uDBFF][\uDC00-\uDFFF]\s*/u,'').trim()||nome;
+        document.getElementById('mg-nome').value=window.nomeSemEmojiTexto(nome);
         document.getElementById('mg-cat').value=cat;
         document.getElementById('mg-val').value=window.toInput(val);
         document.getElementById('mg-numparc').value=numParc;
         const subSel=document.getElementById('mg-sub-freq');if(subSel)subSel.value=subFreq;
+        let proxM=activeM+1,proxY=activeY;
+        if(proxM>11){proxM=0;proxY++;}
+        const btnProx=document.getElementById('mg-pgto-prox');
+        if(btnProx)btnProx.textContent=`${MESES_CURTO[proxM]}/${proxY}`;
         window.mgMesPgto='este';
         document.getElementById('mg-pgto-este').classList.add('active');
-        const btnProx=document.getElementById('mg-pgto-prox');
         if(btnProx)btnProx.classList.remove('active');
         window.configureMgTipoFields(tipo);
         window.atualizarSelectsPagamento();
@@ -1981,8 +2013,8 @@
         const val=window.parseMoney(document.getElementById('mg-val').value);
         const pay=document.getElementById('mg-pay').value;
         if(!nome||val<=0)return alert('Preencha um nome e um valor maior que zero.');
-        const emojiName=window.autoEmoji(nome);
-        window.S.catDict[emojiName.toLowerCase()]=cat;
+        const emojiName=window.autoEmoji(nome,cat);
+        window.S.catDict[window.nomeSemEmojiTexto(emojiName).toLowerCase()]=cat;
         const editId=(document.getElementById('mg-edit-id').value||'').trim();
         const origTipo=document.getElementById('mg-edit-orig-tipo').value;
         let {startM,startY}=window.calcStartMesPgto(tipo,pay);
@@ -1992,11 +2024,22 @@
             if(editId){
                 const mesmoTipo=origTipo===tipo;
                 if(mesmoTipo&&tipo==='var'){
-                    window.atualizarGastoVarInPlace(editId,emojiName,val,pay,cat);
+                    // Compra única: respeita este/próximo mês se cartão
+                    if(pay!=='pix'&&pay!=='none'&&window.mgMesPgto==='prox'){
+                        window.removerGastoCompleto('var',editId);
+                        window.criarGastoVar(emojiName,val,pay,cat,startM,startY,editId);
+                    }else{
+                        window.atualizarGastoVarInPlace(editId,emojiName,val,pay,cat);
+                    }
                 }else if(mesmoTipo&&(tipo==='fixo'||tipo==='sub')){
                     const oldGf=(window.S.gastosFixos||[]).find(g=>g.id===editId);
                     if(!oldGf){alert('Gasto não encontrado. Tente novamente.');return;}
                     startM=oldGf.startM;startY=oldGf.startY;
+                    // Só reposiciona o início se o user pediu explicitamente o próximo mês (cartão)
+                    if(tipo==='fixo'&&pay!=='pix'&&pay!=='none'&&window.mgMesPgto==='prox'){
+                        const calc=window.calcStartMesPgto(tipo,pay);
+                        startM=calc.startM;startY=calc.startY;
+                    }
                     const curObj=activeData.gastosF[editId];
                     const oldVal=(curObj&&typeof curObj==='object')?(curObj.val||0):(Number(curObj)||oldGf.val||0);
                     const oldPay=(curObj&&typeof curObj==='object')?(curObj.pay||'none'):(oldGf.pay||'none');
@@ -2009,10 +2052,9 @@
                     }
                     window.aplicarValorGastoFixoEscopo(editId,val,pay,'this');
                 }else{
-                    if(origTipo!=='var'){
-                        const oldGf=(window.S.gastosFixos||[]).find(g=>g.id===editId);
-                        if(oldGf&&(tipo==='fixo'||tipo==='sub')){startM=oldGf.startM;startY=oldGf.startY;}
-                    }else if(tipo==='var'){startM=activeM;startY=activeY;}
+                    // Mudança de tipo: usa este/próximo mês do formulário
+                    const calc=window.calcStartMesPgto(tipo,pay);
+                    startM=calc.startM;startY=calc.startY;
                     window.removerGastoCompleto(origTipo,editId);
                     if(tipo==='fixo'){
                         const numParc=parseInt(document.getElementById('mg-numparc').value,10);
@@ -2059,8 +2101,43 @@
     window.formatDataCurtaInput=function(v){const d=(v||'').replace(/\D/g,'').slice(0,4);if(d.length<=2)return d;return d.slice(0,2)+'/'+d.slice(2);};
     window.formatDataBR=function(iso){return window.formatDataCurta(iso);};
     window.extrairEmojiTexto=function(text){const m=(text||'').match(/^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)\s*/u);return m?m[1]:'🏷️';};
-    window.nomeSemEmojiTexto=function(text){return (text||'').replace(/^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)\s*/u,'').trim()||(text||'');};
-    window.aplicarEmojiNome=function(emoji,nomeSem){return emoji+' '+nomeSem.trim();};
+    window.nomeSemEmojiTexto=function(text){
+        let t=(text||'').trim();
+        const re=/^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)\s*/u;
+        let guard=0;
+        while(re.test(t)&&guard<20){t=t.replace(re,'').trim();guard++;}
+        return t||(text||'').trim();
+    };
+    window.aplicarEmojiNome=function(emoji,nomeSem){return (emoji||'🏷️')+' '+(nomeSem||'').trim();};
+    window.emojiPorCategoria=function(cat){
+        const c=cat||'';
+        if(c.includes('Compras Online'))return'📦';
+        if(c.includes('Transporte'))return'🚗';
+        if(c.includes('Alimentação'))return'🍔';
+        if(c.includes('Saúde'))return'💊';
+        if(c.includes('Contas Básicas'))return'💡';
+        if(c.includes('Viagem'))return'✈️';
+        if(c.includes('Outros'))return'🏷️';
+        return'🏷️';
+    };
+    window.emojiPorNome=function(nomeSem){
+        const n=(nomeSem||'').toLowerCase();
+        if(n.includes('uber')||n.includes('99')||n.includes('ônibus')||n.includes('combustível')||n.includes('gasolina')||n.includes('blablacar')||n.includes('transporte')||n.includes('metro')||n.includes('metrô'))return'🚗';
+        if(n.includes('mercado livre')||n.includes('shopee')||n.includes('shein')||n.includes('amazon')||n.includes('aliexpress'))return'📦';
+        if(n.includes('mercado')||n.includes('supermercado')||n.includes('atacadão')||n.includes('compras'))return'🛒';
+        if(n.includes('ifood')||n.includes('lanche')||n.includes('pizza')||n.includes('comida')||n.includes('fastfood')||n.includes('mcdonalds')||n.includes('restaurante')||n.includes('hamburguer')||n.includes('padaria'))return'🍔';
+        if(n.includes('farmácia')||n.includes('remédio')||n.includes('medico')||n.includes('médico')||n.includes('terapia'))return'💊';
+        if(n.includes('luz')||n.includes('energia'))return'💡';
+        if(n.includes('agua')||n.includes('água'))return'💧';
+        if(n.includes('pet')||n.includes('cachorro')||n.includes('gato'))return'🐶';
+        if(n.includes('roupa')||n.includes('shopping')||n.includes('loja'))return'🛍️';
+        if(n.includes('academia')||n.includes('musculação')||n.includes('personal')||n.includes('crossfit'))return'🏋️';
+        if(n.includes('viagem')||n.includes('passagem')||n.includes('hotel')||n.includes('cruzeiro')||n.includes('airbnb')||n.includes('friburgo'))return'✈️';
+        return null;
+    };
+    window.onMgCatChange=function(){
+        // Feedback visual opcional: não altera o texto enquanto digita; o emoji final é aplicado no salvar
+    };
     window.renderMetaEmojiGrid=function(containerId,atual,cbName){
         const el=document.getElementById(containerId);if(!el)return;
         el.innerHTML='';
@@ -2463,7 +2540,7 @@
         const detMetasEl=document.getElementById("total-metas-det");
         if(detMetasEl){
             const liquido=tAp-tSai;
-            detMetasEl.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);"><span class="meta-det-tag meta-det-aporte">Aportes do mês</span><div style="font-size:14px;font-weight:700;color:#30d158;">${window.R(tAp)}</div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);"><span class="meta-det-tag meta-det-saida">Saídas do mês</span><div style="font-size:14px;font-weight:700;color:#ff453a;">${window.R(tSai)}</div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;"><span class="meta-det-tag meta-det-liquido">Líquido (aporte − saída)</span><div style="font-size:14px;font-weight:700;color:${liquido>=0?'#007aff':'#ff453a'};">${window.R(liquido)}</div></div>`;
+            detMetasEl.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);cursor:pointer;" onclick="event.stopPropagation();window.abrirMetasFluxoMes('aporte')"><span class="meta-det-tag meta-det-aporte">Aportes do mês</span><div style="text-align:right;"><div style="font-size:14px;font-weight:700;color:#30d158;">${window.R(tAp)}</div><div style="font-size:10px;color:#007aff;font-weight:600;">ver histórico ›</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);cursor:pointer;" onclick="event.stopPropagation();window.abrirMetasFluxoMes('saida')"><span class="meta-det-tag meta-det-saida">Saídas do mês</span><div style="text-align:right;"><div style="font-size:14px;font-weight:700;color:#ff453a;">${window.R(tSai)}</div><div style="font-size:10px;color:#007aff;font-weight:600;">ver histórico ›</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;cursor:pointer;" onclick="event.stopPropagation();window.abrirMetasFluxoMes('liquido')"><span class="meta-det-tag meta-det-liquido">Líquido (aporte − saída)</span><div style="text-align:right;"><div style="font-size:14px;font-weight:700;color:${liquido>=0?'#007aff':'#ff453a'};">${window.R(liquido)}</div><div style="font-size:10px;color:#007aff;font-weight:600;">ver histórico ›</div></div></div>`;
         }
         let activeMetasCount=0;
         (window.S.metas||[]).forEach(m=>{if(window.isItemActive(m,activeM,activeY))activeMetasCount++;});
@@ -2582,6 +2659,103 @@
             });
         }
         if(window.currentHistView==='chart')window.renderHistChart();
+        window.renderHistPieChart();
+    };
+
+    window.coletaGastosPorCategoriaMes=function(m=activeM,y=activeY){
+        const md=window.S.dataByMonth[`${m}-${y}`]||{};
+        const byCat={};
+        const add=(cat,val)=>{
+            if(!val||val<=0)return;
+            const c=cat||'Outros 🏷️';
+            byCat[c]=(byCat[c]||0)+val;
+        };
+        (window.S.gastosFixos||[]).forEach(gf=>{
+            if(!window.isItemActive(gf,m,y))return;
+            const cur=(md.gastosF||{})[gf.id];
+            if(!window.gastoFContaNoCalculo(gf,cur))return;
+            const val=(cur&&typeof cur==='object')?(cur.val||0):(Number(cur)||gf.val||0);
+            add(gf.cat,val);
+        });
+        (md.gastosV||[]).forEach(gv=>add(gv.cat,gv.val||0));
+        return byCat;
+    };
+    window.renderHistPieChart=function(){
+        const canvas=document.getElementById('hist-pie-canvas');
+        const emptyEl=document.getElementById('hist-pie-empty');
+        const mesLbl=document.getElementById('hist-pie-mes-label');
+        if(mesLbl)mesLbl.textContent=`${MESES_CURTO[activeM]} ${activeY}`;
+        const chk=document.getElementById('hist-pie-outros');
+        const incluirOutros=chk?!!chk.checked:false;
+        window.histPieIncluirOutros=incluirOutros;
+        if(histPieChartInstance){histPieChartInstance.destroy();histPieChartInstance=null;}
+        if(!canvas)return;
+        const byCat=window.coletaGastosPorCategoriaMes();
+        let entries=Object.entries(byCat).filter(([,v])=>v>0);
+        if(!incluirOutros)entries=entries.filter(([c])=>!String(c).includes('Outros'));
+        entries.sort((a,b)=>b[1]-a[1]);
+        if(!entries.length){
+            canvas.style.display='none';
+            if(emptyEl)emptyEl.style.display='block';
+            return;
+        }
+        canvas.style.display='block';
+        if(emptyEl)emptyEl.style.display='none';
+        const labels=entries.map(([c])=>c);
+        const data=entries.map(([,v])=>v);
+        const cores=['#007aff','#30d158','#ff453a','#ff9500','#5856d6','#af52de','#00c7be','#ff2d55','#8e8e93','#34c759'];
+        const isDark=document.body.classList.contains('dark-theme');
+        histPieChartInstance=new Chart(canvas.getContext('2d'),{
+            type:'doughnut',
+            data:{labels,datasets:[{data,backgroundColor:labels.map((_,i)=>cores[i%cores.length]),borderWidth:0}]},
+            options:{
+                responsive:true,maintainAspectRatio:false,
+                plugins:{
+                    legend:{position:'bottom',labels:{color:isDark?'#f2f2f7':'#1c1c1e',font:{size:11,family:'inherit'},boxWidth:12}},
+                    tooltip:{callbacks:{label:ctx=>{
+                        const total=ctx.dataset.data.reduce((a,b)=>a+b,0)||1;
+                        const v=ctx.parsed||0;
+                        return ` ${ctx.label}: ${window.R(v)} (${Math.round(v/total*100)}%)`;
+                    }}}
+                }
+            }
+        });
+    };
+
+    window.abrirMetasFluxoMes=function(modo){
+        const titulos={aporte:'Aportes do mês',saida:'Saídas do mês',liquido:'Líquido do mês (aportes e saídas)'};
+        document.getElementById('mmf-titulo').textContent=titulos[modo]||'Histórico do mês';
+        document.getElementById('mmf-sub').textContent=`${MESES_CURTO[activeM]} ${activeY} • toque em um item para abrir a meta`;
+        const lista=document.getElementById('mmf-lista');
+        lista.innerHTML='';
+        const rows=[];
+        (window.S.metas||[]).forEach(meta=>{
+            if(!window.isItemActive(meta,activeM,activeY))return;
+            window.migrarMetaHistLegado(meta.id,activeData);
+            const hist=window.getMetaHistList(meta.id);
+            const localLbl=window.getMetaLocalLabel(meta)||'Não especificado';
+            hist.forEach(e=>{
+                if(e.tipo==='emoji')return;
+                if(modo==='aporte'&&e.tipo!=='aporte')return;
+                if(modo==='saida'&&e.tipo!=='saida')return;
+                if(modo==='liquido'&&e.tipo!=='aporte'&&e.tipo!=='saida')return;
+                rows.push({meta,e,localLbl});
+            });
+        });
+        rows.sort((a,b)=>(b.e.data||'').localeCompare(a.e.data||'')||String(b.e.id).localeCompare(String(a.e.id)));
+        if(!rows.length){
+            lista.innerHTML=`<p style="font-size:13px;color:#8e8e93;text-align:center;padding:16px 0;">Nenhum lançamento de ${modo==='saida'?'saída':modo==='aporte'?'aporte':'aporte/saída'} neste mês.</p>`;
+        }else{
+            rows.forEach(({meta,e,localLbl})=>{
+                const isAp=e.tipo==='aporte';
+                const el=document.createElement('div');
+                el.style.cssText='background:#f9f9f9;border-radius:12px;padding:12px;cursor:pointer;border:1px solid #e5e5ea;';
+                el.onclick=()=>{window.fecharModal('modal-metas-fluxo');window.abrirMetaDetalhes(meta.id);};
+                el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;flex:1;"><div style="font-size:14px;font-weight:700;color:#1c1c1e;">${meta.n}</div><div style="font-size:11px;color:#8e8e93;margin-top:4px;">${window.formatDataCurta(e.data)} • 🏦 ${localLbl}</div><div style="font-size:11px;font-weight:700;margin-top:4px;color:${isAp?'#1a6b3a':'#c0392b'};">${isAp?'Entrada (aporte)':'Saída'}</div></div><div style="font-size:15px;font-weight:800;color:${isAp?'#30d158':'#ff453a'};white-space:nowrap;">${isAp?'':'- '}${window.R(e.val)}</div></div>`;
+                lista.appendChild(el);
+            });
+        }
+        document.getElementById('modal-metas-fluxo').style.display='flex';
     };
 
     // ===== IA local (privada — sem envio à nuvem) =====
@@ -3111,23 +3285,14 @@
     };
 
     // ===== MISC =====
-    window.autoEmoji=function(nome){
-        const n=nome.toLowerCase();
-        if(!/[\uD800-\uDBFF\uDC00-\uDFFF]/.test(nome)){
-            if(n.includes("uber")||n.includes("99")||n.includes("ônibus")||n.includes("combustível")||n.includes("gasolina")||n.includes("blablacar")||n.includes("transporte")||n.includes("metro")||n.includes("metrô"))return "🚗 "+nome;
-            if(n.includes("mercado livre")||n.includes("shopee")||n.includes("shein")||n.includes("amazon")||n.includes("aliexpress"))return "📦 "+nome;
-            if(n.includes("mercado")||n.includes("supermercado")||n.includes("atacadão")||n.includes("compras"))return "🛒 "+nome;
-            if(n.includes("ifood")||n.includes("lanche")||n.includes("pizza")||n.includes("comida")||n.includes("fastfood")||n.includes("mcdonalds")||n.includes("restaurante")||n.includes("hamburguer")||n.includes("padaria"))return "🍔 "+nome;
-            if(n.includes("farmácia")||n.includes("remédio")||n.includes("medico")||n.includes("terapia"))return "💊 "+nome;
-            if(n.includes("luz")||n.includes("energia"))return "💡 "+nome;
-            if(n.includes("agua")||n.includes("água"))return "💧 "+nome;
-            if(n.includes("pet")||n.includes("cachorro")||n.includes("gato"))return "🐶 "+nome;
-            if(n.includes("roupa")||n.includes("shopping")||n.includes("loja"))return "🛍️ "+nome;
-            if(n.includes("academia")||n.includes("musculação")||n.includes("personal")||n.includes("crossfit"))return "🏋️‍♂️ "+nome;
-            if(n.includes("viagem")||n.includes("passagem")||n.includes("hotel")||n.includes("cruzeiro")||n.includes("airbnb"))return "✈️ "+nome;
-            return "🏷️ "+nome;
-        }
-        return nome;
+    window.autoEmoji=function(nome,cat){
+        const nomeSem=window.nomeSemEmojiTexto(nome);
+        let em=null;
+        // Categoria definida (exceto Outros) manda no emoji
+        if(cat&&!String(cat).includes('Outros'))em=window.emojiPorCategoria(cat);
+        if(!em)em=window.emojiPorNome(nomeSem);
+        if(!em)em=window.emojiPorCategoria(cat||'Outros 🏷️');
+        return window.aplicarEmojiNome(em,nomeSem);
     };
     window.setNeed=v=>{window.needVal=v;["sim","talvez","nao"].forEach(k=>document.getElementById("nb-"+k).classList.toggle("active",k===v));};
     window.fecharGastosSecoes=function(){
@@ -3173,7 +3338,7 @@
         const fab=document.getElementById('fab-container');if(fab)fab.classList.toggle('visible',pg==='gastos');
         window.fecharFab();
         if(pg==="saude")window.buildSaude();
-        if(pg==="historico"){window.buildHistorico();window.buildCal();}
+        if(pg==="historico"){window.buildHistorico();window.buildCal();window.renderHistPieChart();}
         if(pg==="gastos")window.fecharGastosSecoes();
         const content=document.querySelector('.content');if(content)content.scrollTop=0;
     };
