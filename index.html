@@ -270,7 +270,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.18</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.18.1</span>
         </div>
     </div>
 
@@ -426,19 +426,6 @@
                     </div>
                 </div>
                 <div class="card" style="margin-top:12px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; flex-wrap:wrap;">
-                        <span style="font-weight:700; font-size:16px;">Gastos por categoria</span>
-                        <label style="font-size:12px; font-weight:600; color:#3c3c43; display:flex; align-items:center; gap:6px; cursor:pointer;">
-                            <input type="checkbox" id="hist-pie-outros" onchange="window.renderHistPieChart()"> Incluir Outros
-                        </label>
-                    </div>
-                    <p style="font-size:11px;color:#8e8e93;margin-bottom:8px;line-height:1.35;">Mês em foco: <span id="hist-pie-mes-label" style="font-weight:700;color:#1c1c1e;"></span></p>
-                    <div style="width:100%; height:240px; position:relative;">
-                        <canvas id="hist-pie-canvas"></canvas>
-                    </div>
-                    <div id="hist-pie-empty" style="display:none; text-align:center; color:#8e8e93; font-size:13px; padding:20px 0;">Sem gastos neste mês para montar o gráfico.</div>
-                </div>
-                <div class="card" style="margin-top:12px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
                         <span style="font-size:12px; font-weight:700; color:#8e8e93; text-transform:uppercase;">Relatório anual</span>
                         <div style="display:flex;gap:8px;align-items:center">
@@ -466,6 +453,20 @@
                         <div style="font-size: 13px; font-weight: 700; color: #1c1c1e;">Quero Comprar</div>
                         <div style="font-size: 10px; color: #8e8e93; margin-top: 4px;">Análise de risco</div>
                     </div>
+                </div>
+                <div class="card" style="margin-top:12px;" id="saude-pie-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; flex-wrap:wrap;">
+                        <span style="font-weight:700; font-size:16px;">Gastos por categoria</span>
+                        <label style="font-size:12px; font-weight:600; color:#3c3c43; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                            <input type="checkbox" id="saude-pie-outros" onchange="window.renderSaudePieChart()"> Incluir Outros
+                        </label>
+                    </div>
+                    <p style="font-size:11px;color:#8e8e93;margin-bottom:8px;line-height:1.35;">Mês em foco: <span id="saude-pie-mes-label" style="font-weight:700;color:#1c1c1e;"></span></p>
+                    <div style="width:100%; height:220px; position:relative;">
+                        <canvas id="saude-pie-canvas"></canvas>
+                    </div>
+                    <div id="saude-pie-empty" style="display:none; text-align:center; color:#8e8e93; font-size:13px; padding:20px 0;">Sem gastos neste mês para montar o gráfico.</div>
+                    <div id="saude-pie-legend" style="margin-top:10px; display:flex; flex-direction:column; gap:6px;"></div>
                 </div>
             </div>
         </div>
@@ -898,19 +899,27 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-cat-detalhe">
+  <div class="modal-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="font-weight:800;" id="mcd-titulo">Categoria</h3>
+      <button class="btn-close-modal" onclick="window.fecharModal('modal-cat-detalhe')">&times;</button>
+    </div>
+    <p style="font-size:12px; color:#8e8e93; margin-bottom:12px;" id="mcd-sub"></p>
+    <div id="mcd-lista" style="display:flex; flex-direction:column; gap:8px; max-height:min(55vh,420px); overflow-y:auto;"></div>
+    <button class="btn-primary" style="background:#f2f2f7; color:#1c1c1e; margin-top:16px;" onclick="window.fecharModal('modal-cat-detalhe')">Fechar</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.18</h3>
+      <h3 style="font-weight:800;">Novidades — v1.18.1</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.18 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.18.1 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>✈️ Emoji único:</b> corrige emoji repetido no nome do gasto (ex.: vários aviões em “viagem…”).</li>
-        <li style="margin-bottom:8px;"><b>🏷️ Categoria → emoji:</b> ao editar a categoria, o emoji do nome atualiza junto.</li>
-        <li style="margin-bottom:8px;"><b>📅 Editar parcelado:</b> opção “este mês / próximo mês” também na edição.</li>
-        <li style="margin-bottom:8px;"><b>🥧 Histórico:</b> gráfico de pizza por categoria, com opção de incluir ou ocultar “Outros”.</li>
-        <li style="margin-bottom:8px;"><b>🎯 Metas:</b> toque em Aportes, Saídas ou Líquido para ver o histórico detalhado do mês.</li>
+        <li style="margin-bottom:8px;"><b>♥ Saúde:</b> gráfico de pizza por categoria agora fica nesta aba, com % visível na lista e botão ⓘ para ver as contas detalhadas.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -2659,7 +2668,6 @@
             });
         }
         if(window.currentHistView==='chart')window.renderHistChart();
-        window.renderHistPieChart();
     };
 
     window.coletaGastosPorCategoriaMes=function(m=activeM,y=activeY){
@@ -2680,15 +2688,42 @@
         (md.gastosV||[]).forEach(gv=>add(gv.cat,gv.val||0));
         return byCat;
     };
-    window.renderHistPieChart=function(){
-        const canvas=document.getElementById('hist-pie-canvas');
-        const emptyEl=document.getElementById('hist-pie-empty');
-        const mesLbl=document.getElementById('hist-pie-mes-label');
+    window.coletaItensPorCategoria=function(catAlvo,m=activeM,y=activeY){
+        const md=window.S.dataByMonth[`${m}-${y}`]||{};
+        const itens=[];
+        const matchCat=(c)=>{
+            const a=c||'Outros 🏷️';
+            return a===catAlvo;
+        };
+        (window.S.gastosFixos||[]).forEach(gf=>{
+            if(!window.isItemActive(gf,m,y))return;
+            if(!matchCat(gf.cat))return;
+            const cur=(md.gastosF||{})[gf.id];
+            if(!window.gastoFContaNoCalculo(gf,cur))return;
+            const val=(cur&&typeof cur==='object')?(cur.val||0):(Number(cur)||gf.val||0);
+            if(val<=0)return;
+            const tipo=window.isSubscription(gf)?'Assinatura':'Parcelado';
+            const pay=(cur&&typeof cur==='object')?(cur.pay||gf.pay):gf.pay;
+            itens.push({nome:gf.n,val,tipo,pay:window.getPayLabel(pay||'none'),id:gf.id,editTipo:window.isSubscription(gf)?'sub':'fixo'});
+        });
+        (md.gastosV||[]).forEach(gv=>{
+            if(!matchCat(gv.cat))return;
+            if(!(gv.val>0))return;
+            itens.push({nome:gv.n,val:gv.val,tipo:'Compra única',pay:window.getPayLabel(gv.pay||'none'),id:gv.id,editTipo:'var'});
+        });
+        return itens.sort((a,b)=>b.val-a.val);
+    };
+    window.renderSaudePieChart=function(){
+        const canvas=document.getElementById('saude-pie-canvas');
+        const emptyEl=document.getElementById('saude-pie-empty');
+        const mesLbl=document.getElementById('saude-pie-mes-label');
+        const legendEl=document.getElementById('saude-pie-legend');
         if(mesLbl)mesLbl.textContent=`${MESES_CURTO[activeM]} ${activeY}`;
-        const chk=document.getElementById('hist-pie-outros');
+        const chk=document.getElementById('saude-pie-outros');
         const incluirOutros=chk?!!chk.checked:false;
         window.histPieIncluirOutros=incluirOutros;
         if(histPieChartInstance){histPieChartInstance.destroy();histPieChartInstance=null;}
+        if(legendEl)legendEl.innerHTML='';
         if(!canvas)return;
         const byCat=window.coletaGastosPorCategoriaMes();
         let entries=Object.entries(byCat).filter(([,v])=>v>0);
@@ -2703,24 +2738,62 @@
         if(emptyEl)emptyEl.style.display='none';
         const labels=entries.map(([c])=>c);
         const data=entries.map(([,v])=>v);
+        const total=data.reduce((a,b)=>a+b,0)||1;
         const cores=['#007aff','#30d158','#ff453a','#ff9500','#5856d6','#af52de','#00c7be','#ff2d55','#8e8e93','#34c759'];
-        const isDark=document.body.classList.contains('dark-theme');
         histPieChartInstance=new Chart(canvas.getContext('2d'),{
             type:'doughnut',
             data:{labels,datasets:[{data,backgroundColor:labels.map((_,i)=>cores[i%cores.length]),borderWidth:0}]},
             options:{
                 responsive:true,maintainAspectRatio:false,
                 plugins:{
-                    legend:{position:'bottom',labels:{color:isDark?'#f2f2f7':'#1c1c1e',font:{size:11,family:'inherit'},boxWidth:12}},
+                    legend:{display:false},
                     tooltip:{callbacks:{label:ctx=>{
-                        const total=ctx.dataset.data.reduce((a,b)=>a+b,0)||1;
                         const v=ctx.parsed||0;
                         return ` ${ctx.label}: ${window.R(v)} (${Math.round(v/total*100)}%)`;
                     }}}
                 }
             }
         });
+        if(legendEl){
+            entries.forEach(([cat,val],i)=>{
+                const pct=Math.round(val/total*100);
+                const cor=cores[i%cores.length];
+                const row=document.createElement('div');
+                row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f9f9f9;border-radius:12px;border:1px solid #e5e5ea;';
+                row.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${cor};flex-shrink:0;"></span><span style="color:${cor};font-weight:800;font-size:14px;flex-shrink:0;">→</span><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:#1c1c1e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${cat}</div><div style="font-size:11px;color:#8e8e93;margin-top:2px;">${window.R(val)}</div></div><div style="font-size:15px;font-weight:800;color:${cor};flex-shrink:0;">${pct}%</div>`;
+                const infoBtn=document.createElement('button');
+                infoBtn.type='button';
+                infoBtn.title='Ver contas desta categoria';
+                infoBtn.textContent='ⓘ';
+                infoBtn.style.cssText='width:28px;height:28px;border-radius:50%;border:1.5px solid #007aff;background:#e8f4fd;color:#007aff;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;line-height:1;padding:0;';
+                infoBtn.onclick=(ev)=>{ev.stopPropagation();window.abrirDetalheCategoria(cat);};
+                row.appendChild(infoBtn);
+                legendEl.appendChild(row);
+            });
+        }
     };
+    window.abrirDetalheCategoria=function(cat){
+        const itens=window.coletaItensPorCategoria(cat);
+        const total=itens.reduce((a,i)=>a+i.val,0);
+        document.getElementById('mcd-titulo').textContent=cat;
+        document.getElementById('mcd-sub').textContent=`${MESES_CURTO[activeM]} ${activeY} • ${itens.length} conta${itens.length===1?'':'s'} • total ${window.R(total)}`;
+        const lista=document.getElementById('mcd-lista');
+        lista.innerHTML='';
+        if(!itens.length){
+            lista.innerHTML='<p style="font-size:13px;color:#8e8e93;text-align:center;padding:16px 0;">Nenhuma conta nesta categoria neste mês.</p>';
+        }else{
+            itens.forEach(it=>{
+                const el=document.createElement('div');
+                el.style.cssText='background:#f9f9f9;border-radius:12px;padding:12px;border:1px solid #e5e5ea;cursor:pointer;';
+                el.onclick=()=>{window.fecharModal('modal-cat-detalhe');window.abrirModalGastoEdit(it.editTipo,it.id);};
+                el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;flex:1;"><div style="font-size:14px;font-weight:700;color:#1c1c1e;">${it.nome}</div><div style="font-size:11px;color:#8e8e93;margin-top:4px;">${it.tipo} • ${it.pay}</div></div><div style="font-size:15px;font-weight:800;color:#ff453a;white-space:nowrap;">${window.R(it.val)}</div></div>`;
+                lista.appendChild(el);
+            });
+        }
+        document.getElementById('modal-cat-detalhe').style.display='flex';
+    };
+    // compat: chamadas antigas
+    window.renderHistPieChart=window.renderSaudePieChart;
 
     window.abrirMetasFluxoMes=function(modo){
         const titulos={aporte:'Aportes do mês',saida:'Saídas do mês',liquido:'Líquido do mês (aportes e saídas)'};
@@ -3220,6 +3293,7 @@
         if(!hasData){pts=50;}else{if(saldo>0){pts+=25;if(tBRL>0&&(saldo/tBRL)>=0.1)pts+=15;}else if(saldo===0)pts+=10;if(tBRL>0){const c=tReal/tBRL;if(c<=0.6)pts+=30;else if(c<=0.85)pts+=15;}else if(tReal===0)pts+=30;if(tAp>0)pts+=15;const em=(window.S.metas||[]).find(m=>m.n.toLowerCase().includes("emerg"));let ea=em?(em.acumInicial||0):0;if(em){Object.keys(window.S.dataByMonth).forEach(k=>{const[km,ky]=k.split('-').map(Number);if(ky<activeY||(ky===activeY&&km<=activeM))ea+=((window.S.dataByMonth[k].metasAcum||{})[em.id]||0);});}const ep=em&&em.obj>0?(ea/em.obj)*100:0;if(ep>=50||!em)pts+=15;}
         const score=Math.min(100,Math.round(pts));const sc=score>=70?{c:"#1a6b3a",bg:"#d1f7e0",bc:"#1a6b3a",l:"Boa"}:score>=40?{c:"#856404",bg:"#fff3cd",bc:"#856404",l:"Regular"}:{c:"#c0392b",bg:"#ffe5e5",bc:"#c0392b",l:"Atenção"};
         document.getElementById("saude-score-card").innerHTML=`<div class="card" style="display:flex;align-items:center;gap:16px;"><div style="width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;border:3px solid ${sc.bc};background:${sc.bg};color:${sc.c}">${score}</div><div style="flex:1"><div style="font-size:11px;color:#8e8e93;font-weight:600;margin-bottom:4px">SAÚDE FINANCEIRA</div><div style="font-size:20px;font-weight:800;color:${sc.c};margin-bottom:4px">${sc.l}</div><div style="font-size:13px;">${score>=70?"Você está no caminho certo.":score>=40?"Cuidado com o saldo mensal.":"Risco! Saldo da conta negativo."}</div></div></div>`;
+        window.renderSaudePieChart();
     };
 
     window.analisarCompraLocal=function(nome,valor,parcelas){
@@ -3338,7 +3412,7 @@
         const fab=document.getElementById('fab-container');if(fab)fab.classList.toggle('visible',pg==='gastos');
         window.fecharFab();
         if(pg==="saude")window.buildSaude();
-        if(pg==="historico"){window.buildHistorico();window.buildCal();window.renderHistPieChart();}
+        if(pg==="historico"){window.buildHistorico();window.buildCal();}
         if(pg==="gastos")window.fecharGastosSecoes();
         const content=document.querySelector('.content');if(content)content.scrollTop=0;
     };
