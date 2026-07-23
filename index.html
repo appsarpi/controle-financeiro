@@ -270,7 +270,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.18.1</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.18.2</span>
         </div>
     </div>
 
@@ -914,12 +914,13 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.18.1</h3>
+      <h3 style="font-weight:800;">Novidades — v1.18.2</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.18.1 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.18.2 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>♥ Saúde:</b> gráfico de pizza por categoria agora fica nesta aba, com % visível na lista e botão ⓘ para ver as contas detalhadas.</li>
+        <li style="margin-bottom:8px;"><b>☑ Checklist preservado:</b> ao editar categoria (ou outros dados) de um Pix já pago, ele continua marcado e fora dos pendentes.</li>
+        <li style="margin-bottom:8px;"><b>💬 Saldo:</b> observação sutil sobre pequenas diferenças por rendimento de aplicações.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -1384,8 +1385,26 @@
         return ga.pago===true;
     };
     window.mergeGastoFObj=function(prev,val,pay){
-        const pago=(prev&&typeof prev==='object'&&prev.pago!==undefined)?prev.pago:false;
+        let pago=false;
+        if(prev&&typeof prev==='object'&&prev.pago!==undefined)pago=!!prev.pago;
+        else if(typeof prev==='number')pago=true; // legado numérico = já contabilizava
         return{val,pay,pago:pay==='pix'?pago:undefined};
+    };
+    window.preservarPagoGastoF=function(id){
+        const map={};
+        Object.keys(window.S.dataByMonth||{}).forEach(k=>{
+            const cur=window.S.dataByMonth[k]&&window.S.dataByMonth[k].gastosF&&window.S.dataByMonth[k].gastosF[id];
+            if(cur&&typeof cur==='object'&&cur.pago!==undefined)map[k]=!!cur.pago;
+        });
+        return map;
+    };
+    window.restaurarPagoGastoF=function(id,map){
+        if(!map)return;
+        Object.keys(map).forEach(k=>{
+            const md=window.S.dataByMonth[k];
+            if(!md||!md.gastosF||!md.gastosF[id]||typeof md.gastosF[id]!=='object')return;
+            if((md.gastosF[id].pay||'')==='pix')md.gastosF[id].pago=map[k];
+        });
     };
     window.toggleGastoFPago=function(id){
         if(!activeData.gastosF)activeData.gastosF={};
@@ -1958,13 +1977,21 @@
     };
     window.confirmarEscopoParcela=function(scope){
         const p=window._pendingParcelaEdit;
-        if(p){window.aplicarValorGastoFixoEscopo(p.id,p.val,p.pay,scope==='future'?'future':'this');window._pendingParcelaEdit=null;}
+        if(p){
+            window.aplicarValorGastoFixoEscopo(p.id,p.val,p.pay,scope==='future'?'future':'this');
+            if(p.pagoMap)window.restaurarPagoGastoF(p.id,p.pagoMap);
+            window._pendingParcelaEdit=null;
+        }
         window.fecharModal('modal-parcela-scope');
         window.renderView();window.scheduleSync();
     };
     window.cancelarEscopoParcela=function(){
         const p=window._pendingParcelaEdit;
-        if(p){window.aplicarValorGastoFixoEscopo(p.id,p.val,p.pay,'this');window._pendingParcelaEdit=null;}
+        if(p){
+            window.aplicarValorGastoFixoEscopo(p.id,p.val,p.pay,'this');
+            if(p.pagoMap)window.restaurarPagoGastoF(p.id,p.pagoMap);
+            window._pendingParcelaEdit=null;
+        }
         window.fecharModal('modal-parcela-scope');
         window.renderView();window.scheduleSync();
     };
@@ -2052,18 +2079,22 @@
                     const curObj=activeData.gastosF[editId];
                     const oldVal=(curObj&&typeof curObj==='object')?(curObj.val||0):(Number(curObj)||oldGf.val||0);
                     const oldPay=(curObj&&typeof curObj==='object')?(curObj.pay||'none'):(oldGf.pay||'none');
+                    const pagoAntes=window.preservarPagoGastoF(editId);
                     window.atualizarGastoFixoMetaInPlace(editId,tipo,emojiName,cat,startM,startY,subFreq);
                     if(val!==oldVal||pay!==oldPay){
-                        window._pendingParcelaEdit={id:editId,val,pay};
+                        window._pendingParcelaEdit={id:editId,val,pay,pagoMap:pagoAntes};
                         window.fecharModal('modal-gasto');
                         document.getElementById('modal-parcela-scope').style.display='flex';
                         return;
                     }
-                    window.aplicarValorGastoFixoEscopo(editId,val,pay,'this');
+                    // Só mudou nome/categoria/emoji: NÃO regrava o mês (preserva checklist pago)
+                    if(oldGf)oldGf.pay=pay;
+                    window.restaurarPagoGastoF(editId,pagoAntes);
                 }else{
                     // Mudança de tipo: usa este/próximo mês do formulário
                     const calc=window.calcStartMesPgto(tipo,pay);
                     startM=calc.startM;startY=calc.startY;
+                    const pagoAntes=window.preservarPagoGastoF(editId);
                     window.removerGastoCompleto(origTipo,editId);
                     if(tipo==='fixo'){
                         const numParc=parseInt(document.getElementById('mg-numparc').value,10);
@@ -2074,6 +2105,7 @@
                     }else{
                         window.criarGastoVar(emojiName,val,pay,cat,startM,startY,editId);
                     }
+                    window.restaurarPagoGastoF(editId,pagoAntes);
                 }
             }else if(tipo==='fixo'){
                 const numParc=parseInt(document.getElementById('mg-numparc').value,10);
@@ -2556,7 +2588,7 @@
         const saldoCls=saldo>=0?'green':'red';
         const saldoSub=tBRL>0?Math.round(saldo/tBRL*100)+'% livre':'disponível p/ gastar';
         const heroEl=document.getElementById('painel-saldo-hero');
-        if(heroEl)heroEl.innerHTML=`<div class="painel-saldo-hero"><div class="painel-saldo-main"><div class="m-label">Saldo</div><div class="m-val saldo-val ${saldoCls}">${window.R(saldo)}</div><div class="m-sub">${saldoSub}</div></div><div class="painel-saldo-side"><div class="painel-saldo-side-item" onclick="window.goTo('receitas')"><div class="m-label">Recebido</div><div class="m-val green">${window.R(tBRL)}</div></div><div class="painel-saldo-side-item" onclick="window.goTo('gastos')"><div class="m-label">Gastos</div><div class="m-val red">${window.R(tReal)}</div><div class="m-sub" style="font-size:10px;margin-top:2px;">sem metas</div></div></div></div>`;
+        if(heroEl)heroEl.innerHTML=`<div class="painel-saldo-hero" style="flex-wrap:wrap;"><div class="painel-saldo-main"><div class="m-label">Saldo</div><div class="m-val saldo-val ${saldoCls}">${window.R(saldo)}</div><div class="m-sub">${saldoSub}</div></div><div class="painel-saldo-side"><div class="painel-saldo-side-item" onclick="window.goTo('receitas')"><div class="m-label">Recebido</div><div class="m-val green">${window.R(tBRL)}</div></div><div class="painel-saldo-side-item" onclick="window.goTo('gastos')"><div class="m-label">Gastos</div><div class="m-val red">${window.R(tReal)}</div><div class="m-sub" style="font-size:10px;margin-top:2px;">sem metas</div></div></div><p style="width:100%;margin:10px 0 0;font-size:10px;line-height:1.4;color:#8e8e93;font-weight:500;">Obs.: pequenas diferenças em reais ou centavos podem vir de dinheiro aplicado rendendo juros.</p></div>`;
         document.getElementById("painel-metrics").innerHTML=`<div class="m-card" onclick="window.goTo('metas')" style="cursor:pointer;"><div class="m-label">Aportes</div><div class="m-val blue">${window.R(tAp)}</div><div class="m-sub">${activeMetasCount} ativas • investido</div></div><div class="m-card" onclick="window.goTo('metas')" style="cursor:pointer;"><div class="m-label">Retirada de metas</div><div class="m-val green">${window.R(tSai)}</div><div class="m-sub">Voltou p/ sua conta</div></div>`;
         document.getElementById("painel-alerts").innerHTML="";
         window.buildParcelas();window.buildAssinaturas();window.buildCal();window.buildHistorico();
