@@ -349,19 +349,15 @@
                 top: -14px;
             }
 
-            /* Painel em duas colunas */
+            /* Painel centralizado, blocos empilhados */
             body.layout-pc #pg-painel.active {
-                display: grid !important;
-                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                max-width: 860px;
+                margin: 0 auto;
                 gap: 12px;
-                align-content: start;
             }
             body.layout-pc #pg-painel > *,
             body.layout-pc #pg-painel .card { margin-bottom: 0 !important; }
             body.layout-pc #pg-painel > div:empty { display: none; }
-            body.layout-pc #pg-painel > #painel-saldo-hero { grid-column: 1 / -1; }
-            body.layout-pc #pg-painel > .painel-acoes-grid { grid-column: 1 / -1; }
-            body.layout-pc #pg-painel > div:last-child { grid-column: 1 / -1; }
             body.layout-pc #pg-painel .m-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
             body.layout-pc .painel-saldo-hero { padding: 15px 18px; }
             body.layout-pc .painel-saldo-hero .saldo-val { font-size: 26px; }
@@ -370,10 +366,27 @@
             body.layout-pc .painel-acao-btn .painel-acao-ico { font-size: 23px; }
             body.layout-pc #pg-painel .alert:last-child { margin-bottom: 0; }
 
-            /* Metas aproveitando a largura */
+            /* Metas centralizadas, uma embaixo da outra */
+            body.layout-pc #pg-metas.active {
+                max-width: 860px;
+                margin: 0 auto;
+            }
+            body.layout-pc #pg-metas .gastos-total-sticky {
+                margin: 0 0 12px 0;
+                padding: 11px 14px;
+                top: 0;
+                border-radius: 14px;
+                border-bottom: none;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            }
+            body.layout-pc #pg-metas #total-metas-det {
+                margin: -8px 0 12px 0 !important;
+                border-radius: 14px !important;
+                padding: 12px 14px !important;
+            }
             body.layout-pc #metas-list {
-                display: grid !important;
-                grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+                display: flex !important;
+                flex-direction: column;
                 gap: 12px;
             }
             body.layout-pc #metas-list > * { margin-bottom: 0 !important; }
