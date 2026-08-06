@@ -115,7 +115,14 @@
         .nav-icon { font-size: 20px; margin-bottom: 2px; }
         .nav-label { font-size: 10px; color: #8e8e93; font-weight: 500; }
         .nav-btn.active .nav-label, .nav-btn.active .nav-icon { color: #007aff; }
-        .login-screen { position: absolute; top:0; left:0; width:100%; height:100%; background:#fff; z-index:999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; }
+        .login-screen { position: absolute; top:0; left:0; width:100%; height:100%; background:#fff; z-index:999; display:grid; grid-template-rows: auto 1fr auto; justify-items:center; align-items:center; padding:16px; text-align:center; overflow-y:auto; }
+        .login-main { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; max-width:400px; padding:8px; }
+        /* Espacos de publicidade da tela de login */
+        .ad-slot { display:none; position:relative; width:100%; max-width:400px; border-radius:14px; overflow:hidden; background:#f2f2f7; border:1px solid #e5e5ea; line-height:0; }
+        .ad-slot.visivel { display:block; }
+        .ad-slot img { display:block; width:100%; height:auto; }
+        .ad-tag { position:absolute; top:6px; left:6px; z-index:2; background:rgba(0,0,0,0.55); color:#fff; font-size:9px; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; padding:2px 6px; border-radius:5px; line-height:1.4; }
+        .dark-theme .ad-slot { background:#1c1c1e; border-color:#333; }
         .login-btn { width: 100%; height: 54px; border-radius: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; margin-bottom: 12px; font-family: inherit; font-size: 16px; }
         input[type=number], input[type=text], input[type=date], select.form-sel { width: 100%; height: 42px; border-radius: 10px; border: 1.5px solid #e5e5ea; padding: 0 10px; font-family: inherit; font-size: 16px; -webkit-appearance: none; background: #fff; color: #1c1c1e; }
         select.form-sel-sm { height: 28px; padding: 0 6px; font-size: 12px; border-radius: 6px; }
@@ -447,7 +454,16 @@
                 background: #f2f2f7;
             }
             body.layout-pc.dark-theme .login-screen { background: #000; }
+            body.layout-pc .login-main {
+                background: #fff;
+                border-radius: 22px;
+                padding: 34px 28px 26px;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+                max-width: 420px;
+            }
+            body.layout-pc.dark-theme .login-main { background: #1c1c1e; }
             body.layout-pc .login-btn { max-width: 360px; }
+            body.layout-pc .ad-slot { max-width: 728px; }
             body.layout-pc .modal-content { max-width: 520px; border-radius: 20px; padding: 26px; }
             body.layout-pc .fab-container {
                 right: max(24px, calc((100vw - 1260px) / 2 + 24px));
@@ -513,6 +529,11 @@
 
 <div class="app-container">
     <div class="login-screen" id="login-screen">
+        <a class="ad-slot" id="ad-topo" target="_blank" rel="noopener sponsored">
+            <span class="ad-tag">Publicidade</span>
+            <img alt="Publicidade">
+        </a>
+        <div class="login-main">
         <div style="font-size: 64px; margin-bottom: 10px;">💸</div>
         <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">Controle Financeiro</h1>
         <p style="color: #8e8e93; margin-bottom: 20px;">Seus dados salvos na nuvem.</p>
@@ -526,10 +547,15 @@
         </button>
         <button id="btn-login-visitante" class="login-btn" style="background: #f2f2f7; color: #8e8e93;" onclick="window.iniciarVisitante()">👤 Acessar como Visitante</button>
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
-        <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
+        <div style="margin-top: 40px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
             <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.20</span>
         </div>
+        </div>
+        <a class="ad-slot" id="ad-rodape" target="_blank" rel="noopener sponsored">
+            <span class="ad-tag">Publicidade</span>
+            <img alt="Publicidade">
+        </a>
     </div>
 
     <div id="app-main">
@@ -1183,6 +1209,7 @@
         <li style="margin-bottom:8px;"><b>🗂️ Menos idas e vindas:</b> no PC o menu tem 4 itens. Receitas e Gastos ficam juntos em <b>Movimentações</b>, e Histórico e Saúde em <b>Análise</b> — cada um numa coluna, lado a lado.</li>
         <li style="margin-bottom:8px;"><b>📐 Sem espaço sobrando:</b> cartões, listas e botões ficaram mais compactos no desktop, sem aquele visual de app de celular esticado.</li>
         <li style="margin-bottom:8px;"><b>☁️ Mesma conta nos dois:</b> o que você lançar no PC aparece no celular e vice-versa, porque os dados continuam salvos na nuvem.</li>
+        <li style="margin-bottom:8px;"><b>📣 Dois espaços de anúncio:</b> a tela de login passa a ter um banner em cima e outro embaixo. Eles só aparecem quando há anúncio no ar e nunca atrapalham os seus dados.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -1206,6 +1233,34 @@
     const auth = getAuth(app);
     // Long polling evita getDoc “travado” em alguns celulares / redes / GitHub Pages
     const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+
+    // Publicidade da tela de login: gerenciada pelo app em /publicidade
+    window.mostrarAnuncio = function(slot, anuncio) {
+        const el = document.getElementById('ad-' + slot);
+        if (!el || !anuncio || anuncio.ativo === false || !anuncio.imagem) return;
+        const agora = Date.now();
+        const inicio = anuncio.inicio ? Date.parse(anuncio.inicio) : NaN;
+        const fim = anuncio.fim ? Date.parse(anuncio.fim) : NaN;
+        if (!isNaN(inicio) && agora < inicio) return;
+        if (!isNaN(fim) && agora > fim) return;
+        const img = el.querySelector('img');
+        img.alt = anuncio.alt || 'Publicidade';
+        img.onload = () => el.classList.add('visivel');
+        img.src = anuncio.imagem;
+        if (anuncio.link) { el.href = anuncio.link; } else { el.removeAttribute('href'); el.style.cursor = 'default'; }
+    };
+    window.carregarPublicidade = async function() {
+        try {
+            const snap = await getDoc(doc(db, 'publicidade', 'slots'));
+            if (!snap.exists()) return;
+            const dados = snap.data() || {};
+            window.mostrarAnuncio('topo', dados.topo);
+            window.mostrarAnuncio('rodape', dados.rodape);
+        } catch (e) {
+            // Sem publicidade o login segue normalmente
+        }
+    };
+    window.carregarPublicidade();
 
     window.MAX_BACKUPS = 5;
     window._syncInFlight = null;
