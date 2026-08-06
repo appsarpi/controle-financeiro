@@ -23,6 +23,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Destravar Pages se estiver errored
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          R="${{ github.repository }}"
+          st=$(gh api "repos/$R/pages" --jq '.status // "?"' 2>/dev/null || echo "?")
+          echo "Pages status antes: $st"
+          if [ "$st" != "errored" ]; then exit 0; fi
+          echo "Pages errored — tentando resetar"
+          gh api -X PUT "repos/$R/pages" \
+            --input - <<'JSON' || true
+          {"build_type":"legacy","source":{"branch":"main","path":"/"}}
+          JSON
+          sleep 8
+          gh api -X PUT "repos/$R/pages" \
+            --input - <<'JSON' || true
+          {"build_type":"workflow"}
+          JSON
+          sleep 8
+          gh api "repos/$R/pages" --jq '{status:.status, build_type:.build_type}' || true
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
@@ -42,14 +64,19 @@ jobs:
       - name: Verificar site publicado
         run: |
           VERSAO=$(grep -o 'Versão 1\.[0-9.]*' index.html | head -n1)
-          URL="https://appsarpi.github.io/controle-financeiro/index.html"
+          APP="https://appsarpi.github.io/controle-financeiro/index.html"
+          PUB="https://appsarpi.github.io/controle-financeiro/publicidade/index.html"
           echo "Aguardando o site servir: $VERSAO"
           for i in $(seq 1 40); do
-            if curl -fsSL "$URL?ci=$i" | grep -qF "$VERSAO"; then
-              echo "Publicado com sucesso: $VERSAO"
+            APP_OK=0
+            PUB_OK=0
+            curl -fsSL "$APP?ci=$i" | grep -qF "$VERSAO" && APP_OK=1
+            curl -fsSL "$PUB?ci=$i" | grep -qF "Painel de Publicidade" && PUB_OK=1
+            if [ "$APP_OK" = "1" ] && [ "$PUB_OK" = "1" ]; then
+              echo "Publicado com sucesso: $VERSAO + /publicidade"
               exit 0
             fi
             sleep 15
           done
-          echo "O site nao refletiu $VERSAO dentro do tempo esperado."
+          echo "O site nao refletiu a versao nova dentro do tempo esperado."
           exit 1
