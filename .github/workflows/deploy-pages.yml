@@ -29,10 +29,27 @@ jobs:
         with:
           path: '.'
 
-      # O workflow automatico do Pages aborta em 10 min e cancela a implantacao.
-      # Este projeto costuma levar mais que isso, por isso o timeout ampliado.
+      # A acao tem limite interno de 10 min para aguardar o status. Quando a
+      # propagacao demora mais, ela reporta erro mesmo tendo publicado, entao
+      # quem decide o resultado do job e a verificacao real logo abaixo.
       - id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
         with:
-          timeout: 1800000
+          timeout: 600000
           error_count: 20
+
+      - name: Verificar site publicado
+        run: |
+          VERSAO=$(grep -o 'Versão 1\.[0-9.]*' index.html | head -n1)
+          URL="https://appsarpi.github.io/controle-financeiro/index.html"
+          echo "Aguardando o site servir: $VERSAO"
+          for i in $(seq 1 40); do
+            if curl -fsSL "$URL?ci=$i" | grep -qF "$VERSAO"; then
+              echo "Publicado com sucesso: $VERSAO"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "O site nao refletiu $VERSAO dentro do tempo esperado."
+          exit 1
