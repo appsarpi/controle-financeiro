@@ -125,7 +125,7 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Formato recomendado: 728×90 no PC / 400×100 no celular. Máximo de 5 MB.</div>
+                <div class="dica">Formato recomendado: 728×90 no PC / 400×100 no celular. Máximo de 5 MB. A imagem é comprimida e salva direto na nuvem — não precisa ativar o Firebase Storage.</div>
             </div>
             <div class="campo">
                 <label>Ou cole o link de uma imagem</label>
@@ -163,7 +163,7 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Formato recomendado: 728×90 no PC / 400×100 no celular. Máximo de 5 MB.</div>
+                <div class="dica">Formato recomendado: 728×90 no PC / 400×100 no celular. Máximo de 5 MB. A imagem é comprimida e salva direto na nuvem — não precisa ativar o Firebase Storage.</div>
             </div>
             <div class="campo">
                 <label>Ou cole o link de uma imagem</label>
@@ -202,7 +202,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { initializeFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCJ_KD1Tc72SGfe9a8wGPWvfkdWZfj_hS4",
@@ -216,11 +215,11 @@ const firebaseConfig = {
 const EMAIL_ADMIN = "pssarpi@gmail.com";
 const SLOTS = ["topo", "rodape"];
 const TAM_MAX = 5 * 1024 * 1024;
+const TAM_MAX_FIRESTORE = 900 * 1024;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
-const storage = getStorage(app);
 const refAnuncios = doc(db, "publicidade", "slots");
 
 const $ = sel => document.querySelector(sel);
@@ -293,13 +292,57 @@ async function carregar() {
     SLOTS.forEach(slot => preencher(slot, dados[slot]));
 }
 
-async function enviarImagem(slot, arquivo) {
+function comTimeout(promessa, ms, msg) {
+    return Promise.race([
+        promessa,
+        new Promise((_, rej) => setTimeout(() => rej(new Error(msg || "A operação demorou demais. Tente de novo.")), ms))
+    ]);
+}
+
+function blobParaDataUrl(blob) {
+    return new Promise((ok, err) => {
+        const r = new FileReader();
+        r.onload = () => ok(r.result);
+        r.onerror = () => err(new Error("Não consegui ler a imagem escolhida."));
+        r.readAsDataURL(blob);
+    });
+}
+
+function comprimirImagem(arquivo, larguraMax, qualidade) {
+    return new Promise((ok, err) => {
+        const img = new Image();
+        const url = URL.createObjectURL(arquivo);
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            const escala = Math.min(1, larguraMax / img.width);
+            const w = Math.max(1, Math.round(img.width * escala));
+            const h = Math.max(1, Math.round(img.height * escala));
+            const canvas = document.createElement("canvas");
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            canvas.toBlob(blob => {
+                if (!blob) { err(new Error("Não consegui preparar a imagem.")); return; }
+                ok(blob);
+            }, "image/jpeg", qualidade);
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            err(new Error("Não consegui abrir essa imagem. Tente outro arquivo."));
+        };
+        img.src = url;
+    });
+}
+
+async function prepararImagem(arquivo) {
     if (!arquivo.type.startsWith("image/")) throw new Error("O arquivo escolhido não é uma imagem.");
     if (arquivo.size > TAM_MAX) throw new Error("A imagem tem mais de 5 MB. Escolha uma menor.");
-    const ext = (arquivo.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const caminho = `publicidade/${slot}-${Date.now()}.${ext}`;
-    await uploadBytes(storageRef(storage, caminho), arquivo, { contentType: arquivo.type });
-    return await getDownloadURL(storageRef(storage, caminho));
+    const blob = await comprimirImagem(arquivo, 728, 0.82);
+    if (blob.size > TAM_MAX_FIRESTORE) {
+        throw new Error("Mesmo comprimida, a imagem ficou grande demais. Use uma menor ou cole o link de uma imagem.");
+    }
+    return await blobParaDataUrl(blob);
 }
 
 async function lancar(slot) {
@@ -316,8 +359,8 @@ async function lancar(slot) {
     try {
         let imagem = c.querySelector("[data-imagem]").value.trim();
         if (arquivo) {
-            botao.textContent = "Enviando imagem…";
-            imagem = await enviarImagem(slot, arquivo);
+            botao.textContent = "Preparando imagem…";
+            imagem = await comTimeout(prepararImagem(arquivo), 45000, "Demorou demais para preparar a imagem. Tente uma menor ou cole o link.");
             c.querySelector("[data-imagem]").value = imagem;
         }
         if (!imagem) throw new Error("Escolha uma imagem ou cole o link de uma.");
@@ -338,7 +381,7 @@ async function lancar(slot) {
         };
 
         botao.textContent = "Lançando…";
-        await setDoc(refAnuncios, { [slot]: anuncio }, { merge: true });
+        await comTimeout(setDoc(refAnuncios, { [slot]: anuncio }, { merge: true }), 30000, "Demorou demais para salvar. Confira as regras do Firestore e tente de novo.");
 
         arquivoInput.value = "";
         preencher(slot, anuncio);
@@ -362,9 +405,8 @@ function msgErro(e) {
     if (cod === "auth/popup-closed-by-user") return "Você fechou a janela do Google antes de concluir.";
     if (cod === "auth/popup-blocked") return "O navegador bloqueou a janela do Google. Libere os pop-ups para este site e tente de novo.";
     if (cod === "auth/unauthorized-domain") return "O domínio " + location.hostname + " não está autorizado no Firebase (Authentication → Settings → Domínios autorizados).";
-    if (cod === "permission-denied") return "Sem permissão para gravar. Confira as regras do Firestore.";
-    if (cod === "storage/unauthorized") return "Sem permissão para enviar a imagem. Confira as regras do Storage.";
-    if (cod === "storage/unknown" || cod === "storage/retry-limit-exceeded") return "Não consegui enviar a imagem. Verifique se o Firebase Storage está ativado no projeto.";
+    if (cod === "permission-denied") return "Sem permissão para gravar. No Firebase, vá em Firestore → Regras e adicione a regra de publicidade que te passei.";
+    if (cod === "unavailable") return "Firestore indisponível no momento. Tente de novo em alguns segundos.";
     return (e && e.message) ? e.message.replace("Firebase: ", "") : "Algo deu errado. Tente novamente.";
 }
 
