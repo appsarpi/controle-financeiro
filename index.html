@@ -218,6 +218,159 @@
             .btn-voltar-topo { left: calc(50% - 215px + 16px); }
         }
 
+        /* ===== LAYOUT PC (desktop) ===== */
+        body.layout-pc {
+            background: #e8e8ed;
+        }
+        body.layout-pc.dark-theme {
+            background: #0b0b0c;
+        }
+        @media (min-width: 960px) {
+            body.layout-pc .app-container {
+                max-width: 1180px;
+                min-height: 100vh;
+                margin: 0 auto;
+                background: #f2f2f7;
+                box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.06);
+            }
+            body.layout-pc.dark-theme .app-container { background: #000; box-shadow: 0 0 0 1px #222; }
+            body.layout-pc #app-main.app-open {
+                display: grid !important;
+                grid-template-columns: 210px minmax(0, 1fr);
+                grid-template-rows: auto minmax(0, 1fr);
+                grid-template-areas:
+                    "nav top"
+                    "nav content";
+                height: 100vh;
+                max-height: 100vh;
+                overflow: hidden;
+            }
+            body.layout-pc .bottom-nav {
+                grid-area: nav;
+                position: relative;
+                left: auto;
+                bottom: auto;
+                transform: none;
+                width: 100%;
+                max-width: none;
+                height: 100%;
+                flex-direction: column !important;
+                align-items: stretch;
+                justify-content: flex-start;
+                gap: 4px;
+                padding: 18px 12px 24px;
+                border-top: none;
+                border-right: 0.5px solid rgba(0,0,0,0.1);
+                background: #fff;
+                z-index: 40;
+            }
+            body.layout-pc.dark-theme .bottom-nav {
+                background: #1c1c1e;
+                border-right-color: #333;
+            }
+            body.layout-pc .bottom-nav::before {
+                content: "Controle Financeiro";
+                display: block;
+                font-size: 13px;
+                font-weight: 800;
+                color: #1c1c1e;
+                padding: 8px 10px 16px;
+                letter-spacing: -0.2px;
+            }
+            body.layout-pc.dark-theme .bottom-nav::before { color: #f2f2f7; }
+            body.layout-pc .nav-btn {
+                flex: 0 0 auto;
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 10px;
+                padding: 12px 12px;
+                border-radius: 12px;
+                text-align: left;
+            }
+            body.layout-pc .nav-btn:hover { background: rgba(0,122,255,0.08); }
+            body.layout-pc .nav-btn.active { background: #e8f4fd; }
+            body.layout-pc.dark-theme .nav-btn.active { background: #243447; }
+            body.layout-pc .nav-icon { margin-bottom: 0; font-size: 18px; width: 22px; text-align: center; }
+            body.layout-pc .nav-label { font-size: 13px; font-weight: 600; }
+            body.layout-pc .top-bar {
+                grid-area: top;
+                position: sticky;
+                top: 0;
+                padding: 18px 28px 14px;
+            }
+            body.layout-pc .content {
+                grid-area: content;
+                padding: 22px 28px 40px;
+                overflow-y: auto;
+            }
+            body.layout-pc .gastos-total-sticky {
+                margin: -22px -28px 18px -28px;
+                padding: 16px 28px;
+                top: -22px;
+            }
+            body.layout-pc .m-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+            body.layout-pc .painel-acoes-grid { grid-template-columns: repeat(2, minmax(0, 280px)); gap: 14px; }
+            body.layout-pc .painel-saldo-hero { padding: 20px 22px; }
+            body.layout-pc .painel-saldo-hero .saldo-val { font-size: 30px; }
+            body.layout-pc .card { padding: 18px 20px; margin-bottom: 14px; }
+            body.layout-pc .m-card { padding: 16px 18px; }
+            body.layout-pc .m-val { font-size: 22px; }
+            body.layout-pc .login-screen {
+                position: fixed;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 40px 24px;
+                background: #f2f2f7;
+            }
+            body.layout-pc.dark-theme .login-screen { background: #000; }
+            body.layout-pc .login-btn { max-width: 360px; }
+            body.layout-pc .modal-content { max-width: 520px; border-radius: 20px; padding: 28px; }
+            body.layout-pc .fab-container {
+                right: max(28px, calc((100vw - 1180px) / 2 + 28px));
+                bottom: 36px;
+            }
+            body.layout-pc .btn-voltar-topo {
+                left: max(238px, calc((100vw - 1180px) / 2 + 238px));
+                bottom: 36px;
+            }
+            body.layout-pc #pg-saude > div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr 1fr !important;
+                max-width: 640px;
+            }
+            body.layout-pc #saude-pie-card {
+                display: grid;
+                grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+                gap: 8px 24px;
+                align-items: start;
+            }
+            body.layout-pc #saude-pie-card > div:first-child,
+            body.layout-pc #saude-pie-card > p {
+                grid-column: 1 / -1;
+            }
+            body.layout-pc #saude-pie-legend { margin-top: 0; }
+            body.layout-pc .pc-only { display: block !important; }
+            body.layout-pc .mobile-only { display: none !important; }
+        }
+        .pc-only { display: none !important; }
+        .layout-pc-badge {
+            display: none;
+            font-size: 10px;
+            font-weight: 700;
+            color: #007aff;
+            background: #e8f4fd;
+            padding: 3px 8px;
+            border-radius: 6px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        body.layout-pc .layout-pc-badge { display: inline-block; }
+        body.layout-pc.dark-theme .layout-pc-badge { background: #243447; color: #64b5f6; }
+
         /* Cabeçalho v1.11.14 — emojis fixos, report abaixo */
         .top-header-left { flex: 1; min-width: 0; }
         .top-header-emojis {
@@ -270,7 +423,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 60px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.18.2</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.19</span>
         </div>
     </div>
 
@@ -280,7 +433,7 @@
             <div style="display:flex; justify-content:space-between; align-items:flex-start">
                 <div class="top-header-left">
                     <div class="welcome" id="top-welcome">Olá ✨</div>
-                    <h1 style="font-size: 18px; font-weight: 800;">Controle Financeiro</h1>
+                    <h1 style="font-size: 18px; font-weight: 800;">Controle Financeiro <span class="layout-pc-badge" title="Layout otimizado para computador">PC</span></h1>
                     <div class="top-header-emojis" aria-hidden="true">
                         <span>💸</span><span>📈</span><span>🥳</span>
                     </div>
@@ -914,13 +1067,13 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.18.2</h3>
+      <h3 style="font-weight:800;">Novidades — v1.19</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.18.2 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.19 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>☑ Checklist preservado:</b> ao editar categoria (ou outros dados) de um Pix já pago, ele continua marcado e fora dos pendentes.</li>
-        <li style="margin-bottom:8px;"><b>💬 Saldo:</b> observação sutil sobre pequenas diferenças por rendimento de aplicações.</li>
+        <li style="margin-bottom:8px;"><b>💻 Versão para PC:</b> ao abrir no computador, o app usa layout largo com menu lateral, mais espaço e tipografia confortável. No celular continua igual.</li>
+        <li style="margin-bottom:8px;"><b>🧩 Base para o futuro:</b> o modo PC fica marcado no sistema, pronto para opções exclusivas de desktop depois.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -1219,8 +1372,21 @@
 </script>
 
 <script>
+    window.PC_LAYOUT_MQ = window.matchMedia('(min-width: 960px)');
+    window.applyLayoutMode = function() {
+        const isPc = !!(window.PC_LAYOUT_MQ && window.PC_LAYOUT_MQ.matches);
+        document.body.classList.toggle('layout-pc', isPc);
+        window.isPcLayout = isPc;
+    };
+    window.applyLayoutMode();
+    try {
+        if (window.PC_LAYOUT_MQ.addEventListener) window.PC_LAYOUT_MQ.addEventListener('change', window.applyLayoutMode);
+        else if (window.PC_LAYOUT_MQ.addListener) window.PC_LAYOUT_MQ.addListener(window.applyLayoutMode);
+    } catch(e) {}
+
     window.onload = () => {
         try { document.body.classList.remove('dark-theme'); } catch(e) {}
+        try { window.applyLayoutMode(); } catch(e) {}
         const ua = navigator.userAgent || navigator.vendor || window.opera;
         if(/(Instagram|WhatsApp|FBAV)/.test(ua) || /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua) || /wv/.test(ua)) {
             const warn = document.getElementById('webview-warning');
@@ -1485,7 +1651,10 @@
         document.getElementById("btn-top-login").style.display=isV?"block":"none";
         document.getElementById("cloud-status").style.display=isV?"none":"block";
         document.getElementById("login-screen").style.display="none";
-        document.getElementById("app-main").style.display="flex";
+        const appMainEl = document.getElementById("app-main");
+        appMainEl.style.display="flex";
+        appMainEl.classList.add("app-open");
+        try { window.applyLayoutMode(); } catch(e) {}
         const btnUndo=document.getElementById("btn-undo");
         if(btnUndo) btnUndo.style.display=(window.S.backups&&window.S.backups.length>1)?"block":"none";
         window.aplicarTemaUsuario();
