@@ -1236,19 +1236,37 @@
     const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
     // Publicidade da tela de login: gerenciada pelo app em /publicidade
+    window.LINK_WHATS_ANUNCIE = "https://wa.me/5521990260472?text=" + encodeURIComponent("Olá! Tenho interesse em anunciar no Controle Financeiro.");
+    window.ARTE_ANUNCIE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="728" height="182" viewBox="0 0 728 182"><defs><linearGradient id="bg" x1="0" y1="0" x2="728" y2="182" gradientUnits="userSpaceOnUse"><stop stop-color="#007aff"/><stop offset="1" stop-color="#003d99"/></linearGradient></defs><rect width="728" height="182" rx="16" fill="url(#bg)"/><rect x="14" y="14" width="700" height="154" rx="12" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="10 7"/><text x="364" y="78" fill="#fff" font-family="system-ui,-apple-system,sans-serif" font-size="40" font-weight="800" text-anchor="middle">Anuncie aqui</text><text x="364" y="114" fill="rgba(255,255,255,0.92)" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="600" text-anchor="middle">Toque e fale conosco pelo WhatsApp</text><circle cx="648" cy="91" r="30" fill="#25D366"/><text x="648" y="100" font-size="28" text-anchor="middle">💬</text></svg>');
+
     window.mostrarAnuncio = function(slot, anuncio) {
         const el = document.getElementById('ad-' + slot);
-        if (!el || !anuncio || anuncio.ativo === false || !anuncio.imagem) return;
+        if (!el) return;
+        el.classList.remove('visivel');
+        if (!anuncio) return;
+        const modo = anuncio.modo || (anuncio.imagem ? 'personalizado' : 'vazio');
+        if (modo === 'vazio' || anuncio.ativo === false) return;
         const agora = Date.now();
         const inicio = anuncio.inicio ? Date.parse(anuncio.inicio) : NaN;
         const fim = anuncio.fim ? Date.parse(anuncio.fim) : NaN;
         if (!isNaN(inicio) && agora < inicio) return;
         if (!isNaN(fim) && agora > fim) return;
         const img = el.querySelector('img');
+        if (modo === 'anuncie') {
+            img.alt = anuncio.alt || 'Anuncie aqui';
+            img.onload = () => el.classList.add('visivel');
+            img.src = window.ARTE_ANUNCIE;
+            el.href = anuncio.link || window.LINK_WHATS_ANUNCIE;
+            el.target = '_blank';
+            el.rel = 'noopener sponsored';
+            return;
+        }
+        if (modo !== 'personalizado' || !anuncio.imagem) return;
         img.alt = anuncio.alt || 'Publicidade';
         img.onload = () => el.classList.add('visivel');
         img.src = anuncio.imagem;
-        if (anuncio.link) { el.href = anuncio.link; } else { el.removeAttribute('href'); el.style.cursor = 'default'; }
+        if (anuncio.link) { el.href = anuncio.link; el.target = '_blank'; el.rel = 'noopener sponsored'; }
+        else { el.removeAttribute('href'); el.style.cursor = 'default'; }
     };
     window.carregarPublicidade = async function() {
         try {

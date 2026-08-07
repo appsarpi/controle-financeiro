@@ -68,6 +68,15 @@
     .btn-sec { background: #f2f2f7; color: #1c1c1e; height: 38px; font-size: 13px; border-radius: 10px; width: auto; padding: 0 14px; }
     .btn-opcao { background: #f9f9fb; color: #1c1c1e; border: 1.5px solid #e5e5ea; text-align: left; justify-content: flex-start; padding: 0 14px; height: auto; min-height: 48px; font-size: 14px; line-height: 1.35; margin-bottom: 8px; }
     .btn-opcao:hover { border-color: #007aff; background: #f0f7ff; }
+    .modo-opcoes { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+    .modo-opt { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; font-weight: 600; cursor: pointer; padding: 10px 12px; border-radius: 12px; border: 1.5px solid #e5e5ea; background: #fafafa; line-height: 1.35; }
+    .modo-opt:has(input:checked) { border-color: #007aff; background: #f0f7ff; color: #007aff; }
+    .modo-opt input { margin-top: 3px; accent-color: #007aff; flex-shrink: 0; }
+    [data-campos-personalizado] { display: block; }
+    .card.modo-anuncie [data-campos-personalizado],
+    .card.modo-vazio [data-campos-personalizado] { display: none; }
+    .info-anuncie { display: none; font-size: 12px; color: #1a7f42; background: #e8f8ee; padding: 10px 12px; border-radius: 10px; margin-bottom: 14px; line-height: 1.45; text-align: left; }
+    .card.modo-anuncie .info-anuncie { display: block; }
 
     .aviso { display: none; font-size: 13px; font-weight: 600; padding: 12px 14px; border-radius: 12px; margin-bottom: 14px; line-height: 1.45; text-align: left; }
     .aviso.erro { display: block; background: #ffeceb; color: #c0271c; }
@@ -146,6 +155,16 @@
                 <span class="selo inativo" data-selo>—</span>
             </div>
             <div class="preview" data-preview><span class="vazio">Nenhuma imagem</span></div>
+            <div class="campo">
+                <label>O que exibir neste espaço?</label>
+                <div class="modo-opcoes">
+                    <label class="modo-opt"><input type="radio" name="modo-topo" data-modo value="personalizado" checked> Anúncio personalizado (sua imagem)</label>
+                    <label class="modo-opt"><input type="radio" name="modo-topo" data-modo value="anuncie"> Anuncie aqui (WhatsApp)</label>
+                    <label class="modo-opt"><input type="radio" name="modo-topo" data-modo value="vazio"> Sem publicidade</label>
+                </div>
+            </div>
+            <div class="info-anuncie">Banner <b>Anuncie aqui</b> no ar. Quem clicar vai para o WhatsApp <b>+55 21 99026-0472</b>.</div>
+            <div data-campos-personalizado>
             <label class="switch"><input type="checkbox" data-ativo><span>Anúncio ativo</span></label>
             <div class="campo">
                 <label>Imagem do anúncio</label>
@@ -163,6 +182,7 @@
             <div class="campo">
                 <label>Descrição (acessibilidade)</label>
                 <input type="text" data-alt placeholder="Ex.: Promoção da loja X">
+            </div>
             </div>
             <div class="linha-2">
                 <div class="campo">
@@ -184,6 +204,16 @@
                 <span class="selo inativo" data-selo>—</span>
             </div>
             <div class="preview" data-preview><span class="vazio">Nenhuma imagem</span></div>
+            <div class="campo">
+                <label>O que exibir neste espaço?</label>
+                <div class="modo-opcoes">
+                    <label class="modo-opt"><input type="radio" name="modo-rodape" data-modo value="personalizado" checked> Anúncio personalizado (sua imagem)</label>
+                    <label class="modo-opt"><input type="radio" name="modo-rodape" data-modo value="anuncie"> Anuncie aqui (WhatsApp)</label>
+                    <label class="modo-opt"><input type="radio" name="modo-rodape" data-modo value="vazio"> Sem publicidade</label>
+                </div>
+            </div>
+            <div class="info-anuncie">Banner <b>Anuncie aqui</b> no ar. Quem clicar vai para o WhatsApp <b>+55 21 99026-0472</b>.</div>
+            <div data-campos-personalizado>
             <label class="switch"><input type="checkbox" data-ativo><span>Anúncio ativo</span></label>
             <div class="campo">
                 <label>Imagem do anúncio</label>
@@ -201,6 +231,7 @@
             <div class="campo">
                 <label>Descrição (acessibilidade)</label>
                 <input type="text" data-alt placeholder="Ex.: Promoção da loja X">
+            </div>
             </div>
             <div class="linha-2">
                 <div class="campo">
@@ -266,6 +297,22 @@ const TAM_MAX_FIRESTORE = 900 * 1024;
 const SEG_KEY = "pub_seg_ok_v1";
 const CROP_ASPECT = 4;
 const CROP_LARGURA = 728;
+const LINK_WHATS_ANUNCIE = "https://wa.me/5521990260472?text=" + encodeURIComponent("Olá! Tenho interesse em anunciar no Controle Financeiro.");
+
+function arteAnuncieAqui() {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="728" height="182" viewBox="0 0 728 182">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="728" y2="182" gradientUnits="userSpaceOnUse">
+<stop stop-color="#007aff"/><stop offset="1" stop-color="#003d99"/></linearGradient></defs>
+<rect width="728" height="182" rx="16" fill="url(#bg)"/>
+<rect x="14" y="14" width="700" height="154" rx="12" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="10 7"/>
+<text x="364" y="78" fill="#fff" font-family="system-ui,-apple-system,sans-serif" font-size="40" font-weight="800" text-anchor="middle">Anuncie aqui</text>
+<text x="364" y="114" fill="rgba(255,255,255,0.92)" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="600" text-anchor="middle">Toque e fale conosco pelo WhatsApp</text>
+<circle cx="648" cy="91" r="30" fill="#25D366"/>
+<text x="648" y="100" font-size="28" text-anchor="middle">💬</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+const ARTE_ANUNCIE = arteAnuncieAqui();
 
 const PERGUNTAS_SEG = [
     { id: "certa", texto: "Qual o nome do seu melhor amigo da infância?" },
@@ -622,15 +669,38 @@ function formatarData(iso) {
     return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
+function getModo(c) {
+    const r = c.querySelector("[data-modo]:checked");
+    return r ? r.value : "personalizado";
+}
+
+function setModo(c, modo) {
+    const alvo = c.querySelector('[data-modo][value="' + modo + '"]');
+    if (alvo) alvo.checked = true;
+    atualizarModoUI(c);
+}
+
+function atualizarModoUI(c) {
+    const modo = getModo(c);
+    const slot = c.dataset.slot;
+    c.classList.remove("modo-personalizado", "modo-anuncie", "modo-vazio");
+    c.classList.add("modo-" + modo);
+    if (modo === "anuncie") mostrarPreview(slot, ARTE_ANUNCIE);
+    else if (modo === "vazio") c.querySelector("[data-preview]").innerHTML = '<span class="vazio">Sem publicidade neste espaço</span>';
+}
+
 function situacao(anuncio) {
-    if (!anuncio || !anuncio.imagem) return { classe: "inativo", texto: "Sem anúncio", detalhe: "Nada publicado neste espaço." };
+    if (!anuncio) return { classe: "inativo", texto: "Sem anúncio", detalhe: "Nada publicado neste espaço." };
+    const modo = anuncio.modo || (anuncio.imagem ? "personalizado" : "vazio");
+    if (modo === "vazio") return { classe: "inativo", texto: "Desligado", detalhe: "Sem publicidade neste espaço." };
     if (anuncio.ativo === false) return { classe: "inativo", texto: "Pausado", detalhe: "O anúncio existe, mas está desligado." };
     const agora = Date.now();
     const inicio = anuncio.inicio ? Date.parse(anuncio.inicio) : NaN;
     const fim = anuncio.fim ? Date.parse(anuncio.fim) : NaN;
     if (!isNaN(inicio) && agora < inicio) return { classe: "agendado", texto: "Agendado", detalhe: "Entra no ar em " + formatarData(anuncio.inicio) + "." };
     if (!isNaN(fim) && agora > fim) return { classe: "encerrado", texto: "Encerrado", detalhe: "Saiu do ar em " + formatarData(anuncio.fim) + "." };
-    return { classe: "live", texto: "No ar", detalhe: isNaN(fim) ? "No ar por tempo indeterminado." : "No ar até " + formatarData(anuncio.fim) + "." };
+    const rotulo = modo === "anuncie" ? "Anuncie aqui" : "No ar";
+    return { classe: "live", texto: rotulo, detalhe: isNaN(fim) ? "No ar por tempo indeterminado." : "No ar até " + formatarData(anuncio.fim) + "." };
 }
 
 function mostrarPreview(slot, url) {
@@ -645,7 +715,9 @@ function mostrarPreview(slot, url) {
 function preencher(slot, anuncio) {
     const c = cartao(slot);
     const a = anuncio || {};
-    c.querySelector("[data-ativo]").checked = a.ativo !== false && !!a.imagem;
+    const modo = a.modo || (a.imagem ? "personalizado" : "vazio");
+    setModo(c, modo);
+    c.querySelector("[data-ativo]").checked = a.ativo !== false && modo !== "vazio";
     c.querySelector("[data-imagem]").value = a.imagem || "";
     c.querySelector("[data-link]").value = a.link || "";
     c.querySelector("[data-alt]").value = a.alt || "";
@@ -653,7 +725,7 @@ function preencher(slot, anuncio) {
     c.querySelector("[data-fim]").value = paraInput(a.fim);
     c._arquivoCortado = null;
     c.querySelector("[data-arquivo]").value = "";
-    mostrarPreview(slot, a.imagem);
+    if (modo === "personalizado") mostrarPreview(slot, a.imagem);
     const s = situacao(a);
     const selo = c.querySelector("[data-selo]");
     selo.className = "selo " + s.classe;
@@ -701,28 +773,34 @@ async function lancar(slot) {
     aviso(painelAviso, "", "");
 
     try {
-        let imagem = c.querySelector("[data-imagem]").value.trim();
-        if (blobCortado) {
-            botao.textContent = "Preparando imagem…";
-            imagem = await comTimeout(prepararImagem(blobCortado), 45000, new Error("Demorou demais para preparar a imagem."));
-            c.querySelector("[data-imagem]").value = imagem;
-        }
-        if (!imagem) throw new Error("Escolha uma imagem (com corte) ou cole o link de uma.");
-
+        const modo = getModo(c);
         const inicio = paraIso(c.querySelector("[data-inicio]").value);
         const fim = paraIso(c.querySelector("[data-fim]").value);
         if (inicio && fim && Date.parse(fim) <= Date.parse(inicio)) {
             throw new Error("A data de fim precisa ser depois da data de início.");
         }
 
-        const anuncio = {
-            ativo: c.querySelector("[data-ativo]").checked,
-            imagem,
-            link: c.querySelector("[data-link]").value.trim(),
-            alt: c.querySelector("[data-alt]").value.trim(),
-            inicio, fim,
-            atualizadoEm: new Date().toISOString()
-        };
+        let anuncio = { modo, inicio, fim, atualizadoEm: new Date().toISOString() };
+
+        if (modo === "vazio") {
+            anuncio.ativo = false;
+        } else if (modo === "anuncie") {
+            anuncio.ativo = true;
+            anuncio.link = LINK_WHATS_ANUNCIE;
+            anuncio.alt = "Anuncie aqui — fale conosco pelo WhatsApp";
+        } else {
+            let imagem = c.querySelector("[data-imagem]").value.trim();
+            if (blobCortado) {
+                botao.textContent = "Preparando imagem…";
+                imagem = await comTimeout(prepararImagem(blobCortado), 45000, new Error("Demorou demais para preparar a imagem."));
+                c.querySelector("[data-imagem]").value = imagem;
+            }
+            if (!imagem) throw new Error("Escolha uma imagem (com corte) ou cole o link de uma.");
+            anuncio.ativo = c.querySelector("[data-ativo]").checked;
+            anuncio.imagem = imagem;
+            anuncio.link = c.querySelector("[data-link]").value.trim();
+            anuncio.alt = c.querySelector("[data-alt]").value.trim();
+        }
 
         botao.textContent = "Lançando…";
         await comTimeout(setDoc(refAnuncios, { [slot]: anuncio }, { merge: true }), 30000, new Error("Demorou demais para salvar. Confira as regras do Firestore e tente de novo."));
@@ -730,7 +808,8 @@ async function lancar(slot) {
         c._arquivoCortado = null;
         preencher(slot, anuncio);
         const nome = slot === "topo" ? "superior" : "inferior";
-        aviso(painelAviso, `✅ Anúncio ${nome} lançado. Já está valendo no app financeiro.`, "ok");
+        const msgModo = modo === "vazio" ? "espaço desligado" : (modo === "anuncie" ? "Anuncie aqui no ar" : "anúncio lançado");
+        aviso(painelAviso, `✅ Retângulo ${nome}: ${msgModo}. Já está valendo no app financeiro.`, "ok");
     } catch (e) {
         aviso(painelAviso, "⚠️ " + msgErro(e), "erro");
     } finally {
@@ -843,6 +922,8 @@ getRedirectResult(auth).then(async cred => {
 SLOTS.forEach(slot => {
     const c = cartao(slot);
     c._arquivoCortado = null;
+    atualizarModoUI(c);
+    c.querySelectorAll("[data-modo]").forEach(r => r.addEventListener("change", () => atualizarModoUI(c)));
     c.querySelector("[data-lancar]").addEventListener("click", () => lancar(slot));
     c.querySelector("[data-imagem]").addEventListener("change", e => {
         mostrarPreview(slot, e.target.value.trim());
