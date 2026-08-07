@@ -118,7 +118,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Entrar com Google
         </button>
-        <a id="login-safari-link" href="https://appsarpi.github.io/controle-financeiro/publicidade/" target="_blank" rel="noopener" style="display:none;margin-top:14px;font-size:13px;font-weight:700;color:#007aff;text-decoration:none;">Abrir no Safari para entrar (iPhone)</a>
+        <a id="login-safari-link" href="https://appsarpi.github.io/controle-financeiro/publicidade/" target="_blank" rel="noopener noreferrer" style="display:none;margin-top:14px;font-size:13px;font-weight:700;color:#007aff;text-decoration:none;">Abrir no navegador para entrar</a>
     </div>
 </div>
 
@@ -893,78 +893,121 @@ function ehStandalone() {
     return false;
 }
 
-function urlLoginSafari() {
-    return location.origin + location.pathname + "?login=1";
+const OAUTH_LOCK = "pub_oauth_lock_v1";
+const URL_PUBLI_NAV = "https://appsarpi.github.io/controle-financeiro/publicidade/";
+
+function limparUrlLogin() {
+    try {
+        if (location.search || location.hash) {
+            history.replaceState({}, "", location.pathname);
+        }
+    } catch (_) {}
+}
+
+function marcarOAuthPendente() {
+    try { sessionStorage.setItem(OAUTH_LOCK, "1"); } catch (_) {}
+}
+
+function consumirOAuthPendente() {
+    try {
+        const v = sessionStorage.getItem(OAUTH_LOCK) === "1";
+        sessionStorage.removeItem(OAUTH_LOCK);
+        return v;
+    } catch (_) {
+        return false;
+    }
 }
 
 function configurarLoginMobile() {
+    // Quebra loop antigo (?login=1 / redirect) assim que a página abre
+    limparUrlLogin();
+
     if (ehMobile()) {
         const dica = $("#login-mobile-dica");
         if (dica) {
             dica.style.display = "block";
             dica.textContent = ehStandalone()
-                ? "No atalho, o login precisa abrir no navegador. Depois você volta aqui."
-                : "Use a conta Google deste celular — login rápido, sem QR code.";
+                ? "Pelo ícone da tela inicial o Google trava. Entre pelo Safari ou Chrome."
+                : "Toque em Entrar com Google e use a conta deste celular.";
         }
     }
     const link = $("#login-safari-link");
-    if (link && ehStandalone()) {
-        link.style.display = "block";
-        link.href = urlLoginSafari();
-        link.textContent = ehIOS() ? "Abrir no Safari para entrar" : "Abrir no Chrome para entrar";
+    const botao = $("#btn-google");
+    if (ehStandalone()) {
+        if (link) {
+            link.style.display = "block";
+            link.href = URL_PUBLI_NAV;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = ehIOS() ? "Abrir no Safari e entrar" : "Abrir no Chrome e entrar";
+        }
+        if (botao) {
+            rotuloGoogle(botao, ehIOS() ? "Abrir no Safari e entrar" : "Abrir no Chrome e entrar");
+        }
+        aviso($("#login-aviso"), "No atalho o login com Google não funciona. Abra no navegador.", "erro");
     }
 }
 
 function voltarBotaoGoogle() {
     const botao = $("#btn-google");
     botao.disabled = false;
-    rotuloGoogle(botao, "Entrar com Google");
+    rotuloGoogle(botao, ehStandalone()
+        ? (ehIOS() ? "Abrir no Safari e entrar" : "Abrir no Chrome e entrar")
+        : "Entrar com Google");
 }
 
 function providerGoogle() {
     const provider = new GoogleAuthProvider();
-    // login_hint força fluxo da conta no celular (evita QR de “aparelho”)
     provider.setCustomParameters({ login_hint: EMAIL_ADMIN });
     return provider;
+}
+
+async function iniciarRedirectGoogle() {
+    marcarOAuthPendente();
+    await signInWithRedirect(auth, providerGoogle());
 }
 
 async function entrarComGoogle() {
     const botao = $("#btn-google");
     if (botao.disabled) return;
 
-    // Atalho na tela inicial: pop-up “aprova” no navegador e a sessão NÃO volta ao app.
+    // Atalho/favorito: NUNCA chamar Firebase daqui — causa loop infinito com firebaseapp.com
     if (ehStandalone()) {
-        aviso($("#login-aviso"), "Abrindo o navegador para entrar… Depois volte pelo atalho já logado.", "ok");
-        location.href = urlLoginSafari();
+        const abriu = window.open(URL_PUBLI_NAV, "_blank", "noopener,noreferrer");
+        aviso($("#login-aviso"), abriu
+            ? "Abriu no navegador. Faça o login lá — não pelo ícone."
+            : "Toque no link azul abaixo para abrir o Safari/Chrome e entrar.", "erro");
         return;
     }
 
     botao.disabled = true;
-    rotuloGoogle(botao, ehMobile() ? "Abrindo Google…" : "Abrindo Google…");
+    rotuloGoogle(botao, "Abrindo Google…");
     aviso($("#login-aviso"), "", "");
     let redirecionando = false;
     try {
-        const provider = providerGoogle();
-
-        // Celular: mesma janela (redirect) — senão a sessão se perde e volta ao login.
-        if (ehMobile()) {
-            redirecionando = true;
-            aviso($("#login-aviso"), "Abrindo Google neste celular…", "ok");
-            await signInWithRedirect(auth, provider);
-            return;
-        }
-
+        // Preferir popup (mesma origem). Redirect só se o popup falhar.
         try {
-            const cred = await comTimeout(signInWithPopup(auth, provider), 20000, new Error("login-timeout"));
+            const cred = await comTimeout(signInWithPopup(auth, providerGoogle()), 25000, new Error("login-timeout"));
             await validarUsuario(cred);
         } catch (e) {
             const cod = e && e.code ? e.code : "";
-            const usarRedirect = cod === "auth/popup-blocked" || e.message === "login-timeout" ||
-                cod === "auth/operation-not-supported-in-this-environment";
+            const usarRedirect = !ehMobile() && (
+                cod === "auth/popup-blocked" ||
+                e.message === "login-timeout" ||
+                cod === "auth/operation-not-supported-in-this-environment"
+            );
+            // No celular, popup fechado/timeout: tentar redirect UMA vez (só no navegador, nunca no atalho)
+            if (ehMobile() && (cod === "auth/popup-blocked" || e.message === "login-timeout" ||
+                cod === "auth/operation-not-supported-in-this-environment")) {
+                redirecionando = true;
+                aviso($("#login-aviso"), "Abrindo Google…", "ok");
+                await iniciarRedirectGoogle();
+                return;
+            }
             if (usarRedirect) {
                 redirecionando = true;
                 aviso($("#login-aviso"), "Redirecionando para o Google…", "ok");
-                await signInWithRedirect(auth, provider);
+                await iniciarRedirectGoogle();
                 return;
             }
             throw e;
@@ -977,44 +1020,27 @@ async function entrarComGoogle() {
     }
 }
 
-function esperarAuthPronto() {
-    return new Promise(resolve => {
-        const unsub = onAuthStateChanged(auth, u => {
-            unsub();
-            resolve(u || null);
-        });
-    });
-}
-
 async function processarRedirectLogin() {
-    const botao = $("#btn-google");
-    const params = new URLSearchParams(location.search);
-    const veioLogin = params.get("login") === "1";
-    if (veioLogin || ehMobile()) {
-        botao.disabled = true;
-        rotuloGoogle(botao, "Concluindo…");
-    }
+    // IMPORTANTE: nunca chamar signInWithRedirect automaticamente aqui (causa loop)
+    limparUrlLogin();
+    const pendente = consumirOAuthPendente();
     try {
         const cred = await getRedirectResult(auth);
         if (cred) {
             await validarUsuario(cred);
             aviso($("#login-aviso"), "Login ok. Responda a verificação de segurança.", "ok");
-            try { history.replaceState({}, "", location.pathname); } catch (_) {}
             return;
         }
-        const user = await esperarAuthPronto();
-        if (veioLogin && !user) {
-            // Já no Safari/Chrome: dispara o Google automaticamente
-            const provider = providerGoogle();
-            aviso($("#login-aviso"), "Abrindo Google…", "ok");
-            await signInWithRedirect(auth, provider);
-            return;
-        }
-        if (veioLogin && user) {
-            try { history.replaceState({}, "", location.pathname); } catch (_) {}
+        if (pendente && !auth.currentUser) {
+            aviso($("#login-aviso"), "O login não concluiu neste atalho. Abra no Safari/Chrome e entre por lá.", "erro");
         }
     } catch (e) {
-        aviso($("#login-aviso"), msgErro(e), "erro");
+        const cod = e && e.code ? e.code : "";
+        if (cod === "auth/missing-initial-state" || /missing initial state/i.test(e.message || "")) {
+            aviso($("#login-aviso"), "Login interrompido. Abra no Safari ou Chrome (não pelo ícone) e tente de novo.", "erro");
+        } else {
+            aviso($("#login-aviso"), msgErro(e), "erro");
+        }
     } finally {
         if (!auth.currentUser) voltarBotaoGoogle();
     }
