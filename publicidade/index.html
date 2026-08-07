@@ -112,11 +112,13 @@
         <div class="emoji">📣</div>
         <h1>Publicidade</h1>
         <p>Painel de anúncios do Controle Financeiro</p>
+        <p id="login-mobile-dica" class="dica" style="display:none;text-align:center;margin-bottom:14px;">Use a conta Google salva neste celular — login rápido, sem QR code.</p>
         <div class="aviso" id="login-aviso"></div>
         <button class="btn btn-google" id="btn-google">
             <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Entrar com Google
         </button>
+        <a id="login-safari-link" href="https://appsarpi.github.io/controle-financeiro/publicidade/" target="_blank" rel="noopener" style="display:none;margin-top:14px;font-size:13px;font-weight:700;color:#007aff;text-decoration:none;">Abrir no Safari para entrar (iPhone)</a>
     </div>
 </div>
 
@@ -278,7 +280,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { initializeAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, browserLocalPersistence, browserPopupRedirectResolver } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { initializeFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -324,7 +326,11 @@ const PERGUNTAS_SEG = [
 const RESPOSTA_SEG = "Luiz Otávio";
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const auth = initializeAuth(app, {
+    persistence: browserLocalPersistence,
+    popupRedirectResolver: browserPopupRedirectResolver
+});
+auth.useDeviceLanguage();
 const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 const refAnuncios = doc(db, "publicidade", "slots");
 
@@ -827,7 +833,9 @@ function msgErro(e) {
     if (cod === "auth/network-request-failed") return "Sem conexão com a internet. Verifique sua rede e tente de novo.";
     if (cod === "permission-denied") return "Sem permissão para gravar. No Firebase, vá em Firestore → Regras e adicione a regra de publicidade.";
     if (cod === "unavailable") return "Firestore indisponível no momento. Tente de novo em alguns segundos.";
-    if (e && e.message === "login-timeout") return "Demorou demais para abrir o Google. Verifique se um pop-up ficou atrás da janela ou se o navegador bloqueou pop-ups.";
+    if (e && e.message === "login-timeout") return ehMobile()
+        ? "Demorou demais. Toque de novo ou use “Abrir no Safari” (iPhone)."
+        : "Demorou demais para abrir o Google. Verifique se um pop-up ficou atrás da janela ou se o navegador bloqueou pop-ups.";
     return (e && e.message) ? e.message.replace("Firebase: ", "") : "Algo deu errado. Tente novamente.";
 }
 
@@ -842,8 +850,16 @@ function rotuloGoogle(btn, texto) {
     btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> ' + texto;
 }
 
-/** Atalho na tela inicial abre sem pop-up — só redirect funciona. */
-function loginUsaRedirect() {
+/** Atalho na tela inicial (PWA) — pop-up funciona melhor que redirect no celular. */
+function ehMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+}
+
+function ehIOS() {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+}
+
+function ehStandalone() {
     try {
         if (window.matchMedia("(display-mode: standalone)").matches) return true;
         if (window.matchMedia("(display-mode: fullscreen)").matches) return true;
@@ -853,56 +869,100 @@ function loginUsaRedirect() {
     return false;
 }
 
+/** Redirect só no PC — no celular gera tela de QR code. */
+function loginUsaRedirect() {
+    return !ehMobile() && !ehStandalone();
+}
+
+function configurarLoginMobile() {
+    if (ehMobile()) {
+        const dica = $("#login-mobile-dica");
+        if (dica) dica.style.display = "block";
+    }
+    if (ehStandalone() && ehIOS()) {
+        const link = $("#login-safari-link");
+        if (link) {
+            link.style.display = "block";
+            link.href = location.href.split("#")[0];
+        }
+    }
+}
+
 function voltarBotaoGoogle() {
     const botao = $("#btn-google");
     botao.disabled = false;
     rotuloGoogle(botao, "Entrar com Google");
 }
 
-async function providerGoogle() {
-    await setPersistence(auth, browserLocalPersistence);
+function providerGoogle() {
     const provider = new GoogleAuthProvider();
-    if (!loginUsaRedirect()) provider.setCustomParameters({ prompt: "select_account" });
+    const params = { login_hint: EMAIL_ADMIN };
+    if (!ehMobile()) params.prompt = "select_account";
+    provider.setCustomParameters(params);
     return provider;
+}
+
+async function signInGooglePopup(provider, timeoutMs) {
+    return new Promise((resolve, reject) => {
+        let done = false;
+        const encerrar = (fn, val) => {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            unsub();
+            fn(val);
+        };
+        const timer = setTimeout(() => encerrar(reject, new Error("login-timeout")), timeoutMs);
+        const unsub = onAuthStateChanged(auth, user => {
+            if (user && (user.email || "").toLowerCase() === EMAIL_ADMIN) {
+                encerrar(resolve, { user });
+            }
+        });
+        signInWithPopup(auth, provider)
+            .then(r => encerrar(resolve, r))
+            .catch(e => encerrar(reject, e));
+    });
 }
 
 async function entrarComGoogle() {
     const botao = $("#btn-google");
     if (botao.disabled) return;
     botao.disabled = true;
-    rotuloGoogle(botao, "Abrindo Google…");
+    rotuloGoogle(botao, ehMobile() ? "Escolha sua conta…" : "Abrindo Google…");
     aviso($("#login-aviso"), "", "");
     let redirecionando = false;
     try {
-        const provider = await providerGoogle();
+        const provider = providerGoogle();
+        const timeout = ehMobile() ? 25000 : 12000;
 
         if (loginUsaRedirect()) {
-            redirecionando = true;
-            aviso($("#login-aviso"), "Abrindo Google… você voltará aqui em instantes.", "ok");
-            await signInWithRedirect(auth, provider);
+            let cred = null;
+            try {
+                cred = await signInGooglePopup(provider, timeout);
+            } catch (e) {
+                const cod = e && e.code ? e.code : "";
+                const usarRedirect = cod === "auth/popup-blocked" || e.message === "login-timeout" ||
+                    cod === "auth/operation-not-supported-in-this-environment";
+                if (usarRedirect) {
+                    redirecionando = true;
+                    aviso($("#login-aviso"), "Redirecionando para o Google…", "ok");
+                    await signInWithRedirect(auth, provider);
+                    return;
+                }
+                throw e;
+            }
+            await validarUsuario(cred);
             return;
         }
 
-        let cred = null;
-        try {
-            cred = await comTimeout(signInWithPopup(auth, provider), 12000, new Error("login-timeout"));
-        } catch (e) {
-            const cod = e && e.code ? e.code : "";
-            const usarRedirect = cod === "auth/popup-blocked" || e.message === "login-timeout" ||
-                cod === "auth/operation-not-supported-in-this-environment" ||
-                cod === "auth/cancelled-popup-request";
-            if (usarRedirect) {
-                redirecionando = true;
-                aviso($("#login-aviso"), "Redirecionando para o Google…", "ok");
-                await signInWithRedirect(auth, provider);
-                return;
-            }
-            throw e;
-        }
+        const cred = await signInGooglePopup(provider, timeout);
         await validarUsuario(cred);
     } catch (e) {
         const msg = msgErro(e);
         if (msg) aviso($("#login-aviso"), msg, "erro");
+        if (ehStandalone() && ehIOS() && (e.message === "login-timeout" || (e && e.code === "auth/popup-closed-by-user"))) {
+            aviso($("#login-aviso"), "No iPhone, toque em “Abrir no Safari para entrar” abaixo — login em 1 toque, sem QR code.", "erro");
+        }
     } finally {
         if (!redirecionando) voltarBotaoGoogle();
     }
@@ -957,6 +1017,7 @@ $("#seg-resposta").addEventListener("keydown", e => { if (e.key === "Enter") con
 $("#btn-sair").addEventListener("click", () => { limparSeg(); signOut(auth); });
 
 processarRedirectLogin();
+configurarLoginMobile();
 
 SLOTS.forEach(slot => {
     const c = cartao(slot);
