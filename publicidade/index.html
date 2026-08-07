@@ -351,16 +351,31 @@ function embaralhar(arr) {
     return a;
 }
 
+let segTentativas = 0;
+let authUserCache = null;
+let authNullTimer = null;
+
 function segOk() {
-    return sessionStorage.getItem(SEG_KEY) === "1";
+    try {
+        if (sessionStorage.getItem(SEG_KEY) === "1") return true;
+        if (localStorage.getItem(SEG_KEY) === "1") return true;
+    } catch (_) {}
+    return false;
 }
 
 function marcarSegOk() {
-    sessionStorage.setItem(SEG_KEY, "1");
+    try {
+        sessionStorage.setItem(SEG_KEY, "1");
+        localStorage.setItem(SEG_KEY, "1");
+    } catch (_) {}
 }
 
 function limparSeg() {
-    sessionStorage.removeItem(SEG_KEY);
+    try {
+        sessionStorage.removeItem(SEG_KEY);
+        localStorage.removeItem(SEG_KEY);
+    } catch (_) {}
+    segTentativas = 0;
 }
 
 function atualizarTelas(logado) {
@@ -389,10 +404,19 @@ function iniciarSeguranca() {
     });
 }
 
+function negarSeguranca(msg) {
+    segTentativas += 1;
+    aviso($("#seg-aviso"), msg + (segTentativas >= 3 ? " Encerrando sessão…" : " Tente de novo."), "erro");
+    if (segTentativas >= 3) {
+        setTimeout(() => signOut(auth), 1200);
+        return;
+    }
+    setTimeout(() => iniciarSeguranca(), 900);
+}
+
 function escolherPergunta(id, texto) {
     if (id !== "certa") {
-        aviso($("#seg-aviso"), "Pergunta incorreta. Acesso negado.", "erro");
-        setTimeout(() => signOut(auth), 1800);
+        negarSeguranca("Pergunta incorreta.");
         return;
     }
     aviso($("#seg-aviso"), "", "");
@@ -406,8 +430,7 @@ function escolherPergunta(id, texto) {
 function confirmarSeguranca() {
     const resp = $("#seg-resposta").value.trim();
     if (resp !== RESPOSTA_SEG) {
-        aviso($("#seg-aviso"), "Resposta incorreta. Acesso negado.", "erro");
-        setTimeout(() => signOut(auth), 1800);
+        negarSeguranca("Resposta incorreta.");
         return;
     }
     marcarSegOk();
@@ -850,13 +873,14 @@ function rotuloGoogle(btn, texto) {
     btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> ' + texto;
 }
 
-/** Atalho na tela inicial (PWA) — pop-up funciona melhor que redirect no celular. */
 function ehMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "")
+        || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent || ""));
 }
 
 function ehIOS() {
-    return /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent || "")
+        || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent || ""));
 }
 
 function ehStandalone() {
@@ -869,22 +893,25 @@ function ehStandalone() {
     return false;
 }
 
-/** Redirect só no PC — no celular gera tela de QR code. */
-function loginUsaRedirect() {
-    return !ehMobile() && !ehStandalone();
+function urlLoginSafari() {
+    return location.origin + location.pathname + "?login=1";
 }
 
 function configurarLoginMobile() {
     if (ehMobile()) {
         const dica = $("#login-mobile-dica");
-        if (dica) dica.style.display = "block";
-    }
-    if (ehStandalone() && ehIOS()) {
-        const link = $("#login-safari-link");
-        if (link) {
-            link.style.display = "block";
-            link.href = location.href.split("#")[0];
+        if (dica) {
+            dica.style.display = "block";
+            dica.textContent = ehStandalone()
+                ? "No atalho, o login precisa abrir no navegador. Depois você volta aqui."
+                : "Use a conta Google deste celular — login rápido, sem QR code.";
         }
+    }
+    const link = $("#login-safari-link");
+    if (link && ehStandalone()) {
+        link.style.display = "block";
+        link.href = urlLoginSafari();
+        link.textContent = ehIOS() ? "Abrir no Safari para entrar" : "Abrir no Chrome para entrar";
     }
 }
 
@@ -896,92 +923,100 @@ function voltarBotaoGoogle() {
 
 function providerGoogle() {
     const provider = new GoogleAuthProvider();
-    const params = { login_hint: EMAIL_ADMIN };
-    if (!ehMobile()) params.prompt = "select_account";
-    provider.setCustomParameters(params);
+    // login_hint força fluxo da conta no celular (evita QR de “aparelho”)
+    provider.setCustomParameters({ login_hint: EMAIL_ADMIN });
     return provider;
-}
-
-async function signInGooglePopup(provider, timeoutMs) {
-    return new Promise((resolve, reject) => {
-        let done = false;
-        const encerrar = (fn, val) => {
-            if (done) return;
-            done = true;
-            clearTimeout(timer);
-            unsub();
-            fn(val);
-        };
-        const timer = setTimeout(() => encerrar(reject, new Error("login-timeout")), timeoutMs);
-        const unsub = onAuthStateChanged(auth, user => {
-            if (user && (user.email || "").toLowerCase() === EMAIL_ADMIN) {
-                encerrar(resolve, { user });
-            }
-        });
-        signInWithPopup(auth, provider)
-            .then(r => encerrar(resolve, r))
-            .catch(e => encerrar(reject, e));
-    });
 }
 
 async function entrarComGoogle() {
     const botao = $("#btn-google");
     if (botao.disabled) return;
+
+    // Atalho na tela inicial: pop-up “aprova” no navegador e a sessão NÃO volta ao app.
+    if (ehStandalone()) {
+        aviso($("#login-aviso"), "Abrindo o navegador para entrar… Depois volte pelo atalho já logado.", "ok");
+        location.href = urlLoginSafari();
+        return;
+    }
+
     botao.disabled = true;
-    rotuloGoogle(botao, ehMobile() ? "Escolha sua conta…" : "Abrindo Google…");
+    rotuloGoogle(botao, ehMobile() ? "Abrindo Google…" : "Abrindo Google…");
     aviso($("#login-aviso"), "", "");
     let redirecionando = false;
     try {
         const provider = providerGoogle();
-        const timeout = ehMobile() ? 25000 : 12000;
 
-        if (loginUsaRedirect()) {
-            let cred = null;
-            try {
-                cred = await signInGooglePopup(provider, timeout);
-            } catch (e) {
-                const cod = e && e.code ? e.code : "";
-                const usarRedirect = cod === "auth/popup-blocked" || e.message === "login-timeout" ||
-                    cod === "auth/operation-not-supported-in-this-environment";
-                if (usarRedirect) {
-                    redirecionando = true;
-                    aviso($("#login-aviso"), "Redirecionando para o Google…", "ok");
-                    await signInWithRedirect(auth, provider);
-                    return;
-                }
-                throw e;
-            }
-            await validarUsuario(cred);
+        // Celular: mesma janela (redirect) — senão a sessão se perde e volta ao login.
+        if (ehMobile()) {
+            redirecionando = true;
+            aviso($("#login-aviso"), "Abrindo Google neste celular…", "ok");
+            await signInWithRedirect(auth, provider);
             return;
         }
 
-        const cred = await signInGooglePopup(provider, timeout);
-        await validarUsuario(cred);
+        try {
+            const cred = await comTimeout(signInWithPopup(auth, provider), 20000, new Error("login-timeout"));
+            await validarUsuario(cred);
+        } catch (e) {
+            const cod = e && e.code ? e.code : "";
+            const usarRedirect = cod === "auth/popup-blocked" || e.message === "login-timeout" ||
+                cod === "auth/operation-not-supported-in-this-environment";
+            if (usarRedirect) {
+                redirecionando = true;
+                aviso($("#login-aviso"), "Redirecionando para o Google…", "ok");
+                await signInWithRedirect(auth, provider);
+                return;
+            }
+            throw e;
+        }
     } catch (e) {
         const msg = msgErro(e);
         if (msg) aviso($("#login-aviso"), msg, "erro");
-        if (ehStandalone() && ehIOS() && (e.message === "login-timeout" || (e && e.code === "auth/popup-closed-by-user"))) {
-            aviso($("#login-aviso"), "No iPhone, toque em “Abrir no Safari para entrar” abaixo — login em 1 toque, sem QR code.", "erro");
-        }
     } finally {
         if (!redirecionando) voltarBotaoGoogle();
     }
 }
 
+function esperarAuthPronto() {
+    return new Promise(resolve => {
+        const unsub = onAuthStateChanged(auth, u => {
+            unsub();
+            resolve(u || null);
+        });
+    });
+}
+
 async function processarRedirectLogin() {
-    const voltando = /[?&#](apiKey|authType|mode)=/.test(location.search + location.hash);
     const botao = $("#btn-google");
-    if (voltando) {
+    const params = new URLSearchParams(location.search);
+    const veioLogin = params.get("login") === "1";
+    if (veioLogin || ehMobile()) {
         botao.disabled = true;
-        rotuloGoogle(botao, "Concluindo login…");
-        aviso($("#login-aviso"), "Concluindo login com Google…", "ok");
+        rotuloGoogle(botao, "Concluindo…");
     }
     try {
         const cred = await getRedirectResult(auth);
-        if (cred) await validarUsuario(cred);
+        if (cred) {
+            await validarUsuario(cred);
+            aviso($("#login-aviso"), "Login ok. Responda a verificação de segurança.", "ok");
+            try { history.replaceState({}, "", location.pathname); } catch (_) {}
+            return;
+        }
+        const user = await esperarAuthPronto();
+        if (veioLogin && !user) {
+            // Já no Safari/Chrome: dispara o Google automaticamente
+            const provider = providerGoogle();
+            aviso($("#login-aviso"), "Abrindo Google…", "ok");
+            await signInWithRedirect(auth, provider);
+            return;
+        }
+        if (veioLogin && user) {
+            try { history.replaceState({}, "", location.pathname); } catch (_) {}
+        }
     } catch (e) {
         aviso($("#login-aviso"), msgErro(e), "erro");
-        voltarBotaoGoogle();
+    } finally {
+        if (!auth.currentUser) voltarBotaoGoogle();
     }
 }
 
@@ -996,9 +1031,15 @@ async function entrarPainel() {
     }
 }
 
-onAuthStateChanged(auth, async user => {
-    const logado = user && (user.email || "").toLowerCase() === EMAIL_ADMIN;
+function aplicarUsuarioAuth(user) {
+    const logado = !!(user && (user.email || "").toLowerCase() === EMAIL_ADMIN);
+    authUserCache = logado ? user : null;
     if (!logado) {
+        if (user) {
+            // Conta Google errada
+            signOut(auth);
+            aviso($("#login-aviso"), "Esta conta não tem acesso ao painel. Use " + EMAIL_ADMIN + ".", "erro");
+        }
         limparSeg();
         atualizarTelas(false);
         return;
@@ -1008,7 +1049,24 @@ onAuthStateChanged(auth, async user => {
         iniciarSeguranca();
         return;
     }
-    await entrarPainel();
+    entrarPainel();
+}
+
+onAuthStateChanged(auth, user => {
+    // Evita “piscar” login quando o Firebase passa por null momentâneo
+    if (!user) {
+        clearTimeout(authNullTimer);
+        authNullTimer = setTimeout(() => {
+            if (!auth.currentUser) aplicarUsuarioAuth(null);
+        }, 400);
+        return;
+    }
+    clearTimeout(authNullTimer);
+    if ((user.email || "").toLowerCase() !== EMAIL_ADMIN) {
+        aplicarUsuarioAuth(user);
+        return;
+    }
+    aplicarUsuarioAuth(user);
 });
 
 $("#btn-google").addEventListener("click", entrarComGoogle);
@@ -1016,8 +1074,8 @@ $("#seg-confirmar").addEventListener("click", confirmarSeguranca);
 $("#seg-resposta").addEventListener("keydown", e => { if (e.key === "Enter") confirmarSeguranca(); });
 $("#btn-sair").addEventListener("click", () => { limparSeg(); signOut(auth); });
 
-processarRedirectLogin();
 configurarLoginMobile();
+processarRedirectLogin();
 
 SLOTS.forEach(slot => {
     const c = cartao(slot);
