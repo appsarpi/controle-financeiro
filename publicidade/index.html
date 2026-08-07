@@ -112,13 +112,12 @@
         <div class="emoji">📣</div>
         <h1>Publicidade</h1>
         <p>Painel de anúncios do Controle Financeiro</p>
-        <p id="login-mobile-dica" class="dica" style="display:none;text-align:center;margin-bottom:14px;">Use a conta Google salva neste celular — login rápido, sem QR code.</p>
         <div class="aviso" id="login-aviso"></div>
-        <button class="btn btn-google" id="btn-google">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Entrar com Google
-        </button>
-        <a id="login-safari-link" href="https://appsarpi.github.io/controle-financeiro/publicidade/" target="_blank" rel="noopener noreferrer" style="display:none;margin-top:14px;font-size:13px;font-weight:700;color:#007aff;text-decoration:none;">Abrir no navegador para entrar</a>
+        <div class="campo">
+            <label for="login-usuario">Usuário</label>
+            <input type="text" id="login-usuario" placeholder="Digite o usuário" autocomplete="username" autocapitalize="none" spellcheck="false">
+        </div>
+        <button class="btn btn-primary" id="btn-entrar" type="button">Entrar</button>
     </div>
 </div>
 
@@ -280,7 +279,6 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { initializeAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged, browserLocalPersistence, browserPopupRedirectResolver } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { initializeFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -292,11 +290,12 @@ const firebaseConfig = {
     appId: "1:167000464961:web:5fa9756ef4463c701330c0"
 };
 
-const EMAIL_ADMIN = "pssarpi@gmail.com";
+const USUARIO_ADMIN = "pssarpi";
 const SLOTS = ["topo", "rodape"];
 const TAM_MAX = 5 * 1024 * 1024;
 const TAM_MAX_FIRESTORE = 900 * 1024;
-const SEG_KEY = "pub_seg_ok_v1";
+const LOGIN_KEY = "pub_login_ok_v2";
+const SEG_KEY = "pub_seg_ok_v2";
 const CROP_ASPECT = 4;
 const CROP_LARGURA = 728;
 const LINK_WHATS_ANUNCIE = "https://wa.me/5521990260472?text=" + encodeURIComponent("Olá! Tenho interesse em anunciar no Controle Financeiro.");
@@ -326,11 +325,6 @@ const PERGUNTAS_SEG = [
 const RESPOSTA_SEG = "Luiz Otávio";
 
 const app = initializeApp(firebaseConfig);
-const auth = initializeAuth(app, {
-    persistence: browserLocalPersistence,
-    popupRedirectResolver: browserPopupRedirectResolver
-});
-auth.useDeviceLanguage();
 const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 const refAnuncios = doc(db, "publicidade", "slots");
 
@@ -352,33 +346,42 @@ function embaralhar(arr) {
 }
 
 let segTentativas = 0;
-let authUserCache = null;
-let authNullTimer = null;
+let loginTentativas = 0;
 
-function segOk() {
+function lerFlag(key) {
     try {
-        if (sessionStorage.getItem(SEG_KEY) === "1") return true;
-        if (localStorage.getItem(SEG_KEY) === "1") return true;
-    } catch (_) {}
-    return false;
+        return sessionStorage.getItem(key) === "1" || localStorage.getItem(key) === "1";
+    } catch (_) {
+        return false;
+    }
 }
 
-function marcarSegOk() {
+function gravarFlag(key, on) {
     try {
-        sessionStorage.setItem(SEG_KEY, "1");
-        localStorage.setItem(SEG_KEY, "1");
+        if (on) {
+            sessionStorage.setItem(key, "1");
+            localStorage.setItem(key, "1");
+        } else {
+            sessionStorage.removeItem(key);
+            localStorage.removeItem(key);
+        }
     } catch (_) {}
 }
 
-function limparSeg() {
-    try {
-        sessionStorage.removeItem(SEG_KEY);
-        localStorage.removeItem(SEG_KEY);
-    } catch (_) {}
+function loginOk() { return lerFlag(LOGIN_KEY); }
+function marcarLoginOk() { gravarFlag(LOGIN_KEY, true); }
+function segOk() { return lerFlag(SEG_KEY); }
+function marcarSegOk() { gravarFlag(SEG_KEY, true); }
+
+function limparSessao() {
+    gravarFlag(LOGIN_KEY, false);
+    gravarFlag(SEG_KEY, false);
     segTentativas = 0;
+    loginTentativas = 0;
 }
 
-function atualizarTelas(logado) {
+function atualizarTelas() {
+    const logado = loginOk();
     const segPassou = segOk();
     $("#tela-login").style.display = logado ? "none" : "flex";
     $("#tela-seguranca").style.display = logado && !segPassou ? "flex" : "none";
@@ -408,7 +411,7 @@ function negarSeguranca(msg) {
     segTentativas += 1;
     aviso($("#seg-aviso"), msg + (segTentativas >= 3 ? " Encerrando sessão…" : " Tente de novo."), "erro");
     if (segTentativas >= 3) {
-        setTimeout(() => signOut(auth), 1200);
+        setTimeout(sair, 1200);
         return;
     }
     setTimeout(() => iniciarSeguranca(), 900);
@@ -435,8 +438,67 @@ function confirmarSeguranca() {
     }
     marcarSegOk();
     aviso($("#seg-aviso"), "", "");
-    atualizarTelas(true);
+    atualizarTelas();
     entrarPainel();
+}
+
+function entrarComUsuario() {
+    const campo = $("#login-usuario");
+    const botao = $("#btn-entrar");
+    const valor = (campo.value || "").trim().toLowerCase();
+    aviso($("#login-aviso"), "", "");
+    if (!valor) {
+        aviso($("#login-aviso"), "Digite o usuário.", "erro");
+        campo.focus();
+        return;
+    }
+    if (valor !== USUARIO_ADMIN) {
+        loginTentativas += 1;
+        aviso($("#login-aviso"), loginTentativas >= 5 ? "Usuário incorreto. Aguarde e tente de novo." : "Usuário incorreto.", "erro");
+        campo.select();
+        return;
+    }
+    botao.disabled = true;
+    marcarLoginOk();
+    gravarFlag(SEG_KEY, false);
+    segTentativas = 0;
+    atualizarTelas();
+    iniciarSeguranca();
+    botao.disabled = false;
+}
+
+function sair() {
+    limparSessao();
+    atualizarTelas();
+    const campo = $("#login-usuario");
+    if (campo) {
+        campo.value = "";
+        campo.focus();
+    }
+}
+
+async function entrarPainel() {
+    $("#quem").textContent = "Logado como " + USUARIO_ADMIN;
+    try {
+        await carregar();
+    } catch (e) {
+        aviso($("#painel-aviso"), "⚠️ Não consegui carregar os anúncios: " + msgErro(e), "erro");
+    }
+}
+
+function bootSessao() {
+    if (loginOk() && segOk()) {
+        atualizarTelas();
+        entrarPainel();
+        return;
+    }
+    if (loginOk() && !segOk()) {
+        atualizarTelas();
+        iniciarSeguranca();
+        return;
+    }
+    limparSessao();
+    atualizarTelas();
 }
 
 /* ---------- Corte de imagem ---------- */
@@ -849,259 +911,21 @@ async function lancar(slot) {
 
 function msgErro(e) {
     const cod = e && e.code ? e.code : "";
-    if (cod === "auth/popup-closed-by-user") return "Você fechou a janela do Google antes de concluir.";
-    if (cod === "auth/popup-blocked") return "O navegador bloqueou o pop-up do Google. Libere pop-ups para este site ou tente de novo — vamos redirecionar automaticamente.";
-    if (cod === "auth/cancelled-popup-request") return "";
-    if (cod === "auth/unauthorized-domain") return "O domínio " + location.hostname + " não está autorizado no Firebase (Authentication → Settings → Domínios autorizados).";
-    if (cod === "auth/network-request-failed") return "Sem conexão com a internet. Verifique sua rede e tente de novo.";
-    if (cod === "permission-denied") return "Sem permissão para gravar. No Firebase, vá em Firestore → Regras e adicione a regra de publicidade.";
+    if (cod === "permission-denied") {
+        return "Sem permissão para gravar. No Firebase → Firestore → Regras, use: match /publicidade/{doc} { allow read: if true; allow write: if true; }";
+    }
     if (cod === "unavailable") return "Firestore indisponível no momento. Tente de novo em alguns segundos.";
-    if (e && e.message === "login-timeout") return ehMobile()
-        ? "Demorou demais. Toque de novo ou use “Abrir no Safari” (iPhone)."
-        : "Demorou demais para abrir o Google. Verifique se um pop-up ficou atrás da janela ou se o navegador bloqueou pop-ups.";
+    if (cod === "auth/network-request-failed") return "Sem conexão com a internet. Verifique sua rede e tente de novo.";
     return (e && e.message) ? e.message.replace("Firebase: ", "") : "Algo deu errado. Tente novamente.";
 }
 
-async function validarUsuario(cred) {
-    if ((cred.user.email || "").toLowerCase() !== EMAIL_ADMIN) {
-        await signOut(auth);
-        throw new Error("Esta conta não tem acesso ao painel de publicidade.");
-    }
-}
-
-function rotuloGoogle(btn, texto) {
-    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> ' + texto;
-}
-
-function ehMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "")
-        || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent || ""));
-}
-
-function ehIOS() {
-    return /iPhone|iPad|iPod/i.test(navigator.userAgent || "")
-        || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent || ""));
-}
-
-function ehStandalone() {
-    try {
-        if (window.matchMedia("(display-mode: standalone)").matches) return true;
-        if (window.matchMedia("(display-mode: fullscreen)").matches) return true;
-    } catch (_) {}
-    if (window.navigator.standalone === true) return true;
-    if (document.referrer && document.referrer.startsWith("android-app://")) return true;
-    return false;
-}
-
-const OAUTH_LOCK = "pub_oauth_lock_v1";
-const URL_PUBLI_NAV = "https://appsarpi.github.io/controle-financeiro/publicidade/";
-
-function limparUrlLogin() {
-    try {
-        if (location.search || location.hash) {
-            history.replaceState({}, "", location.pathname);
-        }
-    } catch (_) {}
-}
-
-function marcarOAuthPendente() {
-    try { sessionStorage.setItem(OAUTH_LOCK, "1"); } catch (_) {}
-}
-
-function consumirOAuthPendente() {
-    try {
-        const v = sessionStorage.getItem(OAUTH_LOCK) === "1";
-        sessionStorage.removeItem(OAUTH_LOCK);
-        return v;
-    } catch (_) {
-        return false;
-    }
-}
-
-function configurarLoginMobile() {
-    // Quebra loop antigo (?login=1 / redirect) assim que a página abre
-    limparUrlLogin();
-
-    if (ehMobile()) {
-        const dica = $("#login-mobile-dica");
-        if (dica) {
-            dica.style.display = "block";
-            dica.textContent = ehStandalone()
-                ? "Pelo ícone da tela inicial o Google trava. Entre pelo Safari ou Chrome."
-                : "Toque em Entrar com Google e use a conta deste celular.";
-        }
-    }
-    const link = $("#login-safari-link");
-    const botao = $("#btn-google");
-    if (ehStandalone()) {
-        if (link) {
-            link.style.display = "block";
-            link.href = URL_PUBLI_NAV;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.textContent = ehIOS() ? "Abrir no Safari e entrar" : "Abrir no Chrome e entrar";
-        }
-        if (botao) {
-            rotuloGoogle(botao, ehIOS() ? "Abrir no Safari e entrar" : "Abrir no Chrome e entrar");
-        }
-        aviso($("#login-aviso"), "No atalho o login com Google não funciona. Abra no navegador.", "erro");
-    }
-}
-
-function voltarBotaoGoogle() {
-    const botao = $("#btn-google");
-    botao.disabled = false;
-    rotuloGoogle(botao, ehStandalone()
-        ? (ehIOS() ? "Abrir no Safari e entrar" : "Abrir no Chrome e entrar")
-        : "Entrar com Google");
-}
-
-function providerGoogle() {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ login_hint: EMAIL_ADMIN });
-    return provider;
-}
-
-async function iniciarRedirectGoogle() {
-    marcarOAuthPendente();
-    await signInWithRedirect(auth, providerGoogle());
-}
-
-async function entrarComGoogle() {
-    const botao = $("#btn-google");
-    if (botao.disabled) return;
-
-    // Atalho/favorito: NUNCA chamar Firebase daqui — causa loop infinito com firebaseapp.com
-    if (ehStandalone()) {
-        const abriu = window.open(URL_PUBLI_NAV, "_blank", "noopener,noreferrer");
-        aviso($("#login-aviso"), abriu
-            ? "Abriu no navegador. Faça o login lá — não pelo ícone."
-            : "Toque no link azul abaixo para abrir o Safari/Chrome e entrar.", "erro");
-        return;
-    }
-
-    botao.disabled = true;
-    rotuloGoogle(botao, "Abrindo Google…");
-    aviso($("#login-aviso"), "", "");
-    let redirecionando = false;
-    try {
-        // Preferir popup (mesma origem). Redirect só se o popup falhar.
-        try {
-            const cred = await comTimeout(signInWithPopup(auth, providerGoogle()), 25000, new Error("login-timeout"));
-            await validarUsuario(cred);
-        } catch (e) {
-            const cod = e && e.code ? e.code : "";
-            const usarRedirect = !ehMobile() && (
-                cod === "auth/popup-blocked" ||
-                e.message === "login-timeout" ||
-                cod === "auth/operation-not-supported-in-this-environment"
-            );
-            // No celular, popup fechado/timeout: tentar redirect UMA vez (só no navegador, nunca no atalho)
-            if (ehMobile() && (cod === "auth/popup-blocked" || e.message === "login-timeout" ||
-                cod === "auth/operation-not-supported-in-this-environment")) {
-                redirecionando = true;
-                aviso($("#login-aviso"), "Abrindo Google…", "ok");
-                await iniciarRedirectGoogle();
-                return;
-            }
-            if (usarRedirect) {
-                redirecionando = true;
-                aviso($("#login-aviso"), "Redirecionando para o Google…", "ok");
-                await iniciarRedirectGoogle();
-                return;
-            }
-            throw e;
-        }
-    } catch (e) {
-        const msg = msgErro(e);
-        if (msg) aviso($("#login-aviso"), msg, "erro");
-    } finally {
-        if (!redirecionando) voltarBotaoGoogle();
-    }
-}
-
-async function processarRedirectLogin() {
-    // IMPORTANTE: nunca chamar signInWithRedirect automaticamente aqui (causa loop)
-    limparUrlLogin();
-    const pendente = consumirOAuthPendente();
-    try {
-        const cred = await getRedirectResult(auth);
-        if (cred) {
-            await validarUsuario(cred);
-            aviso($("#login-aviso"), "Login ok. Responda a verificação de segurança.", "ok");
-            return;
-        }
-        if (pendente && !auth.currentUser) {
-            aviso($("#login-aviso"), "O login não concluiu neste atalho. Abra no Safari/Chrome e entre por lá.", "erro");
-        }
-    } catch (e) {
-        const cod = e && e.code ? e.code : "";
-        if (cod === "auth/missing-initial-state" || /missing initial state/i.test(e.message || "")) {
-            aviso($("#login-aviso"), "Login interrompido. Abra no Safari ou Chrome (não pelo ícone) e tente de novo.", "erro");
-        } else {
-            aviso($("#login-aviso"), msgErro(e), "erro");
-        }
-    } finally {
-        if (!auth.currentUser) voltarBotaoGoogle();
-    }
-}
-
-async function entrarPainel() {
-    const user = auth.currentUser;
-    if (!user) return;
-    $("#quem").textContent = "Conectado como " + user.email;
-    try {
-        await carregar();
-    } catch (e) {
-        aviso($("#painel-aviso"), "⚠️ Não consegui carregar os anúncios: " + msgErro(e), "erro");
-    }
-}
-
-function aplicarUsuarioAuth(user) {
-    const logado = !!(user && (user.email || "").toLowerCase() === EMAIL_ADMIN);
-    authUserCache = logado ? user : null;
-    if (!logado) {
-        if (user) {
-            // Conta Google errada
-            signOut(auth);
-            aviso($("#login-aviso"), "Esta conta não tem acesso ao painel. Use " + EMAIL_ADMIN + ".", "erro");
-        }
-        limparSeg();
-        atualizarTelas(false);
-        return;
-    }
-    atualizarTelas(true);
-    if (!segOk()) {
-        iniciarSeguranca();
-        return;
-    }
-    entrarPainel();
-}
-
-onAuthStateChanged(auth, user => {
-    // Evita “piscar” login quando o Firebase passa por null momentâneo
-    if (!user) {
-        clearTimeout(authNullTimer);
-        authNullTimer = setTimeout(() => {
-            if (!auth.currentUser) aplicarUsuarioAuth(null);
-        }, 400);
-        return;
-    }
-    clearTimeout(authNullTimer);
-    if ((user.email || "").toLowerCase() !== EMAIL_ADMIN) {
-        aplicarUsuarioAuth(user);
-        return;
-    }
-    aplicarUsuarioAuth(user);
-});
-
-$("#btn-google").addEventListener("click", entrarComGoogle);
+$("#btn-entrar").addEventListener("click", entrarComUsuario);
+$("#login-usuario").addEventListener("keydown", e => { if (e.key === "Enter") entrarComUsuario(); });
 $("#seg-confirmar").addEventListener("click", confirmarSeguranca);
 $("#seg-resposta").addEventListener("keydown", e => { if (e.key === "Enter") confirmarSeguranca(); });
-$("#btn-sair").addEventListener("click", () => { limparSeg(); signOut(auth); });
+$("#btn-sair").addEventListener("click", sair);
 
-configurarLoginMobile();
-processarRedirectLogin();
+bootSessao();
 
 SLOTS.forEach(slot => {
     const c = cartao(slot);
