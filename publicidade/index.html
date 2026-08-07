@@ -150,7 +150,7 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×90). Máximo de 5 MB.</div>
+                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×182, proporção 4:1). Máximo de 5 MB.</div>
             </div>
             <div class="campo">
                 <label>Ou cole o link de uma imagem</label>
@@ -188,7 +188,7 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×90). Máximo de 5 MB.</div>
+                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×182, proporção 4:1). Máximo de 5 MB.</div>
             </div>
             <div class="campo">
                 <label>Ou cole o link de uma imagem</label>
@@ -264,7 +264,7 @@ const SLOTS = ["topo", "rodape"];
 const TAM_MAX = 5 * 1024 * 1024;
 const TAM_MAX_FIRESTORE = 900 * 1024;
 const SEG_KEY = "pub_seg_ok_v1";
-const CROP_ASPECT = 728 / 90;
+const CROP_ASPECT = 4;
 const CROP_LARGURA = 728;
 
 const PERGUNTAS_SEG = [
