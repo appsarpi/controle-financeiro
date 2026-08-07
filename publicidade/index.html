@@ -331,9 +331,17 @@ const refAnuncios = doc(db, "publicidade", "slots");
 const $ = sel => document.querySelector(sel);
 const cartao = slot => document.querySelector(`.card[data-slot="${slot}"]`);
 
+const URL_REGRAS_FIRESTORE = "https://console.firebase.google.com/project/" + firebaseConfig.projectId + "/firestore/rules";
+
 function aviso(el, texto, tipo) {
     el.textContent = texto || "";
     el.className = "aviso" + (texto ? " " + tipo : "");
+}
+
+function avisoPermissao(el) {
+    el.className = "aviso erro";
+    el.innerHTML = '⚠️ Sem permissão para gravar no Firestore. Abra as regras e libere a coleção <b>publicidade</b>.'
+        + '<br><a href="' + URL_REGRAS_FIRESTORE + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;font-weight:800;">Abrir regras do Firestore →</a>';
 }
 
 function embaralhar(arr) {
@@ -902,7 +910,11 @@ async function lancar(slot) {
         const msgModo = modo === "vazio" ? "espaço desligado" : (modo === "anuncie" ? "Anuncie aqui no ar" : "anúncio lançado");
         aviso(painelAviso, `✅ Retângulo ${nome}: ${msgModo}. Já está valendo no app financeiro.`, "ok");
     } catch (e) {
-        aviso(painelAviso, "⚠️ " + msgErro(e), "erro");
+        if (e && e.code === "permission-denied") {
+            avisoPermissao(painelAviso);
+        } else {
+            aviso(painelAviso, "⚠️ " + msgErro(e), "erro");
+        }
     } finally {
         botao.disabled = false;
         botao.textContent = rotuloOriginal;
@@ -911,9 +923,7 @@ async function lancar(slot) {
 
 function msgErro(e) {
     const cod = e && e.code ? e.code : "";
-    if (cod === "permission-denied") {
-        return "Sem permissão para gravar. No Firebase → Firestore → Regras, use: match /publicidade/{doc} { allow read: if true; allow write: if true; }";
-    }
+    if (cod === "permission-denied") return "Sem permissão no Firestore. Libere a coleção publicidade nas regras.";
     if (cod === "unavailable") return "Firestore indisponível no momento. Tente de novo em alguns segundos.";
     if (cod === "auth/network-request-failed") return "Sem conexão com a internet. Verifique sua rede e tente de novo.";
     return (e && e.message) ? e.message.replace("Firebase: ", "") : "Algo deu errado. Tente novamente.";
