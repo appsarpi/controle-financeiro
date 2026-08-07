@@ -79,11 +79,19 @@
     #modal-corte { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.72); align-items: center; justify-content: center; padding: 16px; }
     #modal-corte.aberto { display: flex; }
     .corte-box { width: 100%; max-width: 760px; background: #fff; border-radius: 18px; padding: 18px; max-height: 92vh; overflow: auto; }
-    .corte-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
-    .corte-box p { font-size: 12px; color: #8e8e93; margin-bottom: 14px; line-height: 1.45; }
+    .corte-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .corte-topo h3 { font-size: 17px; font-weight: 800; margin: 0; flex: 1; }
+    .btn-ok-topo { background: #007aff; color: #fff; font-weight: 700; font-size: 15px; border-radius: 10px; padding: 0 20px; height: 38px; flex-shrink: 0; }
+    .btn-ok-topo:disabled { background: #b4d5ff; }
+    .corte-box > p { font-size: 12px; color: #8e8e93; margin-bottom: 10px; line-height: 1.45; }
+    .corte-zoom { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 12px; }
+    .corte-zoom button { width: 40px; height: 40px; border-radius: 50%; background: #f2f2f7; color: #1c1c1e; font-size: 22px; font-weight: 700; line-height: 1; }
+    .corte-zoom button:active { background: #e5e5ea; }
+    #corte-zoom-label { font-size: 13px; font-weight: 700; color: #6c6c70; min-width: 48px; text-align: center; }
     .corte-area { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; touch-action: none; user-select: none; }
     #corte-canvas { display: block; width: 100%; height: auto; cursor: grab; }
     #corte-canvas.arrastando { cursor: grabbing; }
+    #corte-canvas.redimensionando { cursor: nwse-resize; }
     .corte-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
     .corte-acoes .btn-sec { width: 100%; height: 44px; }
 </style>
@@ -217,8 +225,16 @@
 
 <div id="modal-corte">
     <div class="corte-box">
-        <h3>Cortar imagem</h3>
-        <p>Arraste o retângulo azul para escolher a área do banner. O formato é fixo (728×90) para caber no espaço de publicidade.</p>
+        <div class="corte-topo">
+            <h3>Cortar imagem</h3>
+            <button class="btn-ok-topo" id="corte-ok-topo" type="button">OK</button>
+        </div>
+        <p>Arraste para mover · use <b>+</b>/<b>−</b>, scroll ou pinça para aumentar/diminuir o zoom do retângulo.</p>
+        <div class="corte-zoom">
+            <button type="button" id="corte-menos" aria-label="Diminuir zoom">−</button>
+            <span id="corte-zoom-label">100%</span>
+            <button type="button" id="corte-mais" aria-label="Aumentar zoom">+</button>
+        </div>
         <div class="corte-area">
             <canvas id="corte-canvas"></canvas>
         </div>
@@ -350,13 +366,27 @@ function confirmarSeguranca() {
 /* ---------- Corte de imagem ---------- */
 const corteCanvas = $("#corte-canvas");
 const corteCtx = corteCanvas.getContext("2d");
+const CORTE_HANDLE = 28;
+const CORTE_MIN_W = 48;
 let corteImg = null;
 let corteRect = { x: 0, y: 0, w: 100, h: 100 / CROP_ASPECT };
-let corteEscala = 1;
-let corteArrastando = false;
+let corteBaseW = 100;
+let corteModo = null;
 let corteOffset = { x: 0, y: 0 };
+let cortePinchDist = 0;
+let cortePinchW = 0;
 let corteResolver = null;
 let corteRejeitar = null;
+
+function zoomCortePct() {
+    if (!corteBaseW) return 100;
+    return Math.round((corteRect.w / corteBaseW) * 100);
+}
+
+function atualizarZoomLabel() {
+    const el = $("#corte-zoom-label");
+    if (el) el.textContent = zoomCortePct() + "%";
+}
 
 function desenharCorte() {
     if (!corteImg) return;
@@ -371,12 +401,21 @@ function desenharCorte() {
     corteCtx.strokeStyle = "#007aff";
     corteCtx.lineWidth = 2;
     corteCtx.strokeRect(corteRect.x + 1, corteRect.y + 1, corteRect.w - 2, corteRect.h - 2);
+    const hx = corteRect.x + corteRect.w;
+    const hy = corteRect.y + corteRect.h;
+    corteCtx.fillStyle = "#007aff";
+    corteCtx.fillRect(hx - 10, hy - 10, 20, 20);
+    corteCtx.strokeStyle = "#fff";
+    corteCtx.lineWidth = 2;
+    corteCtx.strokeRect(hx - 10, hy - 10, 20, 20);
+    atualizarZoomLabel();
 }
 
 function limitarCorte() {
     const cw = corteCanvas.width;
     const ch = corteCanvas.height;
-    corteRect.w = Math.min(corteRect.w, cw);
+    const maxW = Math.min(cw, ch * CROP_ASPECT);
+    corteRect.w = Math.max(CORTE_MIN_W, Math.min(corteRect.w, maxW));
     corteRect.h = corteRect.w / CROP_ASPECT;
     if (corteRect.h > ch) {
         corteRect.h = ch;
@@ -384,6 +423,17 @@ function limitarCorte() {
     }
     corteRect.x = Math.max(0, Math.min(corteRect.x, cw - corteRect.w));
     corteRect.y = Math.max(0, Math.min(corteRect.y, ch - corteRect.h));
+}
+
+function zoomCorte(fator) {
+    const cx = corteRect.x + corteRect.w / 2;
+    const cy = corteRect.y + corteRect.h / 2;
+    corteRect.w *= fator;
+    corteRect.h = corteRect.w / CROP_ASPECT;
+    corteRect.x = cx - corteRect.w / 2;
+    corteRect.y = cy - corteRect.h / 2;
+    limitarCorte();
+    desenharCorte();
 }
 
 function posCorte(ev) {
@@ -394,30 +444,81 @@ function posCorte(ev) {
     return { x: (src.clientX - r.left) * sx, y: (src.clientY - r.top) * sy };
 }
 
+function noHandle(p) {
+    const hx = corteRect.x + corteRect.w;
+    const hy = corteRect.y + corteRect.h;
+    return p.x >= hx - CORTE_HANDLE && p.x <= hx + 8 && p.y >= hy - CORTE_HANDLE && p.y <= hy + 8;
+}
+
+function dentroCorte(p) {
+    return p.x >= corteRect.x && p.x <= corteRect.x + corteRect.w &&
+           p.y >= corteRect.y && p.y <= corteRect.y + corteRect.h;
+}
+
+function distPinch(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+}
+
 function iniciarArraste(ev) {
     ev.preventDefault();
+    if (ev.touches && ev.touches.length === 2) {
+        corteModo = "pinch";
+        cortePinchDist = distPinch(ev.touches);
+        cortePinchW = corteRect.w;
+        return;
+    }
     const p = posCorte(ev);
-    if (p.x >= corteRect.x && p.x <= corteRect.x + corteRect.w && p.y >= corteRect.y && p.y <= corteRect.y + corteRect.h) {
-        corteArrastando = true;
+    if (noHandle(p)) {
+        corteModo = "resize";
+        corteCanvas.classList.add("redimensionando");
+    } else if (dentroCorte(p)) {
+        corteModo = "move";
         corteOffset.x = p.x - corteRect.x;
         corteOffset.y = p.y - corteRect.y;
         corteCanvas.classList.add("arrastando");
+    } else {
+        corteModo = null;
     }
 }
 
 function moverArraste(ev) {
-    if (!corteArrastando) return;
+    if (!corteModo) return;
     ev.preventDefault();
+    if (corteModo === "pinch" && ev.touches && ev.touches.length === 2) {
+        const d = distPinch(ev.touches);
+        if (cortePinchDist > 0) {
+            const cx = corteRect.x + corteRect.w / 2;
+            const cy = corteRect.y + corteRect.h / 2;
+            corteRect.w = cortePinchW * (d / cortePinchDist);
+            corteRect.h = corteRect.w / CROP_ASPECT;
+            corteRect.x = cx - corteRect.w / 2;
+            corteRect.y = cy - corteRect.h / 2;
+            limitarCorte();
+            desenharCorte();
+        }
+        return;
+    }
     const p = posCorte(ev);
-    corteRect.x = p.x - corteOffset.x;
-    corteRect.y = p.y - corteOffset.y;
-    limitarCorte();
-    desenharCorte();
+    if (corteModo === "move") {
+        corteRect.x = p.x - corteOffset.x;
+        corteRect.y = p.y - corteOffset.y;
+        limitarCorte();
+        desenharCorte();
+    } else if (corteModo === "resize") {
+        const nw = Math.max(CORTE_MIN_W, p.x - corteRect.x);
+        corteRect.w = nw;
+        corteRect.h = nw / CROP_ASPECT;
+        limitarCorte();
+        desenharCorte();
+    }
 }
 
 function pararArraste() {
-    corteArrastando = false;
-    corteCanvas.classList.remove("arrastando");
+    corteModo = null;
+    cortePinchDist = 0;
+    corteCanvas.classList.remove("arrastando", "redimensionando");
 }
 
 function fecharCorte(rejeitar) {
@@ -464,7 +565,6 @@ function abrirCorte(arquivo) {
             const escala = Math.min(maxW / img.naturalWidth, 1);
             corteCanvas.width = Math.round(img.naturalWidth * escala);
             corteCanvas.height = Math.round(img.naturalHeight * escala);
-            corteEscala = escala;
             corteRect.w = Math.min(corteCanvas.width, corteCanvas.width * 0.92);
             corteRect.h = corteRect.w / CROP_ASPECT;
             if (corteRect.h > corteCanvas.height) {
@@ -473,6 +573,7 @@ function abrirCorte(arquivo) {
             }
             corteRect.x = (corteCanvas.width - corteRect.w) / 2;
             corteRect.y = (corteCanvas.height - corteRect.h) / 2;
+            corteBaseW = corteRect.w;
             limitarCorte();
             desenharCorte();
             $("#modal-corte").classList.add("aberto");
@@ -491,8 +592,15 @@ window.addEventListener("mouseup", pararArraste);
 corteCanvas.addEventListener("touchstart", iniciarArraste, { passive: false });
 corteCanvas.addEventListener("touchmove", moverArraste, { passive: false });
 window.addEventListener("touchend", pararArraste);
+corteCanvas.addEventListener("wheel", ev => {
+    ev.preventDefault();
+    zoomCorte(ev.deltaY < 0 ? 1.07 : 0.93);
+}, { passive: false });
+$("#corte-menos").addEventListener("click", () => zoomCorte(0.9));
+$("#corte-mais").addEventListener("click", () => zoomCorte(1.1));
 $("#corte-cancelar").addEventListener("click", () => fecharCorte(true));
 $("#corte-confirmar").addEventListener("click", confirmarCorte);
+$("#corte-ok-topo").addEventListener("click", confirmarCorte);
 
 /* ---------- Painel ---------- */
 function paraInput(iso) {
