@@ -15,14 +15,12 @@
     }
     a { color: #007aff; }
 
-    /* ---------- Login ---------- */
-    #tela-login { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-    .login-box { width: 100%; max-width: 380px; background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); text-align: center; }
+    .tela-centro { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+    .login-box { width: 100%; max-width: 420px; background: #fff; border-radius: 20px; padding: 28px 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); text-align: center; }
     .login-box .emoji { font-size: 52px; margin-bottom: 10px; }
     .login-box h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-    .login-box p { font-size: 13px; color: #8e8e93; margin-bottom: 22px; }
+    .login-box p { font-size: 13px; color: #8e8e93; margin-bottom: 22px; line-height: 1.45; }
 
-    /* ---------- Painel ---------- */
     #tela-painel { display: none; max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
     .cabecalho { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
     .cabecalho h1 { font-size: 20px; font-weight: 800; }
@@ -41,17 +39,17 @@
     .selo.encerrado { background: #f2f2f7; color: #8e8e93; }
     .selo.inativo { background: #f2f2f7; color: #8e8e93; }
 
-    label { display: block; font-size: 12px; font-weight: 700; color: #6c6c70; margin-bottom: 6px; }
+    label { display: block; font-size: 12px; font-weight: 700; color: #6c6c70; margin-bottom: 6px; text-align: left; }
     .campo { margin-bottom: 14px; }
     .linha-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    input[type=text], input[type=url], input[type=email], input[type=password], input[type=datetime-local] {
+    input[type=text], input[type=url], input[type=datetime-local] {
         width: 100%; height: 44px; border-radius: 11px; border: 1.5px solid #e5e5ea;
         padding: 0 12px; font-family: inherit; font-size: 15px; background: #fff; color: #1c1c1e;
     }
     input:focus { outline: none; border-color: #007aff; }
     input[type=file] { width: 100%; font-family: inherit; font-size: 13px; }
 
-    .dica { font-size: 11px; color: #8e8e93; margin-top: 5px; line-height: 1.45; }
+    .dica { font-size: 11px; color: #8e8e93; margin-top: 5px; line-height: 1.45; text-align: left; }
 
     .preview { width: 100%; border-radius: 12px; border: 1px dashed #d1d1d6; background: #f9f9fb; min-height: 90px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 14px; }
     .preview img { width: 100%; display: block; }
@@ -65,24 +63,34 @@
     .btn { width: 100%; height: 48px; border-radius: 13px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-primary { background: #007aff; color: #fff; }
     .btn-primary:disabled { background: #b4d5ff; cursor: not-allowed; }
-    .btn-google { background: #f2f2f7; color: #1c1c1e; margin-bottom: 6px; }
+    .btn-google { background: #f2f2f7; color: #1c1c1e; }
     .btn-google:disabled { opacity: 0.6; cursor: not-allowed; }
-    .ou { display: flex; align-items: center; gap: 10px; margin: 16px 0 14px; }
-    .ou::before, .ou::after { content: ""; flex: 1; height: 1px; background: #e5e5ea; }
-    .ou span { font-size: 11px; color: #aeaeb2; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
     .btn-sec { background: #f2f2f7; color: #1c1c1e; height: 38px; font-size: 13px; border-radius: 10px; width: auto; padding: 0 14px; }
-    .btn-perigo { background: #fff0f0; color: #ff3b30; }
+    .btn-opcao { background: #f9f9fb; color: #1c1c1e; border: 1.5px solid #e5e5ea; text-align: left; justify-content: flex-start; padding: 0 14px; height: auto; min-height: 48px; font-size: 14px; line-height: 1.35; margin-bottom: 8px; }
+    .btn-opcao:hover { border-color: #007aff; background: #f0f7ff; }
 
     .aviso { display: none; font-size: 13px; font-weight: 600; padding: 12px 14px; border-radius: 12px; margin-bottom: 14px; line-height: 1.45; text-align: left; }
     .aviso.erro { display: block; background: #ffeceb; color: #c0271c; }
     .aviso.ok { display: block; background: #e8f8ee; color: #1a7f42; }
 
     .rodape-nota { text-align: center; font-size: 11px; color: #8e8e93; margin-top: 26px; line-height: 1.6; }
+
+    /* Modal de corte */
+    #modal-corte { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.72); align-items: center; justify-content: center; padding: 16px; }
+    #modal-corte.aberto { display: flex; }
+    .corte-box { width: 100%; max-width: 760px; background: #fff; border-radius: 18px; padding: 18px; max-height: 92vh; overflow: auto; }
+    .corte-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+    .corte-box p { font-size: 12px; color: #8e8e93; margin-bottom: 14px; line-height: 1.45; }
+    .corte-area { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #111; touch-action: none; user-select: none; }
+    #corte-canvas { display: block; width: 100%; height: auto; cursor: grab; }
+    #corte-canvas.arrastando { cursor: grabbing; }
+    .corte-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .corte-acoes .btn-sec { width: 100%; height: 44px; }
 </style>
 </head>
 <body>
 
-<div id="tela-login">
+<div id="tela-login" class="tela-centro">
     <div class="login-box">
         <div class="emoji">📣</div>
         <h1>Publicidade</h1>
@@ -92,14 +100,23 @@
             <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Entrar com Google
         </button>
-        <div class="ou"><span>ou com e-mail e senha</span></div>
-        <div class="campo">
-            <input type="email" id="in-email" placeholder="E-mail" autocomplete="username">
+    </div>
+</div>
+
+<div id="tela-seguranca" class="tela-centro" style="display:none">
+    <div class="login-box">
+        <div class="emoji">🔒</div>
+        <h1>Verificação de segurança</h1>
+        <p id="seg-subtitulo">Qual a pergunta de segurança?</p>
+        <div class="aviso" id="seg-aviso"></div>
+        <div id="seg-passo1"></div>
+        <div id="seg-passo2" style="display:none">
+            <div class="campo">
+                <label id="seg-pergunta-label">Resposta</label>
+                <input type="text" id="seg-resposta" placeholder="Digite sua resposta" autocomplete="off">
+            </div>
+            <button class="btn btn-primary" id="seg-confirmar">Confirmar</button>
         </div>
-        <div class="campo">
-            <input type="password" id="in-senha" placeholder="Senha" autocomplete="current-password">
-        </div>
-        <button class="btn btn-primary" id="btn-entrar">Entrar</button>
     </div>
 </div>
 
@@ -125,7 +142,7 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Formato recomendado: 728×90 no PC / 400×100 no celular. Máximo de 5 MB. A imagem é comprimida e salva direto na nuvem — não precisa ativar o Firebase Storage.</div>
+                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×90). Máximo de 5 MB.</div>
             </div>
             <div class="campo">
                 <label>Ou cole o link de uma imagem</label>
@@ -163,7 +180,7 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Formato recomendado: 728×90 no PC / 400×100 no celular. Máximo de 5 MB. A imagem é comprimida e salva direto na nuvem — não precisa ativar o Firebase Storage.</div>
+                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×90). Máximo de 5 MB.</div>
             </div>
             <div class="campo">
                 <label>Ou cole o link de uma imagem</label>
@@ -198,9 +215,23 @@
     </div>
 </div>
 
+<div id="modal-corte">
+    <div class="corte-box">
+        <h3>Cortar imagem</h3>
+        <p>Arraste o retângulo azul para escolher a área do banner. O formato é fixo (728×90) para caber no espaço de publicidade.</p>
+        <div class="corte-area">
+            <canvas id="corte-canvas"></canvas>
+        </div>
+        <div class="corte-acoes">
+            <button class="btn btn-sec" id="corte-cancelar" type="button">Cancelar</button>
+            <button class="btn btn-primary" id="corte-confirmar" type="button">Usar este corte</button>
+        </div>
+    </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { initializeFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -216,6 +247,18 @@ const EMAIL_ADMIN = "pssarpi@gmail.com";
 const SLOTS = ["topo", "rodape"];
 const TAM_MAX = 5 * 1024 * 1024;
 const TAM_MAX_FIRESTORE = 900 * 1024;
+const SEG_KEY = "pub_seg_ok_v1";
+const CROP_ASPECT = 728 / 90;
+const CROP_LARGURA = 728;
+
+const PERGUNTAS_SEG = [
+    { id: "certa", texto: "Qual o nome do seu melhor amigo da infância?" },
+    { id: "f1", texto: "Qual o nome do seu primeiro animal de estimação?" },
+    { id: "f2", texto: "Em qual cidade você nasceu?" },
+    { id: "f3", texto: "Qual o nome de solteira da sua mãe?" },
+    { id: "f4", texto: "Qual foi o nome da sua primeira escola?" }
+];
+const RESPOSTA_SEG = "Luiz Otávio";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -230,6 +273,228 @@ function aviso(el, texto, tipo) {
     el.className = "aviso" + (texto ? " " + tipo : "");
 }
 
+function embaralhar(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function segOk() {
+    return sessionStorage.getItem(SEG_KEY) === "1";
+}
+
+function marcarSegOk() {
+    sessionStorage.setItem(SEG_KEY, "1");
+}
+
+function limparSeg() {
+    sessionStorage.removeItem(SEG_KEY);
+}
+
+function atualizarTelas(logado) {
+    const segPassou = segOk();
+    $("#tela-login").style.display = logado ? "none" : "flex";
+    $("#tela-seguranca").style.display = logado && !segPassou ? "flex" : "none";
+    $("#tela-painel").style.display = logado && segPassou ? "block" : "none";
+}
+
+function iniciarSeguranca() {
+    aviso($("#seg-aviso"), "", "");
+    $("#seg-passo1").style.display = "block";
+    $("#seg-passo2").style.display = "none";
+    $("#seg-subtitulo").textContent = "Qual a pergunta de segurança?";
+    $("#seg-resposta").value = "";
+
+    const alvo = $("#seg-passo1");
+    alvo.innerHTML = "";
+    embaralhar(PERGUNTAS_SEG).forEach(p => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-opcao";
+        btn.textContent = p.texto;
+        btn.addEventListener("click", () => escolherPergunta(p.id, p.texto));
+        alvo.appendChild(btn);
+    });
+}
+
+function escolherPergunta(id, texto) {
+    if (id !== "certa") {
+        aviso($("#seg-aviso"), "Pergunta incorreta. Acesso negado.", "erro");
+        setTimeout(() => signOut(auth), 1800);
+        return;
+    }
+    aviso($("#seg-aviso"), "", "");
+    $("#seg-passo1").style.display = "none";
+    $("#seg-passo2").style.display = "block";
+    $("#seg-subtitulo").textContent = texto;
+    $("#seg-pergunta-label").textContent = "Sua resposta";
+    $("#seg-resposta").focus();
+}
+
+function confirmarSeguranca() {
+    const resp = $("#seg-resposta").value.trim();
+    if (resp !== RESPOSTA_SEG) {
+        aviso($("#seg-aviso"), "Resposta incorreta. Acesso negado.", "erro");
+        setTimeout(() => signOut(auth), 1800);
+        return;
+    }
+    marcarSegOk();
+    aviso($("#seg-aviso"), "", "");
+    atualizarTelas(true);
+    entrarPainel();
+}
+
+/* ---------- Corte de imagem ---------- */
+const corteCanvas = $("#corte-canvas");
+const corteCtx = corteCanvas.getContext("2d");
+let corteImg = null;
+let corteRect = { x: 0, y: 0, w: 100, h: 100 / CROP_ASPECT };
+let corteEscala = 1;
+let corteArrastando = false;
+let corteOffset = { x: 0, y: 0 };
+let corteResolver = null;
+let corteRejeitar = null;
+
+function desenharCorte() {
+    if (!corteImg) return;
+    const cw = corteCanvas.width;
+    const ch = corteCanvas.height;
+    corteCtx.clearRect(0, 0, cw, ch);
+    corteCtx.drawImage(corteImg, 0, 0, cw, ch);
+    corteCtx.fillStyle = "rgba(0,0,0,0.55)";
+    corteCtx.fillRect(0, 0, cw, ch);
+    corteCtx.clearRect(corteRect.x, corteRect.y, corteRect.w, corteRect.h);
+    corteCtx.drawImage(corteImg, 0, 0, cw, ch);
+    corteCtx.strokeStyle = "#007aff";
+    corteCtx.lineWidth = 2;
+    corteCtx.strokeRect(corteRect.x + 1, corteRect.y + 1, corteRect.w - 2, corteRect.h - 2);
+}
+
+function limitarCorte() {
+    const cw = corteCanvas.width;
+    const ch = corteCanvas.height;
+    corteRect.w = Math.min(corteRect.w, cw);
+    corteRect.h = corteRect.w / CROP_ASPECT;
+    if (corteRect.h > ch) {
+        corteRect.h = ch;
+        corteRect.w = corteRect.h * CROP_ASPECT;
+    }
+    corteRect.x = Math.max(0, Math.min(corteRect.x, cw - corteRect.w));
+    corteRect.y = Math.max(0, Math.min(corteRect.y, ch - corteRect.h));
+}
+
+function posCorte(ev) {
+    const r = corteCanvas.getBoundingClientRect();
+    const sx = corteCanvas.width / r.width;
+    const sy = corteCanvas.height / r.height;
+    const src = ev.touches ? ev.touches[0] : ev;
+    return { x: (src.clientX - r.left) * sx, y: (src.clientY - r.top) * sy };
+}
+
+function iniciarArraste(ev) {
+    ev.preventDefault();
+    const p = posCorte(ev);
+    if (p.x >= corteRect.x && p.x <= corteRect.x + corteRect.w && p.y >= corteRect.y && p.y <= corteRect.y + corteRect.h) {
+        corteArrastando = true;
+        corteOffset.x = p.x - corteRect.x;
+        corteOffset.y = p.y - corteRect.y;
+        corteCanvas.classList.add("arrastando");
+    }
+}
+
+function moverArraste(ev) {
+    if (!corteArrastando) return;
+    ev.preventDefault();
+    const p = posCorte(ev);
+    corteRect.x = p.x - corteOffset.x;
+    corteRect.y = p.y - corteOffset.y;
+    limitarCorte();
+    desenharCorte();
+}
+
+function pararArraste() {
+    corteArrastando = false;
+    corteCanvas.classList.remove("arrastando");
+}
+
+function fecharCorte(rejeitar) {
+    $("#modal-corte").classList.remove("aberto");
+    pararArraste();
+    if (rejeitar && corteRejeitar) corteRejeitar(new Error("Corte cancelado."));
+    corteResolver = null;
+    corteRejeitar = null;
+    corteImg = null;
+}
+
+function confirmarCorte() {
+    if (!corteImg || !corteResolver) return;
+    const sx = corteImg.naturalWidth / corteCanvas.width;
+    const sy = corteImg.naturalHeight / corteCanvas.height;
+    const out = document.createElement("canvas");
+    out.width = CROP_LARGURA;
+    out.height = Math.round(CROP_LARGURA / CROP_ASPECT);
+    out.getContext("2d").drawImage(
+        corteImg,
+        corteRect.x * sx, corteRect.y * sy, corteRect.w * sx, corteRect.h * sy,
+        0, 0, out.width, out.height
+    );
+    out.toBlob(blob => {
+        if (!blob) { fecharCorte(true); return; }
+        const resolver = corteResolver;
+        fecharCorte(false);
+        resolver(blob);
+    }, "image/jpeg", 0.88);
+}
+
+function abrirCorte(arquivo) {
+    if (!arquivo.type.startsWith("image/")) return Promise.reject(new Error("O arquivo escolhido não é uma imagem."));
+    if (arquivo.size > TAM_MAX) return Promise.reject(new Error("A imagem tem mais de 5 MB. Escolha uma menor."));
+    return new Promise((ok, err) => {
+        corteResolver = ok;
+        corteRejeitar = err;
+        const img = new Image();
+        const url = URL.createObjectURL(arquivo);
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            corteImg = img;
+            const maxW = Math.min(700, window.innerWidth - 48);
+            const escala = Math.min(maxW / img.naturalWidth, 1);
+            corteCanvas.width = Math.round(img.naturalWidth * escala);
+            corteCanvas.height = Math.round(img.naturalHeight * escala);
+            corteEscala = escala;
+            corteRect.w = Math.min(corteCanvas.width, corteCanvas.width * 0.92);
+            corteRect.h = corteRect.w / CROP_ASPECT;
+            if (corteRect.h > corteCanvas.height) {
+                corteRect.h = corteCanvas.height * 0.85;
+                corteRect.w = corteRect.h * CROP_ASPECT;
+            }
+            corteRect.x = (corteCanvas.width - corteRect.w) / 2;
+            corteRect.y = (corteCanvas.height - corteRect.h) / 2;
+            limitarCorte();
+            desenharCorte();
+            $("#modal-corte").classList.add("aberto");
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            err(new Error("Não consegui abrir essa imagem."));
+        };
+        img.src = url;
+    });
+}
+
+corteCanvas.addEventListener("mousedown", iniciarArraste);
+corteCanvas.addEventListener("mousemove", moverArraste);
+window.addEventListener("mouseup", pararArraste);
+corteCanvas.addEventListener("touchstart", iniciarArraste, { passive: false });
+corteCanvas.addEventListener("touchmove", moverArraste, { passive: false });
+window.addEventListener("touchend", pararArraste);
+$("#corte-cancelar").addEventListener("click", () => fecharCorte(true));
+$("#corte-confirmar").addEventListener("click", confirmarCorte);
+
+/* ---------- Painel ---------- */
 function paraInput(iso) {
     if (!iso) return "";
     const d = new Date(iso);
@@ -278,6 +543,8 @@ function preencher(slot, anuncio) {
     c.querySelector("[data-alt]").value = a.alt || "";
     c.querySelector("[data-inicio]").value = paraInput(a.inicio);
     c.querySelector("[data-fim]").value = paraInput(a.fim);
+    c._arquivoCortado = null;
+    c.querySelector("[data-arquivo]").value = "";
     mostrarPreview(slot, a.imagem);
     const s = situacao(a);
     const selo = c.querySelector("[data-selo]");
@@ -308,39 +575,9 @@ function blobParaDataUrl(blob) {
     });
 }
 
-function comprimirImagem(arquivo, larguraMax, qualidade) {
-    return new Promise((ok, err) => {
-        const img = new Image();
-        const url = URL.createObjectURL(arquivo);
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            const escala = Math.min(1, larguraMax / img.width);
-            const w = Math.max(1, Math.round(img.width * escala));
-            const h = Math.max(1, Math.round(img.height * escala));
-            const canvas = document.createElement("canvas");
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, w, h);
-            canvas.toBlob(blob => {
-                if (!blob) { err(new Error("Não consegui preparar a imagem.")); return; }
-                ok(blob);
-            }, "image/jpeg", qualidade);
-        };
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            err(new Error("Não consegui abrir essa imagem. Tente outro arquivo."));
-        };
-        img.src = url;
-    });
-}
-
-async function prepararImagem(arquivo) {
-    if (!arquivo.type.startsWith("image/")) throw new Error("O arquivo escolhido não é uma imagem.");
-    if (arquivo.size > TAM_MAX) throw new Error("A imagem tem mais de 5 MB. Escolha uma menor.");
-    const blob = await comprimirImagem(arquivo, 728, 0.82);
+async function prepararImagem(blob) {
     if (blob.size > TAM_MAX_FIRESTORE) {
-        throw new Error("Mesmo comprimida, a imagem ficou grande demais. Use uma menor ou cole o link de uma imagem.");
+        throw new Error("A imagem ficou grande demais. Tente um corte menor ou cole o link de uma imagem.");
     }
     return await blobParaDataUrl(blob);
 }
@@ -349,8 +586,7 @@ async function lancar(slot) {
     const c = cartao(slot);
     const botao = c.querySelector("[data-lancar]");
     const painelAviso = $("#painel-aviso");
-    const arquivoInput = c.querySelector("[data-arquivo]");
-    const arquivo = arquivoInput.files[0];
+    const blobCortado = c._arquivoCortado;
 
     botao.disabled = true;
     const rotuloOriginal = botao.textContent;
@@ -358,12 +594,12 @@ async function lancar(slot) {
 
     try {
         let imagem = c.querySelector("[data-imagem]").value.trim();
-        if (arquivo) {
+        if (blobCortado) {
             botao.textContent = "Preparando imagem…";
-            imagem = await comTimeout(prepararImagem(arquivo), 45000, "Demorou demais para preparar a imagem. Tente uma menor ou cole o link.");
+            imagem = await comTimeout(prepararImagem(blobCortado), 45000, "Demorou demais para preparar a imagem.");
             c.querySelector("[data-imagem]").value = imagem;
         }
-        if (!imagem) throw new Error("Escolha uma imagem ou cole o link de uma.");
+        if (!imagem) throw new Error("Escolha uma imagem (com corte) ou cole o link de uma.");
 
         const inicio = paraIso(c.querySelector("[data-inicio]").value);
         const fim = paraIso(c.querySelector("[data-fim]").value);
@@ -383,7 +619,7 @@ async function lancar(slot) {
         botao.textContent = "Lançando…";
         await comTimeout(setDoc(refAnuncios, { [slot]: anuncio }, { merge: true }), 30000, "Demorou demais para salvar. Confira as regras do Firestore e tente de novo.");
 
-        arquivoInput.value = "";
+        c._arquivoCortado = null;
         preencher(slot, anuncio);
         const nome = slot === "topo" ? "superior" : "inferior";
         aviso(painelAviso, `✅ Anúncio ${nome} lançado. Já está valendo no app financeiro.`, "ok");
@@ -397,15 +633,10 @@ async function lancar(slot) {
 
 function msgErro(e) {
     const cod = e && e.code ? e.code : "";
-    if (cod === "auth/invalid-credential" || cod === "auth/wrong-password" || cod === "auth/user-not-found") return "E-mail ou senha incorretos.";
-    if (cod === "auth/invalid-email") return "E-mail inválido.";
-    if (cod === "auth/too-many-requests") return "Muitas tentativas seguidas. Espere alguns minutos e tente de novo.";
-    if (cod === "auth/network-request-failed") return "Sem conexão com a internet.";
-    if (cod === "auth/operation-not-allowed") return "O login por e-mail e senha ainda não foi habilitado no Firebase (Authentication → Sign-in method → E-mail/senha). Use o botão do Google enquanto isso.";
     if (cod === "auth/popup-closed-by-user") return "Você fechou a janela do Google antes de concluir.";
     if (cod === "auth/popup-blocked") return "O navegador bloqueou a janela do Google. Libere os pop-ups para este site e tente de novo.";
     if (cod === "auth/unauthorized-domain") return "O domínio " + location.hostname + " não está autorizado no Firebase (Authentication → Settings → Domínios autorizados).";
-    if (cod === "permission-denied") return "Sem permissão para gravar. No Firebase, vá em Firestore → Regras e adicione a regra de publicidade que te passei.";
+    if (cod === "permission-denied") return "Sem permissão para gravar. No Firebase, vá em Firestore → Regras e adicione a regra de publicidade.";
     if (cod === "unavailable") return "Firestore indisponível no momento. Tente de novo em alguns segundos.";
     return (e && e.message) ? e.message.replace("Firebase: ", "") : "Algo deu errado. Tente novamente.";
 }
@@ -431,57 +662,60 @@ async function entrarComGoogle() {
     }
 }
 
-async function entrar() {
-    const botao = $("#btn-entrar");
-    const email = $("#in-email").value.trim();
-    const senha = $("#in-senha").value;
-    if (!email || !senha) { aviso($("#login-aviso"), "Preencha e-mail e senha.", "erro"); return; }
-
-    botao.disabled = true;
-    botao.textContent = "Entrando…";
-    aviso($("#login-aviso"), "", "");
-    try {
-        await setPersistence(auth, browserLocalPersistence);
-        const cred = await signInWithEmailAndPassword(auth, email, senha);
-        if ((cred.user.email || "").toLowerCase() !== EMAIL_ADMIN) {
-            await signOut(auth);
-            throw new Error("Esta conta não tem acesso ao painel de publicidade.");
-        }
-    } catch (e) {
-        aviso($("#login-aviso"), msgErro(e), "erro");
-    } finally {
-        botao.disabled = false;
-        botao.textContent = "Entrar";
-    }
-}
-
-onAuthStateChanged(auth, async user => {
-    const logado = user && (user.email || "").toLowerCase() === EMAIL_ADMIN;
-    $("#tela-login").style.display = logado ? "none" : "flex";
-    $("#tela-painel").style.display = logado ? "block" : "none";
-    if (!logado) return;
+async function entrarPainel() {
+    const user = auth.currentUser;
+    if (!user) return;
     $("#quem").textContent = "Conectado como " + user.email;
-    $("#in-senha").value = "";
     try {
         await carregar();
     } catch (e) {
         aviso($("#painel-aviso"), "⚠️ Não consegui carregar os anúncios: " + msgErro(e), "erro");
     }
+}
+
+onAuthStateChanged(auth, async user => {
+    const logado = user && (user.email || "").toLowerCase() === EMAIL_ADMIN;
+    if (!logado) {
+        limparSeg();
+        atualizarTelas(false);
+        return;
+    }
+    atualizarTelas(true);
+    if (!segOk()) {
+        iniciarSeguranca();
+        return;
+    }
+    await entrarPainel();
 });
 
 $("#btn-google").addEventListener("click", entrarComGoogle);
-$("#btn-entrar").addEventListener("click", entrar);
-$("#in-senha").addEventListener("keydown", e => { if (e.key === "Enter") entrar(); });
-$("#in-email").addEventListener("keydown", e => { if (e.key === "Enter") $("#in-senha").focus(); });
-$("#btn-sair").addEventListener("click", () => signOut(auth));
+$("#seg-confirmar").addEventListener("click", confirmarSeguranca);
+$("#seg-resposta").addEventListener("keydown", e => { if (e.key === "Enter") confirmarSeguranca(); });
+$("#btn-sair").addEventListener("click", () => { limparSeg(); signOut(auth); });
 
 SLOTS.forEach(slot => {
     const c = cartao(slot);
+    c._arquivoCortado = null;
     c.querySelector("[data-lancar]").addEventListener("click", () => lancar(slot));
-    c.querySelector("[data-imagem]").addEventListener("change", e => mostrarPreview(slot, e.target.value.trim()));
-    c.querySelector("[data-arquivo]").addEventListener("change", e => {
+    c.querySelector("[data-imagem]").addEventListener("change", e => {
+        mostrarPreview(slot, e.target.value.trim());
+        c._arquivoCortado = null;
+    });
+    c.querySelector("[data-arquivo]").addEventListener("change", async e => {
         const f = e.target.files[0];
-        if (f) mostrarPreview(slot, URL.createObjectURL(f));
+        if (!f) return;
+        try {
+            const blob = await abrirCorte(f);
+            c._arquivoCortado = blob;
+            c.querySelector("[data-imagem]").value = "";
+            mostrarPreview(slot, URL.createObjectURL(blob));
+        } catch (err) {
+            e.target.value = "";
+            c._arquivoCortado = null;
+            if (err && err.message !== "Corte cancelado.") {
+                aviso($("#painel-aviso"), "⚠️ " + msgErro(err), "erro");
+            }
+        }
     });
 });
 </script>
