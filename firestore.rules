@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // App financeiro: cada usuário só lê/grava o próprio documento
+    match /usuarios/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // Painel de publicidade: leitura e gravação liberadas
+    // (o painel protege o acesso com usuário + pergunta de segurança)
+    match /publicidade/{doc} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

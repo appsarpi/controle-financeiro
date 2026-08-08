@@ -28,6 +28,8 @@
         .dark-theme .gastos-total-sticky { background: rgba(28,28,30,0.95); border-bottom-color: #333; }
         .dark-theme .gastos-search-wrap { background: #2c2c2e; border-color: #3a3a3c; }
         .dark-theme .gastos-search-wrap input { color: #fff; }
+        .dark-theme .gastos-filtro-data { background: #1c1c1e; border-color: #3a3a3c; }
+        .dark-theme .gastos-filtro-data label { color: #aeaeb2; }
         .dark-theme .gasto-row { border-bottom-color: #3a3a3c; }
         .dark-theme .receita-header input[type=text] { color: #fff !important; }
         .dark-theme .ia-bloco { background: #2c2c2e; color: #f2f2f7; }
@@ -161,6 +163,26 @@
         .gasto-row-pendente .gasto-nome-titulo, .gasto-row-pendente .gasto-valor { opacity: 0.5; }
         .gastos-search-wrap { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 8px 12px; background: #fff; border-radius: 12px; border: 1.5px solid #e5e5ea; }
         .gastos-search-wrap input { flex: 1; border: none; background: transparent; height: 36px; font-size: 15px; outline: none; font-family: inherit; }
+        .gastos-filtro-data { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; padding: 10px 12px; background: #fff; border-radius: 12px; border: 1.5px solid #e5e5ea; }
+        .gastos-filtro-data label { font-size: 12px; font-weight: 700; color: #6c6c70; white-space: nowrap; }
+        .gastos-filtro-data input[type=date] { flex: 1; min-width: 120px; height: 36px; font-size: 14px; }
+        .gastos-filtro-data .btn-limpar-filtro { flex-shrink: 0; padding: 6px 10px; font-size: 12px; }
+        .gasto-nome-data { display: block; font-size: 11px; font-weight: 600; color: #aeaeb2; margin-top: 2px; line-height: 1.2; }
+        .ad-slot-app { display: none; }
+        .ad-pc-side { display: none; }
+        body.layout-pc .ad-pc-side { display: flex; align-items: flex-start; justify-content: center; padding: 12px 8px; min-width: 0; }
+        body.layout-pc .ad-pc-side .ad-slot-app { width: 100%; max-width: 140px; border-radius: 12px; }
+        body.layout-pc .ad-pc-side .ad-slot-app.visivel { display: block; }
+        body.layout-pc .ad-pc-side .ad-slot-app img { width: 100%; height: auto; display: block; }
+        body.layout-pc .login-screen .ad-slot {
+            max-width: 140px;
+            width: 100%;
+            align-self: center;
+        }
+        body.layout-pc .ad-pc-side .ad-slot-app.visivel {
+            position: sticky;
+            top: 12px;
+        }
         .gasto-tipo-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
         .gasto-nome-titulo { display: block; font-size: 16px; font-weight: 600; line-height: 1.25; word-break: break-word; }
         .gasto-nome-pagto { display: block; font-size: 11px; font-weight: 600; color: #8e8e93; margin-top: 4px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
@@ -234,7 +256,7 @@
         }
         @media (min-width: 960px) {
             body.layout-pc .app-container {
-                max-width: 1260px;
+                max-width: 1540px;
                 min-height: 100vh;
                 margin: 0 auto;
                 background: #f2f2f7;
@@ -242,18 +264,20 @@
             }
             body.layout-pc.dark-theme .app-container { background: #000; box-shadow: 0 0 0 1px #222; }
 
-            /* Menu lateral fixo; apenas o conteudo rola */
+            /* Menu lateral + publicidade nas laterais; apenas o conteudo rola */
             body.layout-pc #app-main.app-open {
                 display: grid !important;
-                grid-template-columns: 200px minmax(0, 1fr);
+                grid-template-columns: 148px 200px minmax(0, 1fr) 148px;
                 grid-template-rows: auto minmax(0, 1fr);
                 grid-template-areas:
-                    "nav top"
-                    "nav content";
+                    "adL nav top adR"
+                    "adL nav content adR";
                 height: 100vh;
                 max-height: 100vh;
                 overflow: hidden;
             }
+            body.layout-pc #ad-pc-esquerda { grid-area: adL; }
+            body.layout-pc #ad-pc-direita { grid-area: adR; }
 
             /* Cabecalho em uma unica linha */
             body.layout-pc .top-bar {
@@ -451,27 +475,36 @@
                 border-radius: 0;
                 box-shadow: none;
                 padding: 24px;
-                gap: 14px;
+                gap: 20px;
                 background: #f2f2f7;
+                display: grid;
+                grid-template-columns: minmax(110px, 148px) minmax(300px, 420px) minmax(110px, 148px);
+                grid-template-rows: 1fr;
+                align-items: center;
+                justify-content: center;
+                justify-items: center;
             }
             body.layout-pc.dark-theme .login-screen { background: #000; }
+            body.layout-pc .login-screen #ad-topo { grid-column: 1; grid-row: 1; }
+            body.layout-pc .login-screen .login-main { grid-column: 2; grid-row: 1; }
+            body.layout-pc .login-screen #ad-rodape { grid-column: 3; grid-row: 1; }
             body.layout-pc .login-main {
                 background: #fff;
                 border-radius: 22px;
                 padding: 34px 28px 26px;
                 box-shadow: 0 4px 24px rgba(0,0,0,0.06);
                 max-width: 420px;
+                width: 100%;
             }
             body.layout-pc.dark-theme .login-main { background: #1c1c1e; }
             body.layout-pc .login-btn { max-width: 360px; }
-            body.layout-pc .ad-slot { max-width: 728px; }
             body.layout-pc .modal-content { max-width: 520px; border-radius: 20px; padding: 26px; }
             body.layout-pc .fab-container {
-                right: max(24px, calc((100vw - 1260px) / 2 + 24px));
+                right: max(24px, calc((100vw - 1540px) / 2 + 172px));
                 bottom: 28px;
             }
             body.layout-pc .btn-voltar-topo {
-                left: max(224px, calc((100vw - 1260px) / 2 + 224px));
+                left: max(372px, calc((100vw - 1540px) / 2 + 372px));
                 bottom: 28px;
             }
             body.layout-pc .pc-only { display: block !important; }
@@ -550,7 +583,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 40px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.20</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.21</span>
         </div>
         </div>
         <a class="ad-slot" id="ad-rodape" target="_blank" rel="noopener sponsored">
@@ -587,6 +620,13 @@
                 <button onclick="window.changeMes(1)">&rsaquo;</button>
             </div>
         </div>
+
+        <aside class="ad-pc-side" id="ad-pc-esquerda" aria-label="Publicidade esquerda">
+            <a class="ad-slot ad-slot-app" id="ad-pc-topo" target="_blank" rel="noopener sponsored">
+                <span class="ad-tag">Publicidade</span>
+                <img alt="Publicidade">
+            </a>
+        </aside>
 
         <div class="content">
             <div class="page active" id="pg-painel">
@@ -635,6 +675,13 @@
                 <div class="gastos-search-wrap">
                     <span style="font-size:18px;" aria-hidden="true">🔍</span>
                     <input type="search" id="gastos-search-inp" placeholder="Buscar por nome ou valor..." oninput="window.onGastosSearch(this.value)" autocomplete="off">
+                </div>
+                <div class="gastos-filtro-data">
+                    <label for="gastos-filtro-de">De</label>
+                    <input type="date" id="gastos-filtro-de" onchange="window.onGastosDateFilter()">
+                    <label for="gastos-filtro-ate">Até</label>
+                    <input type="date" id="gastos-filtro-ate" onchange="window.onGastosDateFilter()">
+                    <button type="button" class="btn-small btn-limpar-filtro" onclick="window.limparFiltroDataGastos()">Limpar</button>
                 </div>
                 <div id="gastos-search-results" class="card" style="display:none; padding:4px 16px; margin-bottom:12px;"></div>
 
@@ -755,6 +802,13 @@
                 </div>
             </div>
         </div>
+
+        <aside class="ad-pc-side" id="ad-pc-direita" aria-label="Publicidade direita">
+            <a class="ad-slot ad-slot-app" id="ad-pc-rodape" target="_blank" rel="noopener sponsored">
+                <span class="ad-tag">Publicidade</span>
+                <img alt="Publicidade">
+            </a>
+        </aside>
 
         <nav class="bottom-nav">
             <button class="nav-btn active" id="nb-painel" onclick="window.goTo('painel')"><span class="nav-icon" style="font-weight:900; font-family:monospace;">P</span><span class="nav-label">Painel</span></button>
@@ -1003,6 +1057,10 @@
       <label class="input-label" id="label-mg-val">Valor da Parcela (R$)</label>
       <input type="text" id="mg-val" inputmode="decimal" placeholder="0,00" oninput="this.value=window.formatMoneyInput(this.value)">
     </div>
+    <div class="input-group">
+      <label class="input-label">Data do gasto</label>
+      <input type="date" id="mg-data">
+    </div>
 
     <!-- Número de parcelas — visível apenas para "fixo" (compra parcelada) -->
     <div class="input-group" id="mg-numparc-div" style="display:none;">
@@ -1201,16 +1259,15 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.20</h3>
+      <h3 style="font-weight:800;">Novidades — v1.21</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.20 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.21 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>💻 Versão para PC:</b> no computador o app abre com menu lateral, cabeçalho em uma única linha e conteúdo em duas colunas. No celular continua exatamente igual.</li>
-        <li style="margin-bottom:8px;"><b>🗂️ Menos idas e vindas:</b> no PC o menu tem 4 itens. Receitas e Gastos ficam juntos em <b>Movimentações</b>, e Histórico e Saúde em <b>Análise</b> — cada um numa coluna, lado a lado.</li>
-        <li style="margin-bottom:8px;"><b>📐 Sem espaço sobrando:</b> cartões, listas e botões ficaram mais compactos no desktop, sem aquele visual de app de celular esticado.</li>
-        <li style="margin-bottom:8px;"><b>☁️ Mesma conta nos dois:</b> o que você lançar no PC aparece no celular e vice-versa, porque os dados continuam salvos na nuvem.</li>
-        <li style="margin-bottom:8px;"><b>📣 Dois espaços de anúncio:</b> a tela de login passa a ter um banner em cima e outro embaixo. Eles só aparecem quando há anúncio no ar e nunca atrapalham os seus dados.</li>
+        <li style="margin-bottom:8px;"><b>📣 Anúncios laterais no PC:</b> no computador a publicidade aparece nas laterais (esquerda e direita), com recorte vertical próprio. No celular continua o banner horizontal.</li>
+        <li style="margin-bottom:8px;"><b>📅 Data nos gastos:</b> cada gasto agora tem data de registro. Gastos antigos recebem data automaticamente.</li>
+        <li style="margin-bottom:8px;"><b>🔎 Filtro por data:</b> na aba Gastos, filtre por período com os campos De / Até.</li>
+        <li style="margin-bottom:8px;"><b>💻 Versão para PC:</b> menu lateral, cabeçalho em uma linha e conteúdo em duas colunas — no celular continua igual.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -1238,43 +1295,55 @@
     // Publicidade da tela de login: gerenciada pelo app em /publicidade
     window.LINK_WHATS_ANUNCIE = "https://wa.me/5521990260472?text=" + encodeURIComponent("Olá! Tenho interesse em anunciar no Controle Financeiro.");
     window.ARTE_ANUNCIE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="728" height="182" viewBox="0 0 728 182"><defs><linearGradient id="bg" x1="0" y1="0" x2="728" y2="182" gradientUnits="userSpaceOnUse"><stop stop-color="#007aff"/><stop offset="1" stop-color="#003d99"/></linearGradient></defs><rect width="728" height="182" rx="16" fill="url(#bg)"/><rect x="14" y="14" width="700" height="154" rx="12" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="10 7"/><text x="364" y="78" fill="#fff" font-family="system-ui,-apple-system,sans-serif" font-size="40" font-weight="800" text-anchor="middle">Anuncie aqui</text><text x="364" y="114" fill="rgba(255,255,255,0.92)" font-family="system-ui,-apple-system,sans-serif" font-size="17" font-weight="600" text-anchor="middle">Toque e fale conosco pelo WhatsApp</text><circle cx="648" cy="91" r="30" fill="#25D366"/><text x="648" y="100" font-size="28" text-anchor="middle">💬</text></svg>');
+    window.ARTE_ANUNCIE_PC = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="900" viewBox="0 0 300 900"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="900" gradientUnits="userSpaceOnUse"><stop stop-color="#007aff"/><stop offset="1" stop-color="#003d99"/></linearGradient></defs><rect width="300" height="900" rx="16" fill="url(#bg)"/><rect x="16" y="16" width="268" height="868" rx="12" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="10 7"/><text x="150" y="380" fill="#fff" font-family="system-ui,-apple-system,sans-serif" font-size="28" font-weight="800" text-anchor="middle">Anuncie</text><text x="150" y="418" fill="#fff" font-family="system-ui,-apple-system,sans-serif" font-size="28" font-weight="800" text-anchor="middle">aqui</text><text x="150" y="470" fill="rgba(255,255,255,0.92)" font-family="system-ui,-apple-system,sans-serif" font-size="14" font-weight="600" text-anchor="middle">WhatsApp</text><circle cx="150" cy="540" r="36" fill="#25D366"/><text x="150" y="550" font-size="32" text-anchor="middle">💬</text></svg>');
 
-    window.mostrarAnuncio = function(slot, anuncio) {
-        const el = document.getElementById('ad-' + slot);
+    window.mostrarAnuncio = function(slot, anuncio, prefix) {
+        prefix = prefix || 'ad-';
+        const el = document.getElementById(prefix + slot);
         if (!el) return;
         el.classList.remove('visivel');
         if (!anuncio) return;
-        const modo = anuncio.modo || (anuncio.imagem ? 'personalizado' : 'vazio');
+        const modo = anuncio.modo || (anuncio.imagem || anuncio.imagemPc ? 'personalizado' : 'vazio');
         if (modo === 'vazio' || anuncio.ativo === false) return;
         const agora = Date.now();
         const inicio = anuncio.inicio ? Date.parse(anuncio.inicio) : NaN;
         const fim = anuncio.fim ? Date.parse(anuncio.fim) : NaN;
         if (!isNaN(inicio) && agora < inicio) return;
         if (!isNaN(fim) && agora > fim) return;
+        const isPc = prefix === 'ad-pc-' || (prefix === 'ad-' && document.body.classList.contains('layout-pc'));
         const img = el.querySelector('img');
         if (modo === 'anuncie') {
             img.alt = anuncio.alt || 'Anuncie aqui';
             img.onload = () => el.classList.add('visivel');
-            img.src = window.ARTE_ANUNCIE;
+            img.src = isPc ? window.ARTE_ANUNCIE_PC : window.ARTE_ANUNCIE;
             el.href = anuncio.link || window.LINK_WHATS_ANUNCIE;
             el.target = '_blank';
             el.rel = 'noopener sponsored';
+            el.style.cursor = '';
             return;
         }
-        if (modo !== 'personalizado' || !anuncio.imagem) return;
+        const src = isPc ? (anuncio.imagemPc || anuncio.imagem) : (anuncio.imagem || anuncio.imagemPc);
+        if (modo !== 'personalizado' || !src) return;
         img.alt = anuncio.alt || 'Publicidade';
         img.onload = () => el.classList.add('visivel');
-        img.src = anuncio.imagem;
-        if (anuncio.link) { el.href = anuncio.link; el.target = '_blank'; el.rel = 'noopener sponsored'; }
+        img.src = src;
+        if (anuncio.link) { el.href = anuncio.link; el.target = '_blank'; el.rel = 'noopener sponsored'; el.style.cursor = ''; }
         else { el.removeAttribute('href'); el.style.cursor = 'default'; }
+    };
+    window.aplicarPublicidade = function(dados) {
+        if (!dados) return;
+        window.mostrarAnuncio('topo', dados.topo);
+        window.mostrarAnuncio('rodape', dados.rodape);
+        window.mostrarAnuncio('topo', dados.topo, 'ad-pc-');
+        window.mostrarAnuncio('rodape', dados.rodape, 'ad-pc-');
     };
     window.carregarPublicidade = async function() {
         try {
             const snap = await getDoc(doc(db, 'publicidade', 'slots'));
             if (!snap.exists()) return;
             const dados = snap.data() || {};
-            window.mostrarAnuncio('topo', dados.topo);
-            window.mostrarAnuncio('rodape', dados.rodape);
+            window._publiCache = dados;
+            window.aplicarPublicidade(dados);
         } catch (e) {
             // Sem publicidade o login segue normalmente
         }
@@ -1472,6 +1541,7 @@
                     docSnap.exists() ? docSnap.data() : null,
                     user.displayName
                 );
+                if(window.migrarDatasGastos()) window.scheduleSync();
                 window.saveLocalData();
                 window.isCloudLoading = false;
                 window._loginInProgress = false;
@@ -1562,6 +1632,7 @@
         document.body.classList.toggle('layout-pc', isPc);
         window.isPcLayout = isPc;
         if (!isPc) document.body.classList.remove('pc-grupo');
+        if (window._publiCache) window.aplicarPublicidade(window._publiCache);
         // Ao trocar de modo, reabre a aba atual para (des)agrupar as páginas
         if (mudouDeModo && typeof window.goTo === 'function') {
             const atual = document.querySelector('.page.active');
@@ -1623,6 +1694,57 @@
         anoSelMeta.innerHTML += `<option value="${i}">${i}</option>`;
     }
     window.gastosSearchQuery = "";
+    window.gastosFiltroDe = "";
+    window.gastosFiltroAte = "";
+
+    window.dataFromGastoId = function(id) {
+        const m = (id || '').match(/^(?:gf|gv)_(\d{10,13})$/);
+        if (!m) return null;
+        let ts = parseInt(m[1], 10);
+        if (ts < 1e12) ts *= 1000;
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return null;
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+    window.dataFromMesAno = function(m, y, dia) {
+        if (m == null || y == null) return null;
+        return `${y}-${String(m + 1).padStart(2, '0')}-${String(dia || 1).padStart(2, '0')}`;
+    };
+    window.getDataGastoVar = function(gv, m, y) {
+        if (gv && gv.data) return gv.data;
+        const fromId = window.dataFromGastoId(gv && gv.id);
+        if (fromId) return fromId;
+        return window.dataFromMesAno(m, y, 15);
+    };
+    window.getDataGastoFixo = function(gf) {
+        if (gf && gf.data) return gf.data;
+        const fromId = window.dataFromGastoId(gf && gf.id);
+        if (fromId) return fromId;
+        if (gf && gf.startM != null && gf.startY != null) return window.dataFromMesAno(gf.startM, gf.startY, 1);
+        return null;
+    };
+    window.migrarDatasGastos = function() {
+        if (!window.S) return false;
+        let changed = false;
+        (window.S.gastosFixos || []).forEach(gf => {
+            if (gf.data) return;
+            const inferida = window.getDataGastoFixo(gf);
+            if (inferida) { gf.data = inferida; changed = true; }
+        });
+        Object.keys(window.S.dataByMonth || {}).forEach(key => {
+            const parts = key.split('-').map(Number);
+            if (parts.length !== 2) return;
+            const m = parts[0], y = parts[1];
+            const md = window.S.dataByMonth[key];
+            if (!md || !md.gastosV) return;
+            md.gastosV.forEach(gv => {
+                if (gv.data) return;
+                const inferida = window.getDataGastoVar(gv, m, y);
+                if (inferida) { gv.data = inferida; changed = true; }
+            });
+        });
+        return changed;
+    };
 
     const BASE_FIXOS_PEDRO = [
       { id: "gf_1", n: "📱 Plano Vivo + Seguro", val: 90, pay: "nubank", cat: "Contas Básicas 💡", endM: null, endY: null, hiddenMonths: [] },
@@ -1792,14 +1914,15 @@
     window.offsetMonth=function(m,y,delta){let nm=m+delta,ny=y;while(nm<0){nm+=12;ny--;}while(nm>11){nm-=12;ny++;}return{m:nm,y:ny};};
     window.getPayLabel=function(pay){if(pay==='pix')return'Pix';if(!pay||pay==='none')return'—';const all=BANCOS_BASE.concat(window.S.config.customBanks||[]);const b=all.find(x=>x.id===pay);return b?b.l:pay;};
     window.renderGastoLinhaHtml=function(opts){
-        const{nome,val,pay,badgeHtml,editTipo,id,onDelete,cor='#1c1c1e',showCheck,pago}=opts;
+        const{nome,val,pay,badgeHtml,editTipo,id,onDelete,cor='#1c1c1e',showCheck,pago,data}=opts;
         const payLbl=window.getPayLabel(pay||'none');
         const badge=badgeHtml?`<div class="gasto-nome-badge">${badgeHtml}</div>`:'';
+        const dataLbl=data?`<span class="gasto-nome-data">${window.formatDataCurta(data)}</span>`:'';
         const del=onDelete==='var'
             ?`<button class="btn-del" onclick="window.removerGastoVar('${id}')">&times;</button>`
             :`<button class="btn-del" onclick="window.abrirModalDelete('gastoFixo','${id}')">&times;</button>`;
         const checkBtn=showCheck?`<button type="button" class="btn-check-gasto${pago?' checked':''}" title="${pago?'Pago — entra no saldo':'Marcar como pago para entrar no saldo'}" onclick="window.toggleGastoFPago('${id}')">${pago?'☑':'☐'}</button>`:'';
-        return`<div class="gasto-nome" style="flex:1;min-width:0;"><span class="gasto-nome-titulo" style="color:${cor};">${nome}</span><span class="gasto-nome-pagto">${payLbl}</span>${badge}</div><div class="gasto-ctrl">${checkBtn}<div class="gasto-valor" style="font-size:16px;font-weight:700;min-width:72px;text-align:right;color:${cor};">${window.R(val)}</div><button type="button" class="btn-edit-gasto" title="Editar gasto" onclick="window.abrirModalGastoEdit('${editTipo}','${id}')">✏️</button>${del}</div>`;
+        return`<div class="gasto-nome" style="flex:1;min-width:0;"><span class="gasto-nome-titulo" style="color:${cor};">${nome}</span>${dataLbl}<span class="gasto-nome-pagto">${payLbl}</span>${badge}</div><div class="gasto-ctrl">${checkBtn}<div class="gasto-valor" style="font-size:16px;font-weight:700;min-width:72px;text-align:right;color:${cor};">${window.R(val)}</div><button type="button" class="btn-edit-gasto" title="Editar gasto" onclick="window.abrirModalGastoEdit('${editTipo}','${id}')">✏️</button>${del}</div>`;
     };
     window.normalizarNomeGasto=function(nome){return(nome||"").replace(/[^a-zA-Z0-9\s\u00C0-\u024F]/g," ").replace(/\s+/g," ").trim().toLowerCase();};
     window.nomesGastosSimilares=function(a,b){if(!a||!b)return false;if(a===b)return true;if(a.length>4&&b.length>4&&(a.includes(b)||b.includes(a)))return true;const pa=a.split(" ").filter(w=>w.length>2),pb=b.split(" ").filter(w=>w.length>2);return pa.filter(w=>pb.includes(w)).length>=2;};
@@ -1855,6 +1978,7 @@
             window.renderBancosList('onb-bancos-list');
             document.getElementById("modal-onboarding").style.display="flex";
         } else {
+            if(window.migrarDatasGastos()) window.scheduleSync();
             window.setMonthData(activeM, activeY);
         }
         window.initScrollTopoBtn();
@@ -2060,7 +2184,33 @@
         const qNum=q.replace(/[^\d]/g,'');
         return n.includes(q)||(qNum&&vStr.includes(qNum))||window.R(val).toLowerCase().includes(q);
     };
+    window.gastoMatchesDate=function(data){
+        if(!window.gastosFiltroDe&&!window.gastosFiltroAte)return true;
+        if(!data)return false;
+        if(window.gastosFiltroDe&&data<window.gastosFiltroDe)return false;
+        if(window.gastosFiltroAte&&data>window.gastosFiltroAte)return false;
+        return true;
+    };
+    window.gastoMatchesFiltros=function(q,nome,val,data){
+        return window.gastoMatchesSearch(q,nome,val)&&window.gastoMatchesDate(data);
+    };
     window.onGastosSearch=function(val){window.gastosSearchQuery=(val||'').trim().toLowerCase();window.buildGastos();};
+    window.onGastosDateFilter=function(){
+        const deEl=document.getElementById('gastos-filtro-de');
+        const ateEl=document.getElementById('gastos-filtro-ate');
+        window.gastosFiltroDe=deEl?deEl.value:'';
+        window.gastosFiltroAte=ateEl?ateEl.value:'';
+        window.buildGastos();
+    };
+    window.limparFiltroDataGastos=function(){
+        const deEl=document.getElementById('gastos-filtro-de');
+        const ateEl=document.getElementById('gastos-filtro-ate');
+        if(deEl)deEl.value='';
+        if(ateEl)ateEl.value='';
+        window.gastosFiltroDe='';
+        window.gastosFiltroAte='';
+        window.buildGastos();
+    };
 
     window.buildGastos=function(){
         const q=window.gastosSearchQuery||'';
@@ -2084,14 +2234,15 @@
         };
         const appendFixoRow=function(gf,container,listTipo,badgeExtra){
             const ga=getGa(gf);
-            if(!window.gastoMatchesSearch(q,gf.n,ga.val))return false;
+            const dataGasto=window.getDataGastoFixo(gf);
+            if(!window.gastoMatchesFiltros(q,gf.n,ga.val,dataGasto))return false;
             const editTipo=listTipo==='sub'?'sub':'fixo';
             const temCheck=window.gastoFTemChecklist(gf,ga);
             const pago=window.gastoFContaNoCalculo(gf,ga);
             const el=document.createElement("div");el.className="gasto-row";
             if(temCheck&&!pago)el.classList.add('gasto-row-pendente');
             const dtBadge=badgeExtra||badgeFixo(gf,listTipo);
-            el.innerHTML=window.renderGastoLinhaHtml({nome:gf.n,val:ga.val,pay:ga.pay,badgeHtml:dtBadge,editTipo,id:gf.id,onDelete:'fixo',showCheck:temCheck,pago});
+            el.innerHTML=window.renderGastoLinhaHtml({nome:gf.n,val:ga.val,pay:ga.pay,badgeHtml:dtBadge,editTipo,id:gf.id,onDelete:'fixo',showCheck:temCheck,pago,data:dataGasto});
             container.appendChild(el);
             return true;
         };
@@ -2103,9 +2254,13 @@
             (window.S.gastosFixos||[]).filter(gf=>window.isItemActive(gf,activeM,activeY)).forEach(gf=>{
                 const tipo=window.isSubscription(gf)?'sub':'fixo';
                 const ga=getGa(gf);
-                if(window.gastoMatchesSearch(q,gf.n,ga.val))hits.push({tipo,id:gf.id,nome:gf.n,val:ga.val,pay:ga.pay,gf,ga});
+                const dataGasto=window.getDataGastoFixo(gf);
+                if(window.gastoMatchesFiltros(q,gf.n,ga.val,dataGasto))hits.push({tipo,id:gf.id,nome:gf.n,val:ga.val,pay:ga.pay,gf,ga,data:dataGasto});
             });
-            (activeData.gastosV||[]).forEach(gv=>{if(window.gastoMatchesSearch(q,gv.n,gv.val))hits.push({tipo:'var',id:gv.id,nome:gv.n,val:gv.val,pay:gv.pay});});
+            (activeData.gastosV||[]).forEach(gv=>{
+                const dataGasto=window.getDataGastoVar(gv,activeM,activeY);
+                if(window.gastoMatchesFiltros(q,gv.n,gv.val,dataGasto))hits.push({tipo:'var',id:gv.id,nome:gv.n,val:gv.val,pay:gv.pay,data:dataGasto});
+            });
             if(hits.length===0){searchPanel.innerHTML=`<p style="font-size:13px;color:#8e8e93;padding:12px 0;text-align:center">Nenhum gasto encontrado para "${q}".</p>`;return;}
             hits.forEach(h=>{
                 const tipoLbl=window.getGastoTipoLabel(h.tipo);
@@ -2116,7 +2271,7 @@
                 const temCheck=h.tipo!=='var'&&h.gf&&window.gastoFTemChecklist(h.gf,h.ga||activeData.gastosF[h.id]);
                 const pago=temCheck?window.gastoFContaNoCalculo(h.gf,h.ga||activeData.gastosF[h.id]):true;
                 if(temCheck&&!pago)el.classList.add('gasto-row-pendente');
-                el.innerHTML=window.renderGastoLinhaHtml({nome:h.nome,val:h.val,pay:h.pay,badgeHtml:badgeSearch,editTipo,id:h.id,onDelete:h.tipo==='var'?'var':'fixo',cor:h.tipo==='var'?'#007aff':'#1c1c1e',showCheck:temCheck,pago});
+                el.innerHTML=window.renderGastoLinhaHtml({nome:h.nome,val:h.val,pay:h.pay,badgeHtml:badgeSearch,editTipo,id:h.id,onDelete:h.tipo==='var'?'var':'fixo',cor:h.tipo==='var'?'#007aff':'#1c1c1e',showCheck:temCheck,pago,data:h.data});
                 searchPanel.appendChild(el);
             });
             return;
@@ -2148,10 +2303,11 @@
         }
         let vc=0;
         activeData.gastosV.forEach(gv=>{
-            if(!window.gastoMatchesSearch(q,gv.n,gv.val))return;
+            const dataGasto=window.getDataGastoVar(gv,activeM,activeY);
+            if(!window.gastoMatchesFiltros(q,gv.n,gv.val,dataGasto))return;
             vc++;
             const el=document.createElement("div");el.className="gasto-row";
-            el.innerHTML=window.renderGastoLinhaHtml({nome:gv.n,val:gv.val,pay:gv.pay,badgeHtml:'<span class="gasto-tipo-tag tag-unico">Compra única neste mês</span>',editTipo:'var',id:gv.id,onDelete:'var',cor:'#007aff'});
+            el.innerHTML=window.renderGastoLinhaHtml({nome:gv.n,val:gv.val,pay:gv.pay,badgeHtml:'<span class="gasto-tipo-tag tag-unico">Compra única neste mês</span>',editTipo:'var',id:gv.id,onDelete:'var',cor:'#007aff',data:dataGasto});
             vList.appendChild(el);
         });
         if(vc===0)vList.innerHTML=`<p style="font-size:13px;color:#8e8e93;padding:12px 0;text-align:center">${q?'Nenhuma compra única encontrada.':'Nenhuma compra única neste mês.'}</p>`;
@@ -2212,6 +2368,8 @@
         if(btnProx)btnProx.classList.remove('active');
         window.configureMgTipoFields(tipo);
         window.atualizarSelectsPagamento();
+        const mgData=document.getElementById('mg-data');
+        if(mgData) mgData.value=window.hojeISO();
         document.getElementById('modal-gasto').style.display='flex';
     };
 
@@ -2220,11 +2378,12 @@
         document.getElementById('mg-edit-orig-tipo').value=tipo;
         document.getElementById('mg-tipo-edit-row').style.display='block';
         document.getElementById('mg-tipo').value=tipo;
-        let nome='',cat='Outros 🏷️',val=0,pay='none',numParc='',subFreq='mensal';
+        let nome='',cat='Outros 🏷️',val=0,pay='none',numParc='',subFreq='mensal',dataGasto=window.hojeISO();
         if(tipo==='var'){
             const gv=(activeData.gastosV||[]).find(g=>g.id===id);
             if(!gv)return alert('Gasto não encontrado neste mês.');
             nome=gv.n;cat=gv.cat||cat;val=gv.val;pay=gv.pay||'none';
+            dataGasto=window.getDataGastoVar(gv,activeM,activeY);
         }else{
             const gf=(window.S.gastosFixos||[]).find(g=>g.id===id);
             if(!gf)return alert('Gasto não encontrado.');
@@ -2232,6 +2391,7 @@
             nome=gf.n;cat=gf.cat||cat;
             val=(cur&&typeof cur==='object')?(cur.val||0):(typeof cur==='number'?cur:gf.val);
             pay=(cur&&typeof cur==='object')?(cur.pay||gf.pay||'none'):(gf.pay||'none');
+            dataGasto=window.getDataGastoFixo(gf)||window.hojeISO();
             if(tipo==='sub')subFreq=gf.subFreq||'mensal';
             if(tipo==='fixo'&&gf.endY!=null&&gf.endY!==undefined){
                 const totalMeses=(gf.endY-gf.startY)*12+(gf.endM-gf.startM)+1;
@@ -2253,6 +2413,8 @@
         window.configureMgTipoFields(tipo);
         window.atualizarSelectsPagamento();
         document.getElementById('mg-pay').value=pay;
+        const mgData=document.getElementById('mg-data');
+        if(mgData) mgData.value=dataGasto;
         window.onPayChange();
         document.getElementById('modal-gasto').style.display='flex';
     };
@@ -2284,10 +2446,10 @@
         const totalMeses=startM+(numParc-1);
         return{endY:startY+Math.floor(totalMeses/12),endM:totalMeses%12};
     };
-    window.atualizarGastoVarInPlace=function(id,emojiName,val,pay,cat){
+    window.atualizarGastoVarInPlace=function(id,emojiName,val,pay,cat,dataOpt){
         Object.keys(window.S.dataByMonth).forEach(k=>{
             const gv=(window.S.dataByMonth[k].gastosV||[]).find(g=>g.id===id);
-            if(gv){gv.n=emojiName;gv.val=val;gv.pay=pay;gv.cat=cat;}
+            if(gv){gv.n=emojiName;gv.val=val;gv.pay=pay;gv.cat=cat;if(dataOpt)gv.data=dataOpt;}
         });
     };
     window.atualizarGastoFixoSubInPlace=function(id,tipo,emojiName,val,pay,cat,startM,startY,subFreq){
@@ -2307,10 +2469,11 @@
     };
     // Atualiza apenas os metadados do gasto fixo/assinatura (nome, categoria, duração, periodicidade)
     // sem sobrescrever os valores mês a mês — o valor é tratado pelo escopo (este mês / próximos).
-    window.atualizarGastoFixoMetaInPlace=function(id,tipo,emojiName,cat,startM,startY,subFreq){
+    window.atualizarGastoFixoMetaInPlace=function(id,tipo,emojiName,cat,startM,startY,subFreq,dataOpt){
         const gf=(window.S.gastosFixos||[]).find(g=>g.id===id);
         if(!gf)return false;
         gf.n=emojiName;gf.cat=cat;gf.startM=startM;gf.startY=startY;
+        if(dataOpt) gf.data=dataOpt;
         if(tipo==='sub'){gf.endM=null;gf.endY=null;gf.subFreq=subFreq||'mensal';}
         else{
             delete gf.subFreq;
@@ -2366,11 +2529,11 @@
         return {startM,startY};
     };
 
-    window.criarGastoFixoOuSub=function(tipo,emojiName,val,pay,cat,startM,startY,endM,endY,idOpt,subFreq){
+    window.criarGastoFixoOuSub=function(tipo,emojiName,val,pay,cat,startM,startY,endM,endY,idOpt,subFreq,dataOpt){
         if(!window.S.gastosFixos)window.S.gastosFixos=[];
         const id=idOpt||('gf_'+Date.now());
         if(tipo==='sub'){endM=null;endY=null;}
-        const item={id,n:emojiName,val,pay,cat,startM,startY,endM,endY,hiddenMonths:[]};
+        const item={id,n:emojiName,val,pay,cat,startM,startY,endM,endY,hiddenMonths:[],data:dataOpt||window.dataFromMesAno(startM,startY,1)};
         if(tipo==='sub')item.subFreq=subFreq||'mensal';
         const ix=window.S.gastosFixos.findIndex(g=>g.id===id);
         if(ix>=0)window.S.gastosFixos[ix]=item;else window.S.gastosFixos.push(item);
@@ -2384,9 +2547,9 @@
         return id;
     };
 
-    window.criarGastoVar=function(emojiName,val,pay,cat,startM,startY,idOpt){
+    window.criarGastoVar=function(emojiName,val,pay,cat,startM,startY,idOpt,dataOpt){
         const id=idOpt||('gv_'+Date.now());
-        const gv={id,n:emojiName,val,pay,cat};
+        const gv={id,n:emojiName,val,pay,cat,data:dataOpt||window.dataFromMesAno(startM,startY,15)};
         const key=`${startM}-${startY}`;
         const addOrReplace=(arr)=>{
             const ix=arr.findIndex(g=>g.id===id);
@@ -2409,6 +2572,7 @@
         const cat=document.getElementById('mg-cat').value;
         const val=window.parseMoney(document.getElementById('mg-val').value);
         const pay=document.getElementById('mg-pay').value;
+        const dataGasto=(document.getElementById('mg-data')&&document.getElementById('mg-data').value)||window.hojeISO();
         if(!nome||val<=0)return alert('Preencha um nome e um valor maior que zero.');
         const emojiName=window.autoEmoji(nome,cat);
         window.S.catDict[window.nomeSemEmojiTexto(emojiName).toLowerCase()]=cat;
@@ -2424,9 +2588,9 @@
                     // Compra única: respeita este/próximo mês se cartão
                     if(pay!=='pix'&&pay!=='none'&&window.mgMesPgto==='prox'){
                         window.removerGastoCompleto('var',editId);
-                        window.criarGastoVar(emojiName,val,pay,cat,startM,startY,editId);
+                        window.criarGastoVar(emojiName,val,pay,cat,startM,startY,editId,dataGasto);
                     }else{
-                        window.atualizarGastoVarInPlace(editId,emojiName,val,pay,cat);
+                        window.atualizarGastoVarInPlace(editId,emojiName,val,pay,cat,dataGasto);
                     }
                 }else if(mesmoTipo&&(tipo==='fixo'||tipo==='sub')){
                     const oldGf=(window.S.gastosFixos||[]).find(g=>g.id===editId);
@@ -2441,7 +2605,7 @@
                     const oldVal=(curObj&&typeof curObj==='object')?(curObj.val||0):(Number(curObj)||oldGf.val||0);
                     const oldPay=(curObj&&typeof curObj==='object')?(curObj.pay||'none'):(oldGf.pay||'none');
                     const pagoAntes=window.preservarPagoGastoF(editId);
-                    window.atualizarGastoFixoMetaInPlace(editId,tipo,emojiName,cat,startM,startY,subFreq);
+                    window.atualizarGastoFixoMetaInPlace(editId,tipo,emojiName,cat,startM,startY,subFreq,dataGasto);
                     if(val!==oldVal||pay!==oldPay){
                         window._pendingParcelaEdit={id:editId,val,pay,pagoMap:pagoAntes};
                         window.fecharModal('modal-gasto');
@@ -2460,22 +2624,22 @@
                     if(tipo==='fixo'){
                         const numParc=parseInt(document.getElementById('mg-numparc').value,10);
                         const fim=window.calcFimParcelas(startM,startY,numParc);
-                        window.criarGastoFixoOuSub('fixo',emojiName,val,pay,cat,startM,startY,fim.endM,fim.endY,editId);
+                        window.criarGastoFixoOuSub('fixo',emojiName,val,pay,cat,startM,startY,fim.endM,fim.endY,editId,null,dataGasto);
                     }else if(tipo==='sub'){
-                        window.criarGastoFixoOuSub('sub',emojiName,val,pay,cat,startM,startY,null,null,editId,subFreq);
+                        window.criarGastoFixoOuSub('sub',emojiName,val,pay,cat,startM,startY,null,null,editId,subFreq,dataGasto);
                     }else{
-                        window.criarGastoVar(emojiName,val,pay,cat,startM,startY,editId);
+                        window.criarGastoVar(emojiName,val,pay,cat,startM,startY,editId,dataGasto);
                     }
                     window.restaurarPagoGastoF(editId,pagoAntes);
                 }
             }else if(tipo==='fixo'){
                 const numParc=parseInt(document.getElementById('mg-numparc').value,10);
                 const fim=window.calcFimParcelas(startM,startY,numParc);
-                window.criarGastoFixoOuSub('fixo',emojiName,val,pay,cat,startM,startY,fim.endM,fim.endY);
+                window.criarGastoFixoOuSub('fixo',emojiName,val,pay,cat,startM,startY,fim.endM,fim.endY,null,null,dataGasto);
             }else if(tipo==='sub'){
-                window.criarGastoFixoOuSub('sub',emojiName,val,pay,cat,startM,startY,null,null,null,subFreq);
+                window.criarGastoFixoOuSub('sub',emojiName,val,pay,cat,startM,startY,null,null,null,subFreq,dataGasto);
             }else{
-                window.criarGastoVar(emojiName,val,pay,cat,startM,startY);
+                window.criarGastoVar(emojiName,val,pay,cat,startM,startY,null,dataGasto);
             }
             window.fecharModal('modal-gasto');
             window.renderView();

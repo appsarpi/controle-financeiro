@@ -51,9 +51,14 @@
 
     .dica { font-size: 11px; color: #8e8e93; margin-top: 5px; line-height: 1.45; text-align: left; }
 
-    .preview { width: 100%; border-radius: 12px; border: 1px dashed #d1d1d6; background: #f9f9fb; min-height: 90px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 14px; }
+    .preview-duo { display: grid; grid-template-columns: 1.4fr 0.7fr; gap: 10px; margin-bottom: 14px; }
+    .preview-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .preview-label { font-size: 11px; font-weight: 800; color: #6c6c70; text-transform: uppercase; letter-spacing: 0.4px; }
+    .preview { width: 100%; border-radius: 12px; border: 1px dashed #d1d1d6; background: #f9f9fb; min-height: 90px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .preview.preview-pc { min-height: 160px; max-height: 220px; }
     .preview img { width: 100%; display: block; }
-    .preview .vazio { font-size: 12px; color: #aeaeb2; padding: 30px 10px; }
+    .preview.preview-pc img { width: auto; height: 100%; max-height: 200px; max-width: 100%; object-fit: contain; }
+    .preview .vazio { font-size: 12px; color: #aeaeb2; padding: 30px 10px; text-align: center; }
 
     .switch { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; cursor: pointer; user-select: none; }
     .switch input { width: 18px; height: 18px; accent-color: #007aff; cursor: pointer; }
@@ -152,10 +157,19 @@
     <div class="slots">
         <div class="card" data-slot="topo">
             <div class="card-topo">
-                <h2>Retângulo superior</h2>
+                <h2>Espaço superior · esquerda (PC)</h2>
                 <span class="selo inativo" data-selo>—</span>
             </div>
-            <div class="preview" data-preview><span class="vazio">Nenhuma imagem</span></div>
+            <div class="preview-duo">
+                <div class="preview-item">
+                    <span class="preview-label">Celular</span>
+                    <div class="preview" data-preview><span class="vazio">Nenhuma imagem</span></div>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">PC lateral</span>
+                    <div class="preview preview-pc" data-preview-pc><span class="vazio">Nenhuma imagem</span></div>
+                </div>
+            </div>
             <div class="campo">
                 <label>O que exibir neste espaço?</label>
                 <div class="modo-opcoes">
@@ -170,11 +184,15 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×182, proporção 4:1). Máximo de 5 MB.</div>
+                <div class="dica">Ao escolher a foto: 1º corte versão <b>celular</b> (horizontal 4:1) → OK · 2º corte versão <b>PC</b> (lateral vertical). Máximo de 5 MB.</div>
             </div>
             <div class="campo">
-                <label>Ou cole o link de uma imagem</label>
+                <label>Ou cole o link (celular)</label>
                 <input type="url" data-imagem placeholder="https://…">
+            </div>
+            <div class="campo">
+                <label>Ou cole o link (PC lateral)</label>
+                <input type="url" data-imagem-pc placeholder="https://…">
             </div>
             <div class="campo">
                 <label>Link de destino ao clicar</label>
@@ -201,10 +219,19 @@
 
         <div class="card" data-slot="rodape">
             <div class="card-topo">
-                <h2>Retângulo inferior</h2>
+                <h2>Espaço inferior · direita (PC)</h2>
                 <span class="selo inativo" data-selo>—</span>
             </div>
-            <div class="preview" data-preview><span class="vazio">Nenhuma imagem</span></div>
+            <div class="preview-duo">
+                <div class="preview-item">
+                    <span class="preview-label">Celular</span>
+                    <div class="preview" data-preview><span class="vazio">Nenhuma imagem</span></div>
+                </div>
+                <div class="preview-item">
+                    <span class="preview-label">PC lateral</span>
+                    <div class="preview preview-pc" data-preview-pc><span class="vazio">Nenhuma imagem</span></div>
+                </div>
+            </div>
             <div class="campo">
                 <label>O que exibir neste espaço?</label>
                 <div class="modo-opcoes">
@@ -219,11 +246,15 @@
             <div class="campo">
                 <label>Imagem do anúncio</label>
                 <input type="file" accept="image/*" data-arquivo>
-                <div class="dica">Ao escolher a foto, você precisa cortá-la no formato retangular do banner (728×182, proporção 4:1). Máximo de 5 MB.</div>
+                <div class="dica">Ao escolher a foto: 1º corte versão <b>celular</b> (horizontal 4:1) → OK · 2º corte versão <b>PC</b> (lateral vertical). Máximo de 5 MB.</div>
             </div>
             <div class="campo">
-                <label>Ou cole o link de uma imagem</label>
+                <label>Ou cole o link (celular)</label>
                 <input type="url" data-imagem placeholder="https://…">
+            </div>
+            <div class="campo">
+                <label>Ou cole o link (PC lateral)</label>
+                <input type="url" data-imagem-pc placeholder="https://…">
             </div>
             <div class="campo">
                 <label>Link de destino ao clicar</label>
@@ -250,18 +281,18 @@
     </div>
 
     <div class="rodape-nota">
-        O que você lançar aqui aparece na tela de login do app financeiro,<br>
-        no computador e no celular, assim que a pessoa abrir o app.
+        No celular: banner horizontal (topo e rodapé).<br>
+        No PC: os mesmos espaços viram laterais (esquerda e direita), com recorte vertical próprio.
     </div>
 </div>
 
 <div id="modal-corte">
     <div class="corte-box">
         <div class="corte-topo">
-            <h3>Cortar imagem</h3>
+            <h3 id="corte-titulo">Cortar imagem</h3>
             <button class="btn-ok-topo" id="corte-ok-topo" type="button">OK</button>
         </div>
-        <p>Arraste para mover · use <b>+</b>/<b>−</b>, scroll ou pinça para aumentar/diminuir o zoom do retângulo.</p>
+        <p id="corte-dica">1/2 — Versão <b>celular</b> (banner horizontal). Arraste para mover · use <b>+</b>/<b>−</b>, scroll ou pinça para o zoom.</p>
         <div class="corte-zoom">
             <button type="button" id="corte-menos" aria-label="Diminuir zoom">−</button>
             <span id="corte-zoom-label">100%</span>
@@ -296,8 +327,8 @@ const TAM_MAX = 5 * 1024 * 1024;
 const TAM_MAX_FIRESTORE = 900 * 1024;
 const LOGIN_KEY = "pub_login_ok_v2";
 const SEG_KEY = "pub_seg_ok_v2";
-const CROP_ASPECT = 4;
-const CROP_LARGURA = 728;
+const CROP_MOBILE = { aspect: 4, width: 728, passo: "1/2", titulo: "Corte — versão celular", dica: "1/2 — Versão <b>celular</b> (banner horizontal 4:1). Arraste para mover · use <b>+</b>/<b>−</b>, scroll ou pinça para o zoom." };
+const CROP_PC = { aspect: 1 / 3, width: 300, passo: "2/2", titulo: "Corte — versão PC (lateral)", dica: "2/2 — Versão <b>PC</b> (lateral vertical 1:3). Arraste para mover · use <b>+</b>/<b>−</b>, scroll ou pinça para o zoom." };
 const LINK_WHATS_ANUNCIE = "https://wa.me/5521990260472?text=" + encodeURIComponent("Olá! Tenho interesse em anunciar no Controle Financeiro.");
 
 function arteAnuncieAqui() {
@@ -313,7 +344,22 @@ function arteAnuncieAqui() {
 </svg>`;
     return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
+function arteAnuncieAquiPc() {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="900" viewBox="0 0 300 900">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="900" gradientUnits="userSpaceOnUse">
+<stop stop-color="#007aff"/><stop offset="1" stop-color="#003d99"/></linearGradient></defs>
+<rect width="300" height="900" rx="16" fill="url(#bg)"/>
+<rect x="16" y="16" width="268" height="868" rx="12" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="10 7"/>
+<text x="150" y="380" fill="#fff" font-family="system-ui,-apple-system,sans-serif" font-size="28" font-weight="800" text-anchor="middle">Anuncie</text>
+<text x="150" y="418" fill="#fff" font-family="system-ui,-apple-system,sans-serif" font-size="28" font-weight="800" text-anchor="middle">aqui</text>
+<text x="150" y="470" fill="rgba(255,255,255,0.92)" font-family="system-ui,-apple-system,sans-serif" font-size="14" font-weight="600" text-anchor="middle">WhatsApp</text>
+<circle cx="150" cy="540" r="36" fill="#25D366"/>
+<text x="150" y="550" font-size="32" text-anchor="middle">💬</text>
+</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
 const ARTE_ANUNCIE = arteAnuncieAqui();
+const ARTE_ANUNCIE_PC = arteAnuncieAquiPc();
 
 const PERGUNTAS_SEG = [
     { id: "certa", texto: "Qual o nome do seu melhor amigo da infância?" },
@@ -509,13 +555,14 @@ function bootSessao() {
     atualizarTelas();
 }
 
-/* ---------- Corte de imagem ---------- */
+/* ---------- Corte de imagem (2 etapas: celular → PC) ---------- */
 const corteCanvas = $("#corte-canvas");
 const corteCtx = corteCanvas.getContext("2d");
 const CORTE_HANDLE = 28;
-const CORTE_MIN_W = 48;
+const CORTE_MIN_W = 36;
 let corteImg = null;
-let corteRect = { x: 0, y: 0, w: 100, h: 100 / CROP_ASPECT };
+let corteCfg = CROP_MOBILE;
+let corteRect = { x: 0, y: 0, w: 100, h: 25 };
 let corteBaseW = 100;
 let corteModo = null;
 let corteOffset = { x: 0, y: 0 };
@@ -523,6 +570,9 @@ let cortePinchDist = 0;
 let cortePinchW = 0;
 let corteResolver = null;
 let corteRejeitar = null;
+let corteEtapaResolver = null;
+
+function aspectAtual() { return corteCfg.aspect; }
 
 function zoomCortePct() {
     if (!corteBaseW) return 100;
@@ -532,6 +582,17 @@ function zoomCortePct() {
 function atualizarZoomLabel() {
     const el = $("#corte-zoom-label");
     if (el) el.textContent = zoomCortePct() + "%";
+}
+
+function atualizarUiCorte() {
+    const t = $("#corte-titulo");
+    const d = $("#corte-dica");
+    if (t) t.textContent = corteCfg.titulo;
+    if (d) d.innerHTML = corteCfg.dica;
+    const ok = $("#corte-ok-topo");
+    const conf = $("#corte-confirmar");
+    if (ok) ok.textContent = "OK";
+    if (conf) conf.textContent = corteCfg === CROP_PC ? "Usar este corte" : "OK — próximo (PC)";
 }
 
 function desenharCorte() {
@@ -560,12 +621,13 @@ function desenharCorte() {
 function limitarCorte() {
     const cw = corteCanvas.width;
     const ch = corteCanvas.height;
-    const maxW = Math.min(cw, ch * CROP_ASPECT);
+    const asp = aspectAtual();
+    const maxW = Math.min(cw, ch * asp);
     corteRect.w = Math.max(CORTE_MIN_W, Math.min(corteRect.w, maxW));
-    corteRect.h = corteRect.w / CROP_ASPECT;
+    corteRect.h = corteRect.w / asp;
     if (corteRect.h > ch) {
         corteRect.h = ch;
-        corteRect.w = corteRect.h * CROP_ASPECT;
+        corteRect.w = corteRect.h * asp;
     }
     corteRect.x = Math.max(0, Math.min(corteRect.x, cw - corteRect.w));
     corteRect.y = Math.max(0, Math.min(corteRect.y, ch - corteRect.h));
@@ -574,8 +636,9 @@ function limitarCorte() {
 function zoomCorte(fator) {
     const cx = corteRect.x + corteRect.w / 2;
     const cy = corteRect.y + corteRect.h / 2;
+    const asp = aspectAtual();
     corteRect.w *= fator;
-    corteRect.h = corteRect.w / CROP_ASPECT;
+    corteRect.h = corteRect.w / asp;
     corteRect.x = cx - corteRect.w / 2;
     corteRect.y = cy - corteRect.h / 2;
     limitarCorte();
@@ -632,13 +695,14 @@ function iniciarArraste(ev) {
 function moverArraste(ev) {
     if (!corteModo) return;
     ev.preventDefault();
+    const asp = aspectAtual();
     if (corteModo === "pinch" && ev.touches && ev.touches.length === 2) {
         const d = distPinch(ev.touches);
         if (cortePinchDist > 0) {
             const cx = corteRect.x + corteRect.w / 2;
             const cy = corteRect.y + corteRect.h / 2;
             corteRect.w = cortePinchW * (d / cortePinchDist);
-            corteRect.h = corteRect.w / CROP_ASPECT;
+            corteRect.h = corteRect.w / asp;
             corteRect.x = cx - corteRect.w / 2;
             corteRect.y = cy - corteRect.h / 2;
             limitarCorte();
@@ -655,7 +719,7 @@ function moverArraste(ev) {
     } else if (corteModo === "resize") {
         const nw = Math.max(CORTE_MIN_W, p.x - corteRect.x);
         corteRect.w = nw;
-        corteRect.h = nw / CROP_ASPECT;
+        corteRect.h = nw / asp;
         limitarCorte();
         desenharCorte();
     }
@@ -667,69 +731,124 @@ function pararArraste() {
     corteCanvas.classList.remove("arrastando", "redimensionando");
 }
 
-function fecharCorte(rejeitar) {
+function resetRectParaCfg() {
+    const asp = aspectAtual();
+    if (asp >= 1) {
+        corteRect.w = Math.min(corteCanvas.width, corteCanvas.width * 0.92);
+        corteRect.h = corteRect.w / asp;
+        if (corteRect.h > corteCanvas.height) {
+            corteRect.h = corteCanvas.height * 0.85;
+            corteRect.w = corteRect.h * asp;
+        }
+    } else {
+        corteRect.h = Math.min(corteCanvas.height, corteCanvas.height * 0.92);
+        corteRect.w = corteRect.h * asp;
+        if (corteRect.w > corteCanvas.width) {
+            corteRect.w = corteCanvas.width * 0.85;
+            corteRect.h = corteRect.w / asp;
+        }
+    }
+    corteRect.x = (corteCanvas.width - corteRect.w) / 2;
+    corteRect.y = (corteCanvas.height - corteRect.h) / 2;
+    corteBaseW = corteRect.w;
+    limitarCorte();
+}
+
+function limparEstadoCorte() {
     $("#modal-corte").classList.remove("aberto");
     pararArraste();
-    if (rejeitar && corteRejeitar) corteRejeitar(new Error("Corte cancelado."));
     corteResolver = null;
     corteRejeitar = null;
+    corteEtapaResolver = null;
     corteImg = null;
+    corteCfg = CROP_MOBILE;
+}
+
+function fecharCorte(rejeitar) {
+    const rej = corteRejeitar;
+    limparEstadoCorte();
+    if (rejeitar && rej) rej(new Error("Corte cancelado."));
+}
+
+function blobDoCorteAtual() {
+    return new Promise((ok, err) => {
+        if (!corteImg) return err(new Error("Nenhuma imagem no corte."));
+        const sx = corteImg.naturalWidth / corteCanvas.width;
+        const sy = corteImg.naturalHeight / corteCanvas.height;
+        const out = document.createElement("canvas");
+        out.width = corteCfg.width;
+        out.height = Math.round(corteCfg.width / aspectAtual());
+        out.getContext("2d").drawImage(
+            corteImg,
+            corteRect.x * sx, corteRect.y * sy, corteRect.w * sx, corteRect.h * sy,
+            0, 0, out.width, out.height
+        );
+        out.toBlob(blob => {
+            if (!blob) err(new Error("Não consegui gerar o corte."));
+            else ok(blob);
+        }, "image/jpeg", 0.86);
+    });
 }
 
 function confirmarCorte() {
-    if (!corteImg || !corteResolver) return;
-    const sx = corteImg.naturalWidth / corteCanvas.width;
-    const sy = corteImg.naturalHeight / corteCanvas.height;
-    const out = document.createElement("canvas");
-    out.width = CROP_LARGURA;
-    out.height = Math.round(CROP_LARGURA / CROP_ASPECT);
-    out.getContext("2d").drawImage(
-        corteImg,
-        corteRect.x * sx, corteRect.y * sy, corteRect.w * sx, corteRect.h * sy,
-        0, 0, out.width, out.height
-    );
-    out.toBlob(blob => {
-        if (!blob) { fecharCorte(true); return; }
-        const resolver = corteResolver;
-        fecharCorte(false);
+    if (!corteImg || !corteEtapaResolver) return;
+    blobDoCorteAtual().then(blob => {
+        const resolver = corteEtapaResolver;
+        corteEtapaResolver = null;
         resolver(blob);
-    }, "image/jpeg", 0.88);
+    }).catch(() => fecharCorte(true));
 }
 
-function abrirCorte(arquivo) {
-    if (!arquivo.type.startsWith("image/")) return Promise.reject(new Error("O arquivo escolhido não é uma imagem."));
-    if (arquivo.size > TAM_MAX) return Promise.reject(new Error("A imagem tem mais de 5 MB. Escolha uma menor."));
+function prepararCanvasComImg(img) {
+    corteImg = img;
+    const maxW = Math.min(700, window.innerWidth - 48);
+    const escala = Math.min(maxW / img.naturalWidth, 1);
+    corteCanvas.width = Math.round(img.naturalWidth * escala);
+    corteCanvas.height = Math.round(img.naturalHeight * escala);
+}
+
+function abrirEtapaCorte(cfg) {
     return new Promise((ok, err) => {
-        corteResolver = ok;
-        corteRejeitar = err;
+        if (!corteImg) return err(new Error("Nenhuma imagem carregada."));
+        corteCfg = cfg;
+        corteEtapaResolver = ok;
+        atualizarUiCorte();
+        resetRectParaCfg();
+        desenharCorte();
+        $("#modal-corte").classList.add("aberto");
+    });
+}
+
+function carregarImagemArquivo(arquivo) {
+    return new Promise((ok, err) => {
+        if (!arquivo.type.startsWith("image/")) return err(new Error("O arquivo escolhido não é uma imagem."));
+        if (arquivo.size > TAM_MAX) return err(new Error("A imagem tem mais de 5 MB. Escolha uma menor."));
         const img = new Image();
         const url = URL.createObjectURL(arquivo);
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            corteImg = img;
-            const maxW = Math.min(700, window.innerWidth - 48);
-            const escala = Math.min(maxW / img.naturalWidth, 1);
-            corteCanvas.width = Math.round(img.naturalWidth * escala);
-            corteCanvas.height = Math.round(img.naturalHeight * escala);
-            corteRect.w = Math.min(corteCanvas.width, corteCanvas.width * 0.92);
-            corteRect.h = corteRect.w / CROP_ASPECT;
-            if (corteRect.h > corteCanvas.height) {
-                corteRect.h = corteCanvas.height * 0.85;
-                corteRect.w = corteRect.h * CROP_ASPECT;
-            }
-            corteRect.x = (corteCanvas.width - corteRect.w) / 2;
-            corteRect.y = (corteCanvas.height - corteRect.h) / 2;
-            corteBaseW = corteRect.w;
-            limitarCorte();
-            desenharCorte();
-            $("#modal-corte").classList.add("aberto");
-        };
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            err(new Error("Não consegui abrir essa imagem."));
-        };
+        img.onload = () => { URL.revokeObjectURL(url); ok(img); };
+        img.onerror = () => { URL.revokeObjectURL(url); err(new Error("Não consegui abrir essa imagem.")); };
         img.src = url;
     });
+}
+
+async function abrirCorte(arquivo) {
+    const img = await carregarImagemArquivo(arquivo);
+    prepararCanvasComImg(img);
+    const cancelado = new Promise((_, err) => { corteRejeitar = err; });
+    try {
+        const mobile = await Promise.race([abrirEtapaCorte(CROP_MOBILE), cancelado]);
+        const pc = await Promise.race([abrirEtapaCorte(CROP_PC), cancelado]);
+        $("#modal-corte").classList.remove("aberto");
+        pararArraste();
+        corteEtapaResolver = null;
+        corteRejeitar = null;
+        corteImg = null;
+        corteCfg = CROP_MOBILE;
+        return { mobile, pc };
+    } catch (e) {
+        limparEstadoCorte();
+        throw (e && e.message) ? e : new Error("Corte cancelado.");
+    }
 }
 
 corteCanvas.addEventListener("mousedown", iniciarArraste);
@@ -784,13 +903,16 @@ function atualizarModoUI(c) {
     const slot = c.dataset.slot;
     c.classList.remove("modo-personalizado", "modo-anuncie", "modo-vazio");
     c.classList.add("modo-" + modo);
-    if (modo === "anuncie") mostrarPreview(slot, ARTE_ANUNCIE);
-    else if (modo === "vazio") c.querySelector("[data-preview]").innerHTML = '<span class="vazio">Sem publicidade neste espaço</span>';
+    if (modo === "anuncie") mostrarPreviewDuo(slot, ARTE_ANUNCIE, ARTE_ANUNCIE_PC);
+    else if (modo === "vazio") {
+        c.querySelector("[data-preview]").innerHTML = '<span class="vazio">Sem publicidade</span>';
+        c.querySelector("[data-preview-pc]").innerHTML = '<span class="vazio">Sem publicidade</span>';
+    }
 }
 
 function situacao(anuncio) {
     if (!anuncio) return { classe: "inativo", texto: "Sem anúncio", detalhe: "Nada publicado neste espaço." };
-    const modo = anuncio.modo || (anuncio.imagem ? "personalizado" : "vazio");
+    const modo = anuncio.modo || (anuncio.imagem || anuncio.imagemPc ? "personalizado" : "vazio");
     if (modo === "vazio") return { classe: "inativo", texto: "Desligado", detalhe: "Sem publicidade neste espaço." };
     if (anuncio.ativo === false) return { classe: "inativo", texto: "Pausado", detalhe: "O anúncio existe, mas está desligado." };
     const agora = Date.now();
@@ -802,29 +924,37 @@ function situacao(anuncio) {
     return { classe: "live", texto: rotulo, detalhe: isNaN(fim) ? "No ar por tempo indeterminado." : "No ar até " + formatarData(anuncio.fim) + "." };
 }
 
-function mostrarPreview(slot, url) {
-    const alvo = cartao(slot).querySelector("[data-preview]");
-    if (!url) { alvo.innerHTML = '<span class="vazio">Nenhuma imagem</span>'; return; }
+function setPreviewEl(alvo, url, vazioTxt) {
+    if (!alvo) return;
+    if (!url) { alvo.innerHTML = '<span class="vazio">' + (vazioTxt || "Nenhuma imagem") + "</span>"; return; }
     const img = new Image();
     img.onload = () => { alvo.innerHTML = ""; alvo.appendChild(img); };
     img.onerror = () => { alvo.innerHTML = '<span class="vazio">Não consegui carregar essa imagem</span>'; };
     img.src = url;
 }
 
+function mostrarPreviewDuo(slot, urlMobile, urlPc) {
+    const c = cartao(slot);
+    setPreviewEl(c.querySelector("[data-preview]"), urlMobile);
+    setPreviewEl(c.querySelector("[data-preview-pc]"), urlPc || urlMobile);
+}
+
 function preencher(slot, anuncio) {
     const c = cartao(slot);
     const a = anuncio || {};
-    const modo = a.modo || (a.imagem ? "personalizado" : "vazio");
+    const modo = a.modo || (a.imagem || a.imagemPc ? "personalizado" : "vazio");
     setModo(c, modo);
     c.querySelector("[data-ativo]").checked = a.ativo !== false && modo !== "vazio";
     c.querySelector("[data-imagem]").value = a.imagem || "";
+    const imgPc = c.querySelector("[data-imagem-pc]");
+    if (imgPc) imgPc.value = a.imagemPc || "";
     c.querySelector("[data-link]").value = a.link || "";
     c.querySelector("[data-alt]").value = a.alt || "";
     c.querySelector("[data-inicio]").value = paraInput(a.inicio);
     c.querySelector("[data-fim]").value = paraInput(a.fim);
     c._arquivoCortado = null;
     c.querySelector("[data-arquivo]").value = "";
-    if (modo === "personalizado") mostrarPreview(slot, a.imagem);
+    if (modo === "personalizado") mostrarPreviewDuo(slot, a.imagem, a.imagemPc);
     const s = situacao(a);
     const selo = c.querySelector("[data-selo]");
     selo.className = "selo " + s.classe;
@@ -889,14 +1019,20 @@ async function lancar(slot) {
             anuncio.alt = "Anuncie aqui — fale conosco pelo WhatsApp";
         } else {
             let imagem = c.querySelector("[data-imagem]").value.trim();
-            if (blobCortado) {
-                botao.textContent = "Preparando imagem…";
-                imagem = await comTimeout(prepararImagem(blobCortado), 45000, new Error("Demorou demais para preparar a imagem."));
+            let imagemPc = (c.querySelector("[data-imagem-pc]") && c.querySelector("[data-imagem-pc]").value.trim()) || "";
+            if (blobCortado && blobCortado.mobile && blobCortado.pc) {
+                botao.textContent = "Preparando imagens…";
+                imagem = await comTimeout(prepararImagem(blobCortado.mobile), 45000, new Error("Demorou demais para preparar a imagem do celular."));
+                imagemPc = await comTimeout(prepararImagem(blobCortado.pc), 45000, new Error("Demorou demais para preparar a imagem do PC."));
                 c.querySelector("[data-imagem]").value = imagem;
+                if (c.querySelector("[data-imagem-pc]")) c.querySelector("[data-imagem-pc]").value = imagemPc;
             }
-            if (!imagem) throw new Error("Escolha uma imagem (com corte) ou cole o link de uma.");
+            if (!imagem && !imagemPc) throw new Error("Escolha uma imagem (com os 2 cortes) ou cole os links.");
+            if (!imagem) imagem = imagemPc;
+            if (!imagemPc) imagemPc = imagem;
             anuncio.ativo = c.querySelector("[data-ativo]").checked;
             anuncio.imagem = imagem;
+            anuncio.imagemPc = imagemPc;
             anuncio.link = c.querySelector("[data-link]").value.trim();
             anuncio.alt = c.querySelector("[data-alt]").value.trim();
         }
@@ -906,9 +1042,9 @@ async function lancar(slot) {
 
         c._arquivoCortado = null;
         preencher(slot, anuncio);
-        const nome = slot === "topo" ? "superior" : "inferior";
-        const msgModo = modo === "vazio" ? "espaço desligado" : (modo === "anuncie" ? "Anuncie aqui no ar" : "anúncio lançado");
-        aviso(painelAviso, `✅ Retângulo ${nome}: ${msgModo}. Já está valendo no app financeiro.`, "ok");
+        const nome = slot === "topo" ? "superior / esquerda" : "inferior / direita";
+        const msgModo = modo === "vazio" ? "espaço desligado" : (modo === "anuncie" ? "Anuncie aqui no ar" : "anúncio lançado (celular + PC)");
+        aviso(painelAviso, `✅ Espaço ${nome}: ${msgModo}. Já está valendo no app financeiro.`, "ok");
     } catch (e) {
         if (e && e.code === "permission-denied") {
             avisoPermissao(painelAviso);
@@ -944,17 +1080,24 @@ SLOTS.forEach(slot => {
     c.querySelectorAll("[data-modo]").forEach(r => r.addEventListener("change", () => atualizarModoUI(c)));
     c.querySelector("[data-lancar]").addEventListener("click", () => lancar(slot));
     c.querySelector("[data-imagem]").addEventListener("change", e => {
-        mostrarPreview(slot, e.target.value.trim());
+        const pcEl = c.querySelector("[data-imagem-pc]");
+        mostrarPreviewDuo(slot, e.target.value.trim(), pcEl ? pcEl.value.trim() : "");
+        c._arquivoCortado = null;
+    });
+    const imgPcEl = c.querySelector("[data-imagem-pc]");
+    if (imgPcEl) imgPcEl.addEventListener("change", e => {
+        mostrarPreviewDuo(slot, c.querySelector("[data-imagem]").value.trim(), e.target.value.trim());
         c._arquivoCortado = null;
     });
     c.querySelector("[data-arquivo]").addEventListener("change", async e => {
         const f = e.target.files[0];
         if (!f) return;
         try {
-            const blob = await abrirCorte(f);
-            c._arquivoCortado = blob;
+            const cortes = await abrirCorte(f);
+            c._arquivoCortado = cortes;
             c.querySelector("[data-imagem]").value = "";
-            mostrarPreview(slot, URL.createObjectURL(blob));
+            if (c.querySelector("[data-imagem-pc]")) c.querySelector("[data-imagem-pc]").value = "";
+            mostrarPreviewDuo(slot, URL.createObjectURL(cortes.mobile), URL.createObjectURL(cortes.pc));
         } catch (err) {
             e.target.value = "";
             c._arquivoCortado = null;
