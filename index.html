@@ -583,7 +583,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 40px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.21</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.22</span>
         </div>
         </div>
         <a class="ad-slot" id="ad-rodape" target="_blank" rel="noopener sponsored">
@@ -1038,7 +1038,7 @@
       <select class="form-sel" id="mg-pay" onchange="window.onPayChange()"></select>
     </div>
     <div class="input-group">
-      <label class="input-label">Nome (O emoji vai automático!)</label>
+      <label class="input-label">Nome</label>
       <input type="text" id="mg-nome" placeholder="Ex: Conta de Luz, Uber, iFood..." oninput="window.sugerirCategoria(this.value)">
     </div>
     <div class="input-group">
@@ -1052,6 +1052,17 @@
         <option value="Contas Básicas 💡">Contas Básicas 💡</option>
         <option value="Viagem & Lazer ✈️">Viagem & Lazer ✈️</option>
       </select>
+    </div>
+    <div class="input-group">
+      <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding:4px 0 8px;" onclick="window.toggleAccordion('wrap-mg-emoji', 'chev-mg-emoji')">
+        <span class="input-label" style="margin:0;">Emoji do gasto <span id="mg-emoji-atual" style="font-size:18px; margin-left:6px;">🏷️</span></span>
+        <span id="chev-mg-emoji" class="chev">▼</span>
+      </div>
+      <div id="wrap-mg-emoji" style="display:none; padding-bottom:4px;">
+        <div id="mg-emoji-grid" class="meta-emoji-grid"></div>
+        <button type="button" class="btn-small" onclick="window.resetarEmojiGastoCategoria()" style="margin-top:8px;">Usar emoji da categoria</button>
+        <p style="font-size:11px; color:#8e8e93; margin-top:6px;">Se você não escolher, o emoji da categoria entra automaticamente.</p>
+      </div>
     </div>
     <div class="input-group">
       <label class="input-label" id="label-mg-val">Valor da Parcela (R$)</label>
@@ -1259,15 +1270,15 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.21</h3>
+      <h3 style="font-weight:800;">Novidades — v1.22</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.21 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.22 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
+        <li style="margin-bottom:8px;"><b>😊 Emoji do gasto:</b> no cadastro e na edição você escolhe o emoji. Se não mudar, continua o da categoria.</li>
         <li style="margin-bottom:8px;"><b>📣 Anúncios laterais no PC:</b> no computador a publicidade aparece nas laterais (esquerda e direita), com recorte vertical próprio. No celular continua o banner horizontal.</li>
         <li style="margin-bottom:8px;"><b>📅 Data nos gastos:</b> cada gasto agora tem data de registro. Gastos antigos recebem data automaticamente.</li>
         <li style="margin-bottom:8px;"><b>🔎 Filtro por data:</b> na aba Gastos, filtre por período com os campos De / Até.</li>
-        <li style="margin-bottom:8px;"><b>💻 Versão para PC:</b> menu lateral, cabeçalho em uma linha e conteúdo em duas colunas — no celular continua igual.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -1695,6 +1706,8 @@
     }
     window.gastosSearchQuery = "";
     window.gastosFiltroDe = "";
+    window._mgEmojiPick = "🏷️";
+    window._mgEmojiManual = false;
     window.gastosFiltroAte = "";
 
     window.dataFromGastoId = function(id) {
@@ -1935,6 +1948,8 @@
         const eid=document.getElementById('mg-edit-id');if(eid)eid.value='';
         const eot=document.getElementById('mg-edit-orig-tipo');if(eot)eot.value='';
         const ter=document.getElementById('mg-tipo-edit-row');if(ter)ter.style.display='none';
+        window._mgEmojiPick='🏷️';
+        window._mgEmojiManual=false;
     };
     window.abrirChangelog = () => document.getElementById('modal-changelog').style.display='flex';
     window.reportarWhatsApp = function(e) {
@@ -2327,6 +2342,7 @@
         else if(n.includes("luz")||n.includes("agua")||n.includes("energia")||n.includes("aluguel")||n.includes("condomínio")||n.includes("vivo")||n.includes("claro")||n.includes("tim")||n.includes("internet")||n.includes("plano")||n.includes("seguro"))cat="Contas Básicas 💡";
         else if(n.includes("netflix")||n.includes("spotify")||n.includes("cinema")||n.includes("shopping")||n.includes("roupa")||n.includes("bar")||n.includes("cruzeiro")||n.includes("hotel")||n.includes("viagem")||n.includes("passagem"))cat="Viagem & Lazer ✈️";
         catSelect.value=cat;
+        window.onMgCatChange();
     };
 
     window.configureMgTipoFields=function(tipo){
@@ -2370,6 +2386,7 @@
         window.atualizarSelectsPagamento();
         const mgData=document.getElementById('mg-data');
         if(mgData) mgData.value=window.hojeISO();
+        window.resetGastoEmojiPicker(window.emojiPadraoGasto('','Outros 🏷️'),false);
         document.getElementById('modal-gasto').style.display='flex';
     };
 
@@ -2415,6 +2432,10 @@
         document.getElementById('mg-pay').value=pay;
         const mgData=document.getElementById('mg-data');
         if(mgData) mgData.value=dataGasto;
+        const temEmojiPrefixo=/^\p{Extended_Pictographic}/u.test((nome||'').trim());
+        const emExistente=temEmojiPrefixo?window.extrairEmojiTexto(nome):null;
+        const emPadrao=window.emojiPadraoGasto(nome,cat);
+        window.resetGastoEmojiPicker(emExistente||emPadrao,!!(emExistente&&emExistente!==emPadrao));
         window.onPayChange();
         document.getElementById('modal-gasto').style.display='flex';
     };
@@ -2574,7 +2595,9 @@
         const pay=document.getElementById('mg-pay').value;
         const dataGasto=(document.getElementById('mg-data')&&document.getElementById('mg-data').value)||window.hojeISO();
         if(!nome||val<=0)return alert('Preencha um nome e um valor maior que zero.');
-        const emojiName=window.autoEmoji(nome,cat);
+        const nomeSem=window.nomeSemEmojiTexto(nome);
+        const em=window._mgEmojiManual&&window._mgEmojiPick?window._mgEmojiPick:window.emojiPadraoGasto(nomeSem,cat);
+        const emojiName=window.aplicarEmojiNome(em,nomeSem);
         window.S.catDict[window.nomeSemEmojiTexto(emojiName).toLowerCase()]=cat;
         const editId=(document.getElementById('mg-edit-id').value||'').trim();
         const origTipo=document.getElementById('mg-edit-orig-tipo').value;
@@ -2701,8 +2724,65 @@
         if(n.includes('viagem')||n.includes('passagem')||n.includes('hotel')||n.includes('cruzeiro')||n.includes('airbnb')||n.includes('friburgo'))return'✈️';
         return null;
     };
+    window.GASTO_EMOJIS=['📦','🚗','🍔','💊','💡','✈️','🏷️','🛒','💧','🛍️','🏋️','📱','🐶','🏠','🎮','🎁','🔥','✨','💰','🎯','🍕','☕','🚌','⛽','🧾','💳','🔁','🎓','🌴','💎','📺','🎵','👕','🛠️','📚'];
+    window.emojiPadraoGasto=function(nome,cat){
+        const nomeSem=window.nomeSemEmojiTexto(nome);
+        let em=null;
+        if(cat&&!String(cat).includes('Outros'))em=window.emojiPorCategoria(cat);
+        if(!em)em=window.emojiPorNome(nomeSem);
+        if(!em)em=window.emojiPorCategoria(cat||'Outros 🏷️');
+        return em||'🏷️';
+    };
+    window.sincronizarEmojiGastoUI=function(){
+        const em=window._mgEmojiPick||'🏷️';
+        const prev=document.getElementById('mg-emoji-atual');
+        if(prev)prev.textContent=em;
+        document.querySelectorAll('#mg-emoji-grid .meta-emoji-btn').forEach(b=>b.classList.toggle('active',b.textContent===em));
+    };
+    window.renderGastoEmojiGrid=function(atual){
+        const el=document.getElementById('mg-emoji-grid');if(!el)return;
+        const lista=window.GASTO_EMOJIS.slice();
+        if(atual&&!lista.includes(atual))lista.unshift(atual);
+        el.innerHTML='';
+        lista.forEach(em=>{
+            const btn=document.createElement('button');
+            btn.type='button';
+            btn.className='meta-emoji-btn'+(em===atual?' active':'');
+            btn.textContent=em;
+            btn.onclick=()=>window.pickGastoEmoji(em);
+            el.appendChild(btn);
+        });
+    };
+    window.pickGastoEmoji=function(em){
+        window._mgEmojiPick=em;
+        window._mgEmojiManual=true;
+        window.sincronizarEmojiGastoUI();
+    };
+    window.resetarEmojiGastoCategoria=function(){
+        const cat=document.getElementById('mg-cat')?document.getElementById('mg-cat').value:'Outros 🏷️';
+        const nome=document.getElementById('mg-nome')?document.getElementById('mg-nome').value:'';
+        window._mgEmojiManual=false;
+        window._mgEmojiPick=window.emojiPadraoGasto(nome,cat);
+        window.renderGastoEmojiGrid(window._mgEmojiPick);
+        window.sincronizarEmojiGastoUI();
+    };
+    window.resetGastoEmojiPicker=function(em,manual){
+        window._mgEmojiPick=em||'🏷️';
+        window._mgEmojiManual=!!manual;
+        const wrap=document.getElementById('wrap-mg-emoji');
+        const chev=document.getElementById('chev-mg-emoji');
+        if(wrap)wrap.style.display='none';
+        if(chev)chev.classList.remove('open');
+        window.renderGastoEmojiGrid(window._mgEmojiPick);
+        window.sincronizarEmojiGastoUI();
+    };
     window.onMgCatChange=function(){
-        // Feedback visual opcional: não altera o texto enquanto digita; o emoji final é aplicado no salvar
+        if(window._mgEmojiManual)return;
+        const cat=document.getElementById('mg-cat')?document.getElementById('mg-cat').value:'Outros 🏷️';
+        const nome=document.getElementById('mg-nome')?document.getElementById('mg-nome').value:'';
+        window._mgEmojiPick=window.emojiPadraoGasto(nome,cat);
+        window.renderGastoEmojiGrid(window._mgEmojiPick);
+        window.sincronizarEmojiGastoUI();
     };
     window.renderMetaEmojiGrid=function(containerId,atual,cbName){
         const el=document.getElementById(containerId);if(!el)return;
