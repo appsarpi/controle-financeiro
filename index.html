@@ -37,6 +37,7 @@
         .dark-theme .ia-chat-msg.ia { background: #2c2c2e; color: #f2f2f7; }
         .dark-theme .ia-chat-msg.user { background: #243447; color: #d6ebff; }
         .dark-theme .ia-chat-input { background: #2c2c2e; color: #fff; border-color: #3a3a3c; }
+        .dark-theme .ia-chat-msg.thinking { color: #8e8e93; }
         .dark-theme .ia-chip { background: #2c2c2e; color: #64b5f6; border-color: #3a3a3c; }
         .dark-theme .cal-cell.cal-bg-gray { background: #2c2c2e; }
         .dark-theme .btn-secondary, .dark-theme .btn-close-modal, .dark-theme .btn-small { background: #2c2c2e; color: #007aff; border-color: #3a3a3c; }
@@ -207,6 +208,8 @@
         .ia-chat-input-row { display: flex; gap: 8px; align-items: center; }
         .ia-chat-input { flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid #e5e5ea; padding: 0 12px; font-size: 15px; font-family: inherit; background: #fff; color: #1c1c1e; }
         .ia-chat-send { width: 44px; height: 44px; border: none; border-radius: 12px; background: #007aff; color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0; }
+        .ia-chat-send:disabled, .ia-chip:disabled { opacity: 0.45; cursor: default; }
+        .ia-chat-msg.thinking { color: #8e8e93; font-style: italic; }
         .ia-bloco { border-radius: 14px; padding: 14px; line-height: 1.5; font-size: 14px; color: #1c1c1e; }
 
         .painel-acoes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -587,7 +590,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 40px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.23</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.24</span>
         </div>
         </div>
         <a class="ad-slot" id="ad-rodape" target="_blank" rel="noopener sponsored">
@@ -946,7 +949,12 @@
                 <button class="btn-close-modal" onclick="window.fecharModal('modal-ia')">&times;</button>
             </div>
         </div>
-        <p style="font-size:12px; color:#8e8e93; margin-bottom:8px; line-height:1.4;">Conversa salva fora do mês. Análise 100% no aparelho.</p>
+        <p style="font-size:12px; color:#8e8e93; margin-bottom:8px; line-height:1.4;">A analista lê seus números, pensa e escreve a resposta — de graça. A conversa fica salva em qualquer mês.</p>
+        <details id="ia-key-box" style="font-size:12px; color:#8e8e93; margin-bottom:10px; line-height:1.4;">
+            <summary style="cursor:pointer; font-weight:600;">Ativar IA que pensa (grátis, 1 minuto)</summary>
+            <p style="margin:8px 0;">1. Abra o <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> e crie uma chave — é de graça.<br>2. Cole aqui. Fica só neste aparelho, não vai para a nuvem do app.</p>
+            <input type="password" id="ia-gemini-key" class="ia-chat-input" placeholder="Cole a chave AIza…" autocomplete="off" style="width:100%; height:38px; margin-bottom:6px;" onchange="window.salvarChaveGeminiIA(this.value)">
+        </details>
         <div class="ia-chat-wrap">
             <div id="ia-chat-log" class="ia-chat-log"></div>
             <div class="ia-chat-chips">
@@ -1280,13 +1288,13 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.23</h3>
+      <h3 style="font-weight:800;">Novidades — v1.24</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.23 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.24 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
-        <li style="margin-bottom:8px;"><b>🤖 IA em conversa:</b> some o menu de opções. Agora você conversa com a analista, e ela lembra o papo em qualquer mês.</li>
-        <li style="margin-bottom:8px;"><b>🔎 Saúde financeira:</b> ela aponta gastos repetidos, valores fora do normal e pergunta se está correto.</li>
+        <li style="margin-bottom:8px;"><b>🤖 IA de verdade:</b> a analista pensa e escreve com o Gemini gratuito. Ative uma vez com a chave do Google AI Studio.</li>
+        <li style="margin-bottom:8px;"><b>💬 Conversa salva:</b> o papo continua em qualquer mês e ela ainda aponta gastos repetidos ou estranhos.</li>
         <li style="margin-bottom:8px;"><b>😊 Emoji do gasto:</b> no cadastro e na edição você escolhe o emoji. Se não mudar, continua o da categoria.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
@@ -3504,8 +3512,194 @@
         const log=document.getElementById('ia-chat-log');
         if(!log)return;
         const chat=window.ensureIAChat();
-        log.innerHTML=(chat.messages||[]).map(m=>`<div class="ia-chat-msg ${m.role==='user'?'user':'ia'}">${window.escapeHtmlIA(m.text)}</div>`).join('');
+        log.innerHTML=(chat.messages||[]).map(m=>{
+            const thinking=m.role!=='user'&&m.text===window.IA_THINKING;
+            return `<div class="ia-chat-msg ${m.role==='user'?'user':'ia'}${thinking?' thinking':''}">${window.escapeHtmlIA(m.text)}</div>`;
+        }).join('');
         log.scrollTop=log.scrollHeight;
+    };
+    window.montarDossieIA=function(){
+        const ctx=window.coletarContextoFinanceiro();
+        const res=window.analisarGastosLocal();
+        const chat=window.ensureIAChat();
+        const achados=window.detectarAchadosIA().slice(0,6).map(a=>({key:a.key,texto:a.texto,jaPerguntado:!!(chat.memory.asked||{})[a.key],respostaUser:(chat.memory.replies||{})[a.key]||null}));
+        return {
+            mesAberto:`${MESES_CURTO[activeM]} ${activeY}`,
+            receita:ctx.tBRL,gastos:ctx.tReal,saldo:ctx.saldo,aportes:ctx.tAp,saidasMeta:ctx.tSai,
+            fixos:ctx.fixosTotal,parcelas:ctx.parcTotal,assinaturas:ctx.assinTotal,comprasMes:ctx.realVar,
+            pctLivre:ctx.pctLivre,pctFixos:ctx.pctFixos,pctVar:ctx.pctVar,
+            perfil:res.perfil?{rotulo:res.perfil.rotulo,conselho:res.perfil.conselhoPrioritario}:null,
+            categorias:(ctx.catsOrdenadas||[]).slice(0,6).map(([n,v])=>({nome:n,valor:v})),
+            topParcelas:(ctx.parcelasDet||[]).slice(0,6).map(p=>({nome:p.nome,valor:p.valor,fim:p.fimStr||null})),
+            topAssinaturas:(ctx.assinItens||[]).sort((a,b)=>b.valor-a.valor).slice(0,6).map(a=>({nome:a.nome,valor:a.valor})),
+            comprasPontuais:(ctx.unicoItens||[]).sort((a,b)=>b.valor-a.valor).slice(0,8).map(g=>({nome:g.nome,valor:g.valor})),
+            metas:(ctx.metasResumo||[]).map(m=>({nome:m.nome,acum:m.acum,obj:m.obj,pct:m.pct})),
+            historico:(ctx.comDados||[]).slice(-6).map(h=>({mes:h.label,receita:h.tBRL,gastos:h.tReal,saldo:h.saldo})),
+            padroes:(res.padroes||[]).slice(0,5).map(p=>({titulo:p.titulo,texto:p.texto,acao:p.acao||''})),
+            achados,
+            opiniaoLocal:res.opiniao||'',
+            pendente:chat.pending||null
+        };
+    };
+    window.promptSistemaIA=function(){
+        const d=window.montarDossieIA();
+        return [
+            'Você é a analista financeira do app Controle Financeiro. Fale em português do Brasil, direto, humano e honesto.',
+            'PENSE antes de responder: compare meses, ache o que foge do padrão, gastos repetidos, valores altos demais, receita faltando, parcelas demais e risco de saúde financeira.',
+            'Use APENAS os números do dossiê abaixo. Não invente lançamentos, valores ou meses. Dinheiro em R$.',
+            'Se algo parecer errado ou duplicado, PERGUNTE se está correto. Se o usuário confirmar ou negar, respeite isso.',
+            'Não use listas de menu. Responda à pergunta feita. Seja específica (cite nomes e valores). 4 a 10 frases bastam, a menos que o usuário peça detalhe.',
+            'Dossiê atual (JSON): '+JSON.stringify(d)
+        ].join('\n');
+    };
+    window.extrairTextoModeloIA=function(data){
+        if(!data)return '';
+        if(typeof data==='string')return data.trim();
+        const c=data.choices&&data.choices[0]&&data.choices[0].message;
+        if(c){
+            if(typeof c.content==='string')return c.content.trim();
+            if(Array.isArray(c.content))return c.content.map(p=>p.text||p.content||'').join('').trim();
+        }
+        if(data.message&&typeof data.message.content==='string')return data.message.content.trim();
+        if(typeof data.text==='string')return data.text.trim();
+        return '';
+    };
+    window.IA_THINKING='Pensando nos seus números…';
+    window.setIABusy=function(on){
+        window._iaBusy=!!on;
+        const btn=document.querySelector('.ia-chat-send');
+        const inp=document.getElementById('ia-chat-inp');
+        if(btn)btn.disabled=!!on;
+        if(inp)inp.disabled=!!on;
+        document.querySelectorAll('.ia-chip').forEach(b=>b.disabled=!!on);
+    };
+    window.aplicarConfirmacaoIA=function(texto){
+        const chat=window.ensureIAChat();
+        const low=(texto||'').trim().toLowerCase();
+        if(!chat.pending||!chat.pending.key)return;
+        if(/^(sim|isso|certo|correto|ok|confirmo|pode|está certo|esta certo)\b/.test(low)){
+            chat.memory.replies[chat.pending.key]='sim';
+            chat.pending=null;
+        }else if(/^(não|nao|errado|duplicado|faltou|não está|nao esta)\b/.test(low)){
+            chat.memory.replies[chat.pending.key]='nao';
+            chat.pending=null;
+        }
+    };
+    window.postChatIA=async function(url,body){
+        const ctrl=new AbortController();
+        const t=setTimeout(()=>ctrl.abort(),28000);
+        try{
+            const r=await fetch(url,{
+                method:'POST',
+                headers:{'Content-Type':'application/json','Accept':'application/json'},
+                body:JSON.stringify(body),
+                signal:ctrl.signal
+            });
+            if(!r.ok)throw new Error('http '+r.status);
+            const ct=r.headers.get('content-type')||'';
+            if(ct.includes('application/json'))return window.extrairTextoModeloIA(await r.json());
+            return (await r.text()).trim();
+        }finally{clearTimeout(t);}
+    };
+    window.chamarPollinationsIA=async function(messages){
+        const body={model:'openai',messages,temperature:0.5};
+        try{
+            const txt=await window.postChatIA('https://text.pollinations.ai/openai',body);
+            if(txt)return txt;
+        }catch(e){console.warn('IA pollinations legado',e);}
+        const txt=await window.postChatIA('https://gen.pollinations.ai/v1/chat/completions',{...body,model:'openai-fast'});
+        if(txt)return txt;
+        throw new Error('pollinations');
+    };
+    window.chaveGeminiIA=function(){
+        try{return(localStorage.getItem('iaGeminiKey')||'').trim();}catch(e){return '';}
+    };
+    window.salvarChaveGeminiIA=function(v){
+        try{
+            const t=String(v||'').trim();
+            if(t)localStorage.setItem('iaGeminiKey',t);
+            else localStorage.removeItem('iaGeminiKey');
+        }catch(e){}
+    };
+    window.extrairTextoGeminiIA=function(data){
+        const parts=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
+        if(!parts)return '';
+        return parts.map(p=>p.text||'').join('').trim();
+    };
+    window.montarConteudoGeminiIA=function(messages){
+        const sys=messages.find(m=>m.role==='system');
+        const rows=[];
+        messages.filter(m=>m.role!=='system').forEach(m=>{
+            const role=m.role==='assistant'?'model':'user';
+            if(rows.length&&rows[rows.length-1].role===role){
+                rows[rows.length-1].parts[0].text+='\n'+m.content;
+            }else{
+                rows.push({role,parts:[{text:m.content}]});
+            }
+        });
+        if(rows[0]&&rows[0].role!=='user')rows.unshift({role:'user',parts:[{text:'Analise os números e responda.'}]});
+        return {
+            system_instruction:sys?{parts:[{text:sys.content}]}:undefined,
+            contents:rows,
+            generationConfig:{temperature:0.45,maxOutputTokens:900}
+        };
+    };
+    window.chamarGeminiIA=async function(messages){
+        const keys=[window.chaveGeminiIA()].filter(Boolean);
+        if(!keys.length)throw new Error('sem chave');
+        const models=['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash'];
+        const body=window.montarConteudoGeminiIA(messages);
+        let lastErr=null;
+        for(let k=0;k<keys.length;k++){
+            for(let m=0;m<models.length;m++){
+                const ctrl=new AbortController();
+                const t=setTimeout(()=>ctrl.abort(),28000);
+                try{
+                    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+models[m]+':generateContent?key='+encodeURIComponent(keys[k]),{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify(body),
+                        signal:ctrl.signal
+                    });
+                    const data=await r.json().catch(()=>null);
+                    if(!r.ok)throw new Error((data&&data.error&&data.error.message)||('http '+r.status));
+                    const txt=window.extrairTextoGeminiIA(data);
+                    if(txt)return txt;
+                }catch(e){lastErr=e;console.warn('IA gemini',models[m],e);}
+                finally{clearTimeout(t);}
+            }
+        }
+        throw lastErr||new Error('gemini');
+    };
+    window.gerarRespostaIA=async function(textoUser){
+        window.aplicarConfirmacaoIA(textoUser);
+        const chat=window.ensureIAChat();
+        const hist=(chat.messages||[])
+            .filter(m=>m.text&&m.text!==window.IA_THINKING)
+            .slice(-10)
+            .map(m=>({role:m.role==='user'?'user':'assistant',content:m.text}));
+        if(!(hist.length&&hist[hist.length-1].role==='user'&&hist[hist.length-1].content===textoUser)){
+            hist.push({role:'user',content:textoUser});
+        }
+        const messages=[{role:'system',content:window.promptSistemaIA()},...hist];
+        if(!window.chaveGeminiIA()){
+            const box=document.getElementById('ia-key-box');
+            if(box)box.open=true;
+            return 'Quero pensar de verdade na sua pergunta, mas preciso da chave gratuita do Google. Abra o Google AI Studio (link acima), crie a chave — é de graça — e cole no campo. Aí eu leio seus números e escrevo a resposta, sem texto pronto.';
+        }
+        try{
+            const txt=await window.chamarGeminiIA(messages);
+            if(txt)return txt;
+        }catch(e){
+            console.warn('IA gemini',e);
+            const box=document.getElementById('ia-key-box');
+            if(box)box.open=true;
+        }
+        try{
+            const txt=await window.chamarPollinationsIA(messages);
+            if(txt)return txt;
+        }catch(e){console.warn('IA pollinations',e);}
+        return 'Tentei o modelo gratuito e a chave não passou. Confira se colou a chave inteira do Google AI Studio. Sem ela eu não consigo pensar — só repetir frases prontas.';
     };
     window.detectarAchadosIA=function(){
         const ctx=window.coletarContextoFinanceiro();
@@ -3572,9 +3766,9 @@
             novos.slice(0,2).forEach(a=>{t+='\n\n• '+a.texto;window.marcarAchadoIA(a.key);});
             const chat=window.ensureIAChat();
             chat.pending={key:novos[0].key,tipo:'confirmar'};
-            t+='\n\nPode responder sim/não, ou perguntar sobre saldo, gastos, parcelas, metas e o que fazer agora.';
+            t+='\n\nPode responder sim/não, ou perguntar o que quiser — eu leio os números e penso na resposta.';
         }else{
-            t+='\n\nPode me perguntar como está o mês, padrões, metas ou o que fazer agora.';
+            t+='\n\nPergunte o que quiser sobre o seu dinheiro — eu leio os números e penso na resposta.';
         }
         return t;
     };
@@ -3597,6 +3791,11 @@
         }
         document.getElementById('modal-ia').style.display='flex';
         window.renderIAChat();
+        const keyInp=document.getElementById('ia-gemini-key');
+        const keyBox=document.getElementById('ia-key-box');
+        const temChave=!!window.chaveGeminiIA();
+        if(keyInp)keyInp.value=window.chaveGeminiIA();
+        if(keyBox)keyBox.open=!temChave;
         setTimeout(()=>{const inp=document.getElementById('ia-chat-inp');if(inp)inp.focus();},80);
     };
     window.limparConversaIA=function(){
@@ -3705,17 +3904,29 @@
         }
         return 'Pode perguntar: como estou, padrões, gastos, parcelas, metas ou o que fazer agora. Se eu apontar algo estranho, responda sim ou não.';
     };
-    window.enviarIAChat=function(textoOpt){
+    window.enviarIAChat=async function(textoOpt){
+        if(window._iaBusy)return;
         const inp=document.getElementById('ia-chat-inp');
         const texto=(textoOpt!=null?textoOpt:(inp?inp.value:'')).trim();
         if(!texto)return;
         if(inp&&textoOpt==null)inp.value='';
         window.ensureIAChat();
+        window.setIABusy(true);
         window.pushIAMsg('user',texto);
-        const resp=window.responderIntencaoIA(texto);
-        window.pushIAMsg('ia',resp);
+        const thinking=window.pushIAMsg('ia',window.IA_THINKING);
         window.renderIAChat();
-        if(window.scheduleSync)window.scheduleSync();
+        try{
+            const resp=await window.gerarRespostaIA(texto);
+            thinking.text=resp||'Não consegui montar a resposta agora. Tente de novo em alguns segundos.';
+        }catch(e){
+            console.warn('IA chat',e);
+            thinking.text=window.responderIntencaoIA(texto);
+        }finally{
+            window.renderIAChat();
+            window.setIABusy(false);
+            if(window.scheduleSync)window.scheduleSync();
+            if(inp)inp.focus();
+        }
     };
     window.analisarGastosIA=function(){window.abrirModalIA();};
     window.abrirModalComprar=()=>{document.getElementById('c-nome').value='';document.getElementById('c-valor').value='';document.getElementById('c-parcelas').value='1';document.getElementById('compra-res').innerHTML='';window.setNeed('sim');document.getElementById('modal-comprar').style.display='flex';};
