@@ -953,7 +953,7 @@
         <details id="ia-key-box" style="font-size:12px; color:#8e8e93; margin-bottom:10px; line-height:1.4;">
             <summary style="cursor:pointer; font-weight:600;">Ativar IA que pensa (grátis, 1 minuto)</summary>
             <p style="margin:8px 0;">1. Abra o <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> e crie uma chave — é de graça.<br>2. Cole aqui. Fica só neste aparelho, não vai para a nuvem do app.</p>
-            <input type="password" id="ia-gemini-key" class="ia-chat-input" placeholder="Cole a chave AIza…" autocomplete="off" style="width:100%; height:38px; margin-bottom:6px;" onchange="window.salvarChaveGeminiIA(this.value)">
+            <input type="password" id="ia-gemini-key" class="ia-chat-input" placeholder="Cole a chave (começa com AQ. ou AIza)" autocomplete="off" style="width:100%; height:38px; margin-bottom:6px;" onchange="window.salvarChaveGeminiIA(this.value)">
         </details>
         <div class="ia-chat-wrap">
             <div id="ia-chat-log" class="ia-chat-log"></div>
@@ -3612,17 +3612,29 @@
         throw new Error('pollinations');
     };
     window.chaveGeminiIA=function(){
-        try{return(localStorage.getItem('iaGeminiKey')||'').trim();}catch(e){return '';}
+        try{return(localStorage.getItem('iaGeminiKey')||'').replace(/\s+/g,'').trim();}catch(e){return '';}
     };
     window.salvarChaveGeminiIA=function(v){
         try{
-            const t=String(v||'').trim();
+            const t=String(v||'').replace(/\s+/g,'').trim();
             if(t)localStorage.setItem('iaGeminiKey',t);
             else localStorage.removeItem('iaGeminiKey');
         }catch(e){}
     };
+    window.traduzErroGeminiIA=function(msg){
+        const t=String(msg||'');
+        const low=t.toLowerCase();
+        if(/api_key_invalid|invalid.*key|api key not valid|unregistered/.test(low))return 'O Google recusou a chave. Na lista do AI Studio, copie de novo pelo ícone de dois quadradinhos — a chave nova começa com AQ. ou AIza.';
+        if(/referrer|referer|ios bundle|android apps/.test(low))return 'A chave está com restrição de site. No AI Studio, edite a chave e libere https://appsarpi.github.io/* ou tire a restrição de HTTP.';
+        if(/blocked|permission|not enabled|has not been used|forbidden/.test(low))return 'O projeto do Google ainda não liberou o Gemini. No AI Studio, abra essa chave e confirme que está no nível gratuito e ativa.';
+        if(/quota|resource.?exhausted|rate.?limit|429/.test(low))return 'O limite grátis do Gemini estourou por agora. Tente de novo daqui a alguns minutos.';
+        if(/not found|not supported|unknown model/.test(low))return 'O modelo mudou no Google. Atualize o app e tente de novo.';
+        if(/failed to fetch|network|cors|aborted/.test(low))return 'Não consegui falar com o Google daqui. Confira a internet e se algum bloqueador está barrando o Gemini.';
+        return t?('O Google respondeu: '+t):'O Google não aceitou a chamada com essa chave.';
+    };
     window.extrairTextoGeminiIA=function(data){
-        const parts=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts;
+        const cand=data&&data.candidates&&data.candidates[0];
+        const parts=cand&&cand.content&&cand.content.parts;
         if(!parts)return '';
         return parts.map(p=>p.text||'').join('').trim();
     };
@@ -3638,36 +3650,41 @@
             }
         });
         if(rows[0]&&rows[0].role!=='user')rows.unshift({role:'user',parts:[{text:'Analise os números e responda.'}]});
-        return {
-            system_instruction:sys?{parts:[{text:sys.content}]}:undefined,
-            contents:rows,
-            generationConfig:{temperature:0.45,maxOutputTokens:900}
-        };
+        const body={contents:rows,generationConfig:{temperature:0.45,maxOutputTokens:900}};
+        if(sys)body.systemInstruction={parts:[{text:sys.content}]};
+        return body;
     };
     window.chamarGeminiIA=async function(messages){
-        const keys=[window.chaveGeminiIA()].filter(Boolean);
-        if(!keys.length)throw new Error('sem chave');
-        const models=['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash'];
+        const key=window.chaveGeminiIA();
+        if(!key)throw new Error('sem chave');
+        const models=['gemini-2.5-flash','gemini-2.0-flash','gemini-2.5-flash-lite','gemini-2.0-flash-lite'];
         const body=window.montarConteudoGeminiIA(messages);
         let lastErr=null;
-        for(let k=0;k<keys.length;k++){
-            for(let m=0;m<models.length;m++){
-                const ctrl=new AbortController();
-                const t=setTimeout(()=>ctrl.abort(),28000);
-                try{
-                    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+models[m]+':generateContent?key='+encodeURIComponent(keys[k]),{
-                        method:'POST',
-                        headers:{'Content-Type':'application/json'},
-                        body:JSON.stringify(body),
-                        signal:ctrl.signal
-                    });
-                    const data=await r.json().catch(()=>null);
-                    if(!r.ok)throw new Error((data&&data.error&&data.error.message)||('http '+r.status));
-                    const txt=window.extrairTextoGeminiIA(data);
-                    if(txt)return txt;
-                }catch(e){lastErr=e;console.warn('IA gemini',models[m],e);}
-                finally{clearTimeout(t);}
-            }
+        for(let m=0;m<models.length;m++){
+            const ctrl=new AbortController();
+            const t=setTimeout(()=>ctrl.abort(),28000);
+            try{
+                const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+models[m]+':generateContent',{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json','x-goog-api-key':key},
+                    body:JSON.stringify(body),
+                    signal:ctrl.signal
+                });
+                const data=await r.json().catch(()=>null);
+                if(!r.ok){
+                    const apiMsg=(data&&data.error&&data.error.message)||('http '+r.status);
+                    if(/not found|not supported|unknown model/i.test(apiMsg)){lastErr=new Error(apiMsg);continue;}
+                    throw new Error(apiMsg);
+                }
+                const txt=window.extrairTextoGeminiIA(data);
+                if(txt)return txt;
+                const block=data&&data.candidates&&data.candidates[0]&&data.candidates[0].finishReason;
+                lastErr=new Error(block&&block!=='STOP'?'resposta bloqueada ('+block+')':'resposta vazia');
+            }catch(e){
+                lastErr=e;
+                console.warn('IA gemini',models[m],e);
+                if(e&&e.message&&!/not found|not supported|unknown model/i.test(e.message))throw e;
+            }finally{clearTimeout(t);}
         }
         throw lastErr||new Error('gemini');
     };
@@ -3694,12 +3711,9 @@
             console.warn('IA gemini',e);
             const box=document.getElementById('ia-key-box');
             if(box)box.open=true;
+            return window.traduzErroGeminiIA(e&&e.message);
         }
-        try{
-            const txt=await window.chamarPollinationsIA(messages);
-            if(txt)return txt;
-        }catch(e){console.warn('IA pollinations',e);}
-        return 'Tentei o modelo gratuito e a chave não passou. Confira se colou a chave inteira do Google AI Studio. Sem ela eu não consigo pensar — só repetir frases prontas.';
+        return 'O modelo respondeu vazio. Tente perguntar de novo em alguns segundos.';
     };
     window.detectarAchadosIA=function(){
         const ctx=window.coletarContextoFinanceiro();
