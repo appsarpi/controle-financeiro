@@ -34,6 +34,10 @@
         .dark-theme .receita-header input[type=text] { color: #fff !important; }
         .dark-theme .ia-bloco { background: #2c2c2e; color: #f2f2f7; }
         .dark-theme .ia-btn-voltar { background: #3a3a3c; color: #64b5f6; }
+        .dark-theme .ia-chat-msg.ia { background: #2c2c2e; color: #f2f2f7; }
+        .dark-theme .ia-chat-msg.user { background: #243447; color: #d6ebff; }
+        .dark-theme .ia-chat-input { background: #2c2c2e; color: #fff; border-color: #3a3a3c; }
+        .dark-theme .ia-chip { background: #2c2c2e; color: #64b5f6; border-color: #3a3a3c; }
         .dark-theme .cal-cell.cal-bg-gray { background: #2c2c2e; }
         .dark-theme .btn-secondary, .dark-theme .btn-close-modal, .dark-theme .btn-small { background: #2c2c2e; color: #007aff; border-color: #3a3a3c; }
         .dark-theme .mes-selector { background: #000; }
@@ -191,19 +195,19 @@
         .tag-unico { background: #f3e5f5; color: #6b2d8b; }
         .tag-assinatura { background: #fff3cd; color: #856404; }
 
-        /* IA Analista — menu estilo app */
-        .ia-app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-        .ia-app-tile { border: none; border-radius: 16px; padding: 14px 10px; min-height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-family: inherit; transition: transform 0.12s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .ia-app-tile:active { transform: scale(0.96); }
-        .ia-app-tile-emoji { font-size: 28px; line-height: 1; }
-        .ia-app-tile-titulo { font-size: 12px; font-weight: 800; text-align: center; line-height: 1.25; }
-        .ia-btn-voltar { background: #f2f2f7; border: none; width: 36px; height: 36px; border-radius: 18px; font-size: 20px; font-weight: 700; color: #007aff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 1; padding: 0; }
-        .ia-detalhe-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 0.5px solid #e5e5ea; }
-        .ia-detalhe-header h4 { flex: 1; font-size: 16px; font-weight: 800; margin: 0; }
-        .ia-detalhe-body { overflow-y: auto; max-height: min(58vh, 480px); display: flex; flex-direction: column; gap: 12px; }
+        /* IA Analista — chat */
+        .ia-chat-wrap { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+        .ia-chat-log { overflow-y: auto; max-height: min(52vh, 460px); display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 8px; }
+        .ia-chat-msg { max-width: 92%; border-radius: 16px; padding: 10px 12px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+        .ia-chat-msg.ia { align-self: flex-start; background: #f2f2f7; color: #1c1c1e; border-bottom-left-radius: 6px; }
+        .ia-chat-msg.user { align-self: flex-end; background: #e8f4fd; color: #003d80; border-bottom-right-radius: 6px; }
+        .ia-chat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
+        .ia-chip { border: 1.5px solid #e5e5ea; background: #fff; color: #007aff; border-radius: 16px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .ia-chip:active { transform: scale(0.97); }
+        .ia-chat-input-row { display: flex; gap: 8px; align-items: center; }
+        .ia-chat-input { flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid #e5e5ea; padding: 0 12px; font-size: 15px; font-family: inherit; background: #fff; color: #1c1c1e; }
+        .ia-chat-send { width: 44px; height: 44px; border: none; border-radius: 12px; background: #007aff; color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0; }
         .ia-bloco { border-radius: 14px; padding: 14px; line-height: 1.5; font-size: 14px; color: #1c1c1e; }
-        .dark-theme .ia-app-tile { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
-        .dark-theme .ia-detalhe-header { border-bottom-color: #333; }
 
         .painel-acoes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .painel-acao-btn {
@@ -583,7 +587,7 @@
         <div id="login-status" style="display:none; margin-top:14px; font-size:13px; color:#8e8e93; font-weight:600;">Carregando seus dados…</div>
         <div style="margin-top: 40px; font-size: 11px; color: #8e8e93; font-weight: 500; line-height: 1.5;">
             Desenvolvido por <a href="https://github.com/appsarpi" target="_blank" rel="noopener" style="color: #007aff; font-weight: 700; text-decoration:none;">Pedro Sarpi</a><br>
-            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.22</span>
+            <span style="color: #007aff; text-decoration: underline; cursor: pointer; font-weight: 700;" onclick="window.abrirChangelog()" title="Ver novidades">Versão 1.23</span>
         </div>
         </div>
         <a class="ad-slot" id="ad-rodape" target="_blank" rel="noopener sponsored">
@@ -934,21 +938,27 @@
 </div>
 
 <div class="modal-overlay" id="modal-ia">
-    <div class="modal-content" style="max-height: 95vh;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div class="modal-content" style="max-height: 95vh; display:flex; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px;">
             <h3 style="font-weight:800; font-size:18px;">🤖 IA Analista</h3>
-            <button class="btn-close-modal" onclick="window.fecharModal('modal-ia')">&times;</button>
-        </div>
-        <div id="ia-menu-wrap">
-            <p style="font-size:13px; color:#8e8e93; margin-bottom:4px; line-height:1.4;">Análise profunda do seu comportamento financeiro — 100% local, nada sai do aparelho.</p>
-            <div id="ia-menu" class="ia-app-grid"></div>
-        </div>
-        <div id="ia-detalhe" style="display:none;">
-            <div class="ia-detalhe-header">
-                <button type="button" class="ia-btn-voltar" onclick="window.voltarIAMenu()" title="Voltar" aria-label="Voltar">←</button>
-                <h4 id="ia-detalhe-titulo">Análise</h4>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="btn-small" onclick="window.limparConversaIA()" title="Apagar histórico da conversa">Limpar</button>
+                <button class="btn-close-modal" onclick="window.fecharModal('modal-ia')">&times;</button>
             </div>
-            <div id="ia-detalhe-body" class="ia-detalhe-body"></div>
+        </div>
+        <p style="font-size:12px; color:#8e8e93; margin-bottom:8px; line-height:1.4;">Conversa salva fora do mês. Análise 100% no aparelho.</p>
+        <div class="ia-chat-wrap">
+            <div id="ia-chat-log" class="ia-chat-log"></div>
+            <div class="ia-chat-chips">
+                <button type="button" class="ia-chip" onclick="window.enviarIAChat('Como estou?')">Como estou?</button>
+                <button type="button" class="ia-chip" onclick="window.enviarIAChat('Quais padrões você viu?')">Padrões</button>
+                <button type="button" class="ia-chip" onclick="window.enviarIAChat('O que eu faço agora?')">O que fazer</button>
+                <button type="button" class="ia-chip" onclick="window.enviarIAChat('Como estão minhas metas?')">Metas</button>
+            </div>
+            <div class="ia-chat-input-row">
+                <input type="text" id="ia-chat-inp" class="ia-chat-input" placeholder="Pergunte ou responda a IA…" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();window.enviarIAChat();}">
+                <button type="button" class="ia-chat-send" onclick="window.enviarIAChat()" aria-label="Enviar">➤</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1270,15 +1280,14 @@
 <div class="modal-overlay" id="modal-changelog">
   <div class="modal-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h3 style="font-weight:800;">Novidades — v1.22</h3>
+      <h3 style="font-weight:800;">Novidades — v1.23</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-changelog')">&times;</button>
     </div>
-    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.22 — agora</div>
+    <div style="font-size:11px; color:#fff; background:#007aff; display:inline-block; padding:3px 10px; border-radius:6px; font-weight:800; margin-bottom:8px;">v1.23 — agora</div>
     <ul style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:16px; margin-bottom:18px;">
+        <li style="margin-bottom:8px;"><b>🤖 IA em conversa:</b> some o menu de opções. Agora você conversa com a analista, e ela lembra o papo em qualquer mês.</li>
+        <li style="margin-bottom:8px;"><b>🔎 Saúde financeira:</b> ela aponta gastos repetidos, valores fora do normal e pergunta se está correto.</li>
         <li style="margin-bottom:8px;"><b>😊 Emoji do gasto:</b> no cadastro e na edição você escolhe o emoji. Se não mudar, continua o da categoria.</li>
-        <li style="margin-bottom:8px;"><b>📣 Anúncios laterais no PC:</b> no computador a publicidade aparece nas laterais (esquerda e direita), com recorte vertical próprio. No celular continua o banner horizontal.</li>
-        <li style="margin-bottom:8px;"><b>📅 Data nos gastos:</b> cada gasto agora tem data de registro. Gastos antigos recebem data automaticamente.</li>
-        <li style="margin-bottom:8px;"><b>🔎 Filtro por data:</b> na aba Gastos, filtre por período com os campos De / Até.</li>
     </ul>
     <button class="btn-primary" onclick="window.fecharModal('modal-changelog')">Incrível!</button>
   </div>
@@ -1389,7 +1398,7 @@
     };
 
     window.defaultUserState = function(name) {
-        return { userName: name || "Visitante", config: {dolarMode: 'none', freq: 'mensal', onboardingDone: false, bancos: [], customBanks: [], darkMode: false, mostrarLocalMeta: 'dentro'}, gastosFixos: [], metas: [], dataByMonth: {}, backups: [], catDict: {} };
+        return { userName: name || "Visitante", config: {dolarMode: 'none', freq: 'mensal', onboardingDone: false, bancos: [], customBanks: [], darkMode: false, mostrarLocalMeta: 'dentro'}, gastosFixos: [], metas: [], dataByMonth: {}, backups: [], catDict: {}, iaChat: { messages: [], memory: { asked: {}, replies: {} }, pending: null } };
     };
 
     window.loadLocalSession = function() {
@@ -1416,7 +1425,8 @@
                 gastosFixos: window.S.gastosFixos,
                 metas: window.S.metas,
                 dataByMonth: window.S.dataByMonth,
-                catDict: window.S.catDict
+                catDict: window.S.catDict,
+                iaChat: window.S.iaChat
             };
             localStorage.setItem(window.LS_DATA_KEY(window.currentUserUID), JSON.stringify(payload));
         } catch (e) { console.warn('cache local', e); }
@@ -1437,6 +1447,7 @@
         if (!window.S.gastosFixos) window.S.gastosFixos = [];
         if (!window.S.metas) window.S.metas = [];
         if (!window.S.catDict) window.S.catDict = {};
+        if (!window.S.iaChat) window.S.iaChat = { messages: [], memory: { asked: {}, replies: {} }, pending: null };
         const rawBackupsLen = Array.isArray(window.S.backups) ? window.S.backups.length : 0;
         window.trimBackups();
         return rawBackupsLen;
@@ -1966,6 +1977,7 @@
         window.S.config = window.S.config || {dolarMode:'none', freq:'mensal', onboardingDone:false, bancos:[], customBanks:[], darkMode:false};
         if(window.S.config.darkMode !== true) window.S.config.darkMode = false;
         window.S.catDict = window.S.catDict || {};
+        window.ensureIAChat();
         if(window.S.config.isErgeon && !window.S.config.dolarMode) window.S.config.dolarMode='ergeon';
         else if(!window.S.config.dolarMode) window.S.config.dolarMode='none';
 
@@ -3468,113 +3480,244 @@
         document.getElementById('modal-metas-fluxo').style.display='flex';
     };
 
-    // ===== IA local (privada — sem envio à nuvem) =====
-    window.IA_APP_IDS=['perfil','padroes','diagnostico','opiniao','indicadores','cenarios','acoes','tendencia'];
-    window.IA_APP_DEFS={
-        perfil:{titulo:'Seu Perfil',emoji:'🧭',cor:'#5856d6',bg:'#f3f0ff',bd:'#c7c5f5'},
-        padroes:{titulo:'Padrões',emoji:'🔍',cor:'#00897b',bg:'#e8f5f3',bd:'#80cbc4'},
-        diagnostico:{titulo:'Diagnóstico',emoji:'🩺',cor:'#007aff',bg:'#e8f4fd',bd:'#b3d7ff'},
-        opiniao:{titulo:'Opinião',emoji:'💬',cor:'#5856d6',bg:'#eeeef9',bd:'#c7c5f5'},
-        indicadores:{titulo:'Indicadores',emoji:'📊',cor:'#00897b',bg:'#e0f2f1',bd:'#80cbc4'},
-        cenarios:{titulo:'Cenários',emoji:'📋',cor:'#e67e22',bg:'#fff3e0',bd:'#ffcc80'},
-        acoes:{titulo:'Plano de Ação',emoji:'🎯',cor:'#007aff',bg:'#e3f0ff',bd:'#64b5f6'},
-        tendencia:{titulo:'Tendências',emoji:'📅',cor:'#3c3c43',bg:'#f9f9f9',bd:'#e5e5ea'}
+    // ===== IA local (chat — conversa salva fora do mês) =====
+    window.ensureIAChat=function(){
+        if(!window.S)return{messages:[],memory:{asked:{},replies:{}},pending:null};
+        if(!window.S.iaChat)window.S.iaChat={messages:[],memory:{asked:{},replies:{}},pending:null};
+        if(!Array.isArray(window.S.iaChat.messages))window.S.iaChat.messages=[];
+        if(!window.S.iaChat.memory)window.S.iaChat.memory={asked:{},replies:{}};
+        if(!window.S.iaChat.memory.asked)window.S.iaChat.memory.asked={};
+        if(!window.S.iaChat.memory.replies)window.S.iaChat.memory.replies={};
+        return window.S.iaChat;
     };
-    window.getIAAppsDisponiveis=function(){
-        return window.IA_APP_IDS.map(id=>({id,...window.IA_APP_DEFS[id]}));
+    window.escapeHtmlIA=function(s){
+        return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    };
+    window.pushIAMsg=function(role,text){
+        const chat=window.ensureIAChat();
+        const msg={id:'ia_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),role,text:String(text||''),at:Date.now()};
+        chat.messages.push(msg);
+        if(chat.messages.length>140)chat.messages=chat.messages.slice(-140);
+        return msg;
+    };
+    window.renderIAChat=function(){
+        const log=document.getElementById('ia-chat-log');
+        if(!log)return;
+        const chat=window.ensureIAChat();
+        log.innerHTML=(chat.messages||[]).map(m=>`<div class="ia-chat-msg ${m.role==='user'?'user':'ia'}">${window.escapeHtmlIA(m.text)}</div>`).join('');
+        log.scrollTop=log.scrollHeight;
+    };
+    window.detectarAchadosIA=function(){
+        const ctx=window.coletarContextoFinanceiro();
+        const res=window.analisarGastosLocal();
+        const mes=`${MESES_CURTO[activeM]}/${activeY}`;
+        const achados=[];
+        const add=(key,texto,prio)=>achados.push({key,texto,prio:prio||5});
+        if(ctx.tReal>0&&ctx.tBRL<=0)add('sem_receita_'+activeM+'_'+activeY,`Em ${mes} há ${window.R(ctx.tReal)} em gastos e nenhuma receita. Isso está certo ou faltou lançar o que entrou?`,10);
+        if(ctx.mediaGastos>0&&ctx.tReal>ctx.mediaGastos*1.2)add('mes_alto_'+activeM+'_'+activeY,`Este mês você gastou ${window.R(ctx.tReal)}, cerca de ${Math.round((ctx.tReal/ctx.mediaGastos-1)*100)}% acima da sua média (${window.R(ctx.mediaGastos)}). Foi um mês atípico ou algum lançamento está errado?`,8);
+        if(ctx.mediaReceita>0&&ctx.tBRL>0&&ctx.tBRL<ctx.mediaReceita*0.8)add('rec_baixa_'+activeM+'_'+activeY,`A receita de ${mes} (${window.R(ctx.tBRL)}) está bem abaixo da média (${window.R(ctx.mediaReceita)}). Faltou lançar alguma entrada?`,8);
+        const byNorm={};
+        (ctx.itens||[]).forEach(i=>{
+            const k=window.normalizarNomeGasto(i.nome);
+            if(!k)return;
+            (byNorm[k]=byNorm[k]||[]).push(i);
+        });
+        Object.keys(byNorm).forEach(k=>{
+            const arr=byNorm[k];
+            if(arr.length<2)return;
+            const tot=arr.reduce((a,i)=>a+i.valor,0);
+            add('rep_'+k+'_'+activeM+'_'+activeY,`Encontrei ${arr.length} lançamentos parecidos de "${arr[0].nome}" em ${mes} (${window.R(tot)} no total). Está correto ou algum está duplicado?`,9);
+        });
+        const nomeMes={};
+        Object.keys(window.S.dataByMonth||{}).forEach(key=>{
+            (window.S.dataByMonth[key].gastosV||[]).forEach(g=>{
+                const n=window.normalizarNomeGasto(g.n);
+                if(!n||!(g.val>0))return;
+                if(!nomeMes[n])nomeMes[n]={nome:g.n,meses:new Set(),total:0,q:0};
+                nomeMes[n].meses.add(key);
+                nomeMes[n].total+=g.val;
+                nomeMes[n].q++;
+            });
+        });
+        Object.keys(nomeMes).forEach(k=>{
+            const g=nomeMes[k];
+            if(g.meses.size>=3&&g.q>=3)add('habito_'+k,`"${g.nome}" apareceu em ${g.meses.size} meses (${window.R(g.total)} no período). Parece um hábito. Está ok assim ou deveria ser assinatura?`,7);
+        });
+        (ctx.unicoItens||[]).forEach(g=>{
+            if(g.valor>=250&&ctx.mediaVar>0&&g.valor>=ctx.mediaVar*1.6)add('pico_'+window.normalizarNomeGasto(g.nome)+'_'+activeM+'_'+activeY,`"${g.nome}" (${window.R(g.valor)}) está bem acima da sua média de compras pontuais (${window.R(ctx.mediaVar)}). Esse valor está certo?`,7);
+        });
+        if(ctx.qtdAssin>=4)add('assin_muitas',`Você tem ${ctx.qtdAssin} assinaturas (${window.R(ctx.assinTotal)}/mês). Quer que eu aponte as mais caras para revisar?`,6);
+        if(ctx.saldo<0&&ctx.tBRL>0)add('vermelho_'+activeM+'_'+activeY,`O mês ${mes} está no vermelho (${window.R(ctx.saldo)}). Quer um plano curto para recuperar?`,9);
+        (res.padroes||[]).filter(p=>p.prioridade>=8).slice(0,2).forEach(p=>add('pad_'+p.titulo.replace(/\s+/g,'_').slice(0,28),`${p.titulo}: ${p.texto}${p.acao?' '+p.acao:''}`,p.prioridade));
+        achados.sort((a,b)=>b.prio-a.prio);
+        const seen=new Set();
+        return achados.filter(a=>{if(seen.has(a.key))return false;seen.add(a.key);return true;}).slice(0,6);
+    };
+    window.novosAchadosIA=function(){
+        const chat=window.ensureIAChat();
+        return window.detectarAchadosIA().filter(a=>!chat.memory.asked[a.key]);
+    };
+    window.marcarAchadoIA=function(key){
+        const chat=window.ensureIAChat();
+        if(key)chat.memory.asked[key]=Date.now();
+    };
+    window.montarSaudacaoIA=function(){
+        const ctx=window.coletarContextoFinanceiro();
+        const res=window.analisarGastosLocal();
+        const mes=`${MESES_CURTO[activeM]} ${activeY}`;
+        const novos=window.novosAchadosIA();
+        let t=`Olá! Eu analiso seus meses e lembro desta conversa — não importa qual mês você estiver olhando.\n\nEm ${mes}: saldo ${ctx.saldo>=0?'+':''}${window.R(ctx.saldo)}${res.perfil?` · perfil ${res.perfil.emoji} ${res.perfil.rotulo}`:''}.`;
+        if(novos.length){
+            t+='\n\nAchei alguns pontos para conferir:';
+            novos.slice(0,2).forEach(a=>{t+='\n\n• '+a.texto;window.marcarAchadoIA(a.key);});
+            const chat=window.ensureIAChat();
+            chat.pending={key:novos[0].key,tipo:'confirmar'};
+            t+='\n\nPode responder sim/não, ou perguntar sobre saldo, gastos, parcelas, metas e o que fazer agora.';
+        }else{
+            t+='\n\nPode me perguntar como está o mês, padrões, metas ou o que fazer agora.';
+        }
+        return t;
     };
     window.abrirModalIA=function(){
-        document.getElementById('modal-ia').style.display='flex';
+        window.ensureIAChat();
         window._iaCacheRes=window.analisarGastosLocal();
-        window.voltarIAMenu();
-    };
-    window.voltarIAMenu=function(){
-        document.getElementById('ia-menu-wrap').style.display='block';
-        document.getElementById('ia-detalhe').style.display='none';
-        window.renderIAMenu(window._iaCacheRes);
-    };
-    window.renderIAMenu=function(res){
-        const menu=document.getElementById('ia-menu');
-        if(!menu)return;
-        const apps=window.getIAAppsDisponiveis();
-        menu.innerHTML=apps.map(a=>`<button type="button" class="ia-app-tile" style="background:${a.bg};border:1.5px solid ${a.bd};" onclick="window.abrirIADetalhe('${a.id}')"><span class="ia-app-tile-emoji">${a.emoji}</span><span class="ia-app-tile-titulo" style="color:${a.cor};">${a.titulo}</span></button>`).join('');
-    };
-    window.abrirIADetalhe=function(id){
-        const def=window.IA_APP_DEFS[id];
-        if(!def||!window._iaCacheRes)return;
-        document.getElementById('ia-menu-wrap').style.display='none';
-        document.getElementById('ia-detalhe').style.display='block';
-        document.getElementById('ia-detalhe-titulo').innerHTML=`${def.emoji} ${def.titulo}`;
-        document.getElementById('ia-detalhe-body').innerHTML=window.renderIAConteudo(id,window._iaCacheRes);
-    };
-    window.renderIAConteudo=function(id,res){
-        const corCenario={risco:{bg:'#ffe5e5',bd:'#ff453a',tc:'#c0392b',ico:'🚨'},atencao:{bg:'#fff3cd',bd:'#ffcc00',tc:'#856404',ico:'⚠️'},oportunidade:{bg:'#d1f7e0',bd:'#1a6b3a',tc:'#1a6b3a',ico:'✅'},neutro:{bg:'#f2f2f7',bd:'#e5e5ea',tc:'#3c3c43',ico:'ℹ️'},comportamento:{bg:'#e8f4fd',bd:'#007aff',tc:'#0055cc',ico:'🔍'}};
-        const diag=res.diagnostico||'';
-        const acoes=res.acoes||[];
-        if(id==='perfil'){
-            const p=res.perfil;
-            if(!p)return'<p style="color:#8e8e93;">Cadastre receitas e gastos para identificar seu perfil.</p>';
-            let h=`<div class="ia-bloco" style="background:${p.bg||'#f3f0ff'};border:1.5px solid ${p.bd||'#c7c5f5'};"><div style="font-size:28px;margin-bottom:8px;">${p.emoji}</div><div style="font-size:18px;font-weight:800;color:${p.cor};margin-bottom:6px;">${p.rotulo}</div><div style="font-size:14px;line-height:1.55;margin-bottom:12px;">${p.descricao}</div>`;
-            if(p.conselhoPrioritario)h+=`<div style="font-size:13px;background:#fff;border-radius:10px;padding:10px;line-height:1.5;"><b>Conselho principal:</b> ${p.conselhoPrioritario}</div>`;
-            h+='</div>';
-            if((p.pontosFortes||[]).length)h+=`<div class="ia-bloco" style="background:#d1f7e0;border:1px solid #1a6b3a;"><div style="font-size:12px;font-weight:800;color:#1a6b3a;margin-bottom:6px;">✅ PONTOS FORTES</div>${p.pontosFortes.map(t=>`<div style="font-size:13px;margin-bottom:4px;">• ${t}</div>`).join('')}</div>`;
-            if((p.riscos||[]).length)h+=`<div class="ia-bloco" style="background:#ffe5e5;border:1px solid #ff453a;"><div style="font-size:12px;font-weight:800;color:#c0392b;margin-bottom:6px;">⚠️ ATENÇÃO</div>${p.riscos.map(t=>`<div style="font-size:13px;margin-bottom:4px;">• ${t}</div>`).join('')}</div>`;
-            if((p.traits||[]).length)h+=`<div class="ia-bloco" style="background:#fff;border:1px solid #e5e5ea;"><div style="font-size:12px;font-weight:800;color:#8e8e93;margin-bottom:6px;">COMO VOCÊ GASTA</div>${p.traits.map(t=>`<div style="font-size:13px;margin-bottom:4px;">• ${t}</div>`).join('')}</div>`;
-            return h;
+        const chat=window.ensureIAChat();
+        if(!chat.messages.length){
+            window.pushIAMsg('ia',window.montarSaudacaoIA());
+            if(window.scheduleSync)window.scheduleSync();
+        }else{
+            const novos=window.novosAchadosIA();
+            if(novos.length){
+                let t='Olhei de novo os seus números e vi algo novo:';
+                novos.slice(0,2).forEach(a=>{t+='\n\n• '+a.texto;window.marcarAchadoIA(a.key);});
+                chat.pending={key:novos[0].key,tipo:'confirmar'};
+                window.pushIAMsg('ia',t);
+                if(window.scheduleSync)window.scheduleSync();
+            }
         }
-        if(id==='padroes'){
+        document.getElementById('modal-ia').style.display='flex';
+        window.renderIAChat();
+        setTimeout(()=>{const inp=document.getElementById('ia-chat-inp');if(inp)inp.focus();},80);
+    };
+    window.limparConversaIA=function(){
+        if(!confirm('Apagar o histórico desta conversa com a IA?'))return;
+        window.S.iaChat={messages:[],memory:{asked:{},replies:{}},pending:null};
+        window.pushIAMsg('ia',window.montarSaudacaoIA());
+        window.renderIAChat();
+        if(window.scheduleSync)window.scheduleSync();
+    };
+    window.responderIntencaoIA=function(texto){
+        const t=(texto||'').trim();
+        const low=t.toLowerCase();
+        const chat=window.ensureIAChat();
+        const ctx=window.coletarContextoFinanceiro();
+        const res=window.analisarGastosLocal();
+        const mes=`${MESES_CURTO[activeM]} ${activeY}`;
+        if(chat.pending&&/^(sim|isso|certo|correto|ok|confirmo|pode|está certo|esta certo)\b/.test(low)){
+            chat.memory.replies[chat.pending.key]='sim';
+            chat.pending=null;
+            return 'Combinado, anotei que está correto. Se aparecer de novo um valor estranho, eu te aviso.';
+        }
+        if(chat.pending&&/^(não|nao|errado|duplicado|faltou|não está|nao esta)\b/.test(low)){
+            chat.memory.replies[chat.pending.key]='nao';
+            chat.pending=null;
+            return 'Ok. Vale abrir Gastos e conferir esse lançamento. Se for duplicado, apague o extra; se faltou receita, lance a entrada do mês.';
+        }
+        if(/\b(oi|olá|ola|hey|e aí|eai)\b/.test(low)&&low.length<24)return window.montarSaudacaoIA();
+        if(/como estou|saldo|situação|situacao|saúde|saude|diagn[oó]stico|resumo/.test(low)){
+            let out=`Em ${mes}: entrou ${window.R(ctx.tBRL)}, saiu ${window.R(ctx.tReal)}, saldo ${ctx.saldo>=0?'+':''}${window.R(ctx.saldo)}.`;
+            if(res.perfil)out+=`\n\nPerfil: ${res.perfil.emoji} ${res.perfil.rotulo}. ${res.perfil.conselhoPrioritario||res.perfil.descricao}`;
+            if(res.opiniao)out+='\n\n'+res.opiniao;
+            return out;
+        }
+        if(/padr[aã]o|padroes|repetid|estranh|anomal|fora do normal|duplic/.test(low)){
             const pads=res.padroes||[];
-            if(!pads.length)return'<p style="color:#8e8e93;">Preciso de mais meses registrados para detectar padrões. Continue lançando tudo.</p>';
-            let h='';
-            pads.forEach(p=>{const st=corCenario[p.tipo]||corCenario.comportamento;h+=`<div class="ia-bloco" style="background:${st.bg};border:1px solid ${st.bd};"><div style="font-size:12px;font-weight:800;color:${st.tc};margin-bottom:6px;">${st.ico} ${p.titulo}</div><div style="font-size:13px;line-height:1.5;">${p.texto}</div>${p.acao?`<div style="font-size:12px;margin-top:8px;padding-top:8px;border-top:0.5px solid rgba(0,0,0,0.08);color:${st.tc};"><b>Ação:</b> ${p.acao}</div>`:''}</div>`;});
-            return h;
+            const novos=window.detectarAchadosIA();
+            if(!pads.length&&!novos.length)return 'Ainda não vejo padrões fortes. Quanto mais meses você registrar, melhor eu fico nisso.';
+            let out='O que mais chama atenção:';
+            novos.slice(0,3).forEach(a=>{out+='\n\n• '+a.texto;window.marcarAchadoIA(a.key);});
+            pads.slice(0,3).forEach(p=>{out+=`\n\n• ${p.titulo}: ${p.texto}${p.acao?' → '+p.acao:''}`;});
+            if(novos[0])chat.pending={key:novos[0].key,tipo:'confirmar'};
+            return out;
         }
-        if(id==='diagnostico'){
-            let h=`<div class="ia-bloco" style="background:#e8f4fd;border:1.5px solid #b3d7ff;">${diag}</div>`;
-            if(res.perfil&&res.perfil.rotulo)h+=`<div class="ia-bloco" style="background:#f3f0ff;border:1px solid #c7c5f5;font-size:13px;">Perfil detectado: <b>${res.perfil.emoji} ${res.perfil.rotulo}</b></div>`;
-            if(res.maior_categoria)h+=`<div class="ia-bloco" style="background:#fff;border:1px solid #e5e5ea;">Categoria que mais pesa: <b>${res.maior_categoria.nome}</b> (${window.R(res.maior_categoria.valor)}${res.maior_categoria.pct?`, ${res.maior_categoria.pct}% da receita`:''}).</div>`;
-            if(res.resumo_parcelas){
-                h+=`<div class="ia-bloco" style="background:#f3e5f5;border:1px solid #ce93d8;"><div style="font-size:12px;font-weight:800;color:#6b2d8b;margin-bottom:8px;">💳 ${res.resumo_parcelas.texto}</div>`;
-                res.resumo_parcelas.itens.forEach(p=>{h+=`<div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.06);"><span>${p.nome}</span><b>${window.R(p.valor)}/mês</b></div>`;});
-                h+='</div>';
-            }
-            if(res.parcelas_alerta)h+=`<div class="ia-bloco" style="background:#ffe5e5;border:1px solid #ff453a;font-size:13px;">${res.parcelas_alerta}</div>`;
+        if(/gasto|onde (eu )?gasto|categoria|variáve|variave/.test(low)){
+            let out=`Em ${mes}, gastos: ${window.R(ctx.tReal)} (fixos ${window.R(ctx.fixosTotal)}, compras do mês ${window.R(ctx.realVar)}).`;
+            if(res.maior_categoria)out+=` A categoria que mais pesa é ${res.maior_categoria.nome} (${window.R(res.maior_categoria.valor)}${res.maior_categoria.pct?`, ${res.maior_categoria.pct}% da receita`:''}).`;
             if((res.maiores_pesos||[]).length){
-                h+=`<div class="ia-bloco" style="background:#fff;border:1px solid #e5e5ea;"><div style="font-size:12px;font-weight:800;color:#8e8e93;margin-bottom:8px;">MAIORES PESOS DO MÊS</div>`;
-                res.maiores_pesos.forEach(m=>{h+=`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;"><span>${m.nome}</span><span>${window.R(m.valor)}</span></div><div style="font-size:12px;color:#8e8e93;margin-top:2px;">${m.rotulo} — ${m.texto}</div></div>`;});
-                h+='</div>';
+                out+='\n\nMaiores pesos:';
+                res.maiores_pesos.forEach(m=>{out+=`\n• ${m.nome}: ${window.R(m.valor)} — ${m.rotulo}`;});
             }
-            return h;
+            return out;
         }
-        if(id==='opiniao')return`<div class="ia-bloco" style="background:#eeeef9;border:1.5px solid #c7c5f5;line-height:1.6;">${res.opiniao||'Cadastre mais dados neste mês para uma opinião mais precisa.'}</div>`;
-        if(id==='indicadores'){
-            let h='';
-            (res.indicadores||[]).forEach(ind=>{h+=`<div class="ia-bloco" style="background:#fff;border:1px solid #e5e5ea;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${ind.detalhe?6:0}px;"><span style="font-weight:600;color:#3c3c43;">${ind.rotulo}</span><span style="font-size:20px;font-weight:800;color:${ind.cor};">${ind.valor}</span></div>${ind.detalhe?`<div style="font-size:12px;color:#8e8e93;line-height:1.4;">${ind.detalhe}</div>`:''}</div>`;});
-            return h||'<p style="color:#8e8e93;">Cadastre receitas e gastos para ver os indicadores.</p>';
+        if(/parcela|cart[aã]o|dívida|divida/.test(low)){
+            if(!ctx.qtdParcelas)return `Nenhuma parcela ativa em ${mes}.`;
+            let out=`${ctx.qtdParcelas} parcela(s) somam ${window.R(ctx.parcTotal)}/mês.`;
+            (ctx.parcelasDet||[]).slice(0,5).forEach(p=>{out+=`\n• ${p.nome}: ${window.R(p.valor)}/mês${p.fimStr?' até '+p.fimStr:''}`;});
+            if(res.parcelas_alerta)out+='\n\n'+res.parcelas_alerta;
+            return out;
         }
-        if(id==='cenarios'){
-            if(!(res.cenarios||[]).length)return'<p style="color:#8e8e93;">Nenhum cenário especial neste mês — situação dentro do padrão.</p>';
-            let h='';
-            res.cenarios.forEach(c=>{const st=corCenario[c.tipo]||corCenario.neutro;h+=`<div class="ia-bloco" style="background:${st.bg};border:1px solid ${st.bd};"><div style="font-size:12px;font-weight:800;color:${st.tc};margin-bottom:6px;">${st.ico} ${c.titulo}</div><div style="font-size:13px;line-height:1.5;">${c.texto}</div></div>`;});
-            return h;
+        if(/assinatura|netflix|spotify|recorrente/.test(low)){
+            if(!ctx.qtdAssin)return 'Não achei assinaturas neste mês.';
+            let out=`${ctx.qtdAssin} assinatura(s): ${window.R(ctx.assinTotal)}/mês.`;
+            (ctx.assinItens||[]).sort((a,b)=>b.valor-a.valor).slice(0,6).forEach(a=>{out+=`\n• ${a.nome}: ${window.R(a.valor)}`;});
+            out+='\n\nSe alguma você não usou nos últimos 30 dias, vale cancelar.';
+            return out;
         }
-        if(id==='tendencia'){
-            let h=`<div class="ia-bloco" style="background:#f9f9f9;border:1px solid #e5e5ea;"><div style="font-size:11px;font-weight:800;color:#8e8e93;margin-bottom:8px;">ÚLTIMOS MESES</div><div style="margin-bottom:14px;line-height:1.55;">${res.historico_texto||'—'}</div><div style="font-size:11px;font-weight:800;color:#8e8e93;margin-bottom:8px;">PRÓXIMOS MESES</div><div style="line-height:1.55;">${res.projecao_texto||'—'}</div></div>`;
-            if(res.projecao_detalhe&&res.projecao_detalhe.length){
-                h+=`<div class="ia-bloco" style="background:#fff;border:1px solid #e5e5ea;"><div style="font-size:11px;font-weight:800;color:#8e8e93;margin-bottom:8px;">PROJEÇÃO MÊS A MÊS</div>`;
-                res.projecao_detalhe.forEach(p=>{const sc=p.saldoEst>=0?'#1a6b3a':'#c0392b';h+=`<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:0.5px solid #f2f2f7;"><span>${p.label}</span><span style="color:${sc};font-weight:700;">${p.saldoEst>=0?'+':''}${window.R(p.saldoEst)}</span></div>`;});
-                h+='</div>';
+        if(/meta/.test(low)){
+            if(!(ctx.metasResumo||[]).length)return 'Nenhuma meta ativa neste mês. Quer criar uma de reserva?';
+            let out='Metas:';
+            ctx.metasResumo.forEach(m=>{out+=`\n• ${m.nome}: ${window.R(m.acum)}${m.obj?` de ${window.R(m.obj)} (${m.pct}%)`:''}`;});
+            return out;
+        }
+        if(/tend[eê]ncia|pr[oó]ximo|futuro|proje/.test(low)){
+            return `${res.historico_texto||''}\n\n${res.projecao_texto||''}`.trim();
+        }
+        if(/o que (eu )?fa[cç]o|a[cç][aã]o|plano|melhorar|dica/.test(low)){
+            const acoes=res.acoes||[];
+            if(!acoes.length)return 'Por agora: continue lançando tudo. Consistência vale mais que um mês perfeito.';
+            let out=res.plano_resumo?res.plano_resumo.replace(/<[^>]+>/g,'')+'\n':'';
+            acoes.forEach((a,i)=>{out+=`\n${i+1}. ${a.titulo}: ${a.detalhe}${a.prazo?' ('+a.prazo+')':''}`;});
+            return out.trim();
+        }
+        if(/opini[aã]o|achar|acha que/.test(low))return res.opiniao||'Cadastre mais receitas e gastos para eu opinar com segurança.';
+        if(/indicador|porcent|%|margem|compromet/.test(low)){
+            let out='Indicadores deste mês:';
+            (res.indicadores||[]).forEach(ind=>{out+=`\n• ${ind.rotulo}: ${ind.valor}${ind.detalhe?' — '+ind.detalhe:''}`;});
+            return out;
+        }
+        if(/comprar|posso comprar|vale a pena/.test(low)){
+            const nums=t.match(/(\d[\d\.]*)/g);
+            const val=nums?window.parseMoney(nums[nums.length-1]):0;
+            if(val>0){
+                const parcM=t.match(/(\d+)\s*x/i);
+                const parc=parcM?parseInt(parcM[1],10):1;
+                const r=window.analisarCompraLocal(t.replace(/posso comprar/i,'').trim()||'esse item',val,parc||1);
+                return `${r.titulo_curto}: ${r.frase_principal}${r.opiniao_compra?'\n\n'+r.opiniao_compra:''}${(r.alertas_concretos||[]).length?'\n\nAlertas:\n• '+r.alertas_concretos.join('\n• '):''}`;
             }
-            return h;
+            return 'Me diga o valor (e se for parcelado, em quantas vezes). Ex.: “posso comprar um celular de 2.000 em 10x?”';
         }
-        if(id==='acoes'){
-            if(!acoes.length)return'<p style="color:#8e8e93;">Nenhuma ação urgente — continue registrando seus gastos.</p>';
-            let h=res.plano_resumo?`<div class="ia-bloco" style="background:#f3f0ff;border:1px solid #c7c5f5;font-size:13px;line-height:1.5;margin-bottom:4px;">${res.plano_resumo}</div>`:'';
-            acoes.forEach((a,idx)=>{h+=`<div class="ia-bloco" style="background:#e3f0ff;border:1px solid #64b5f6;display:flex;gap:10px;"><div style="background:#007aff;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;">${idx+1}</div><div><div style="font-weight:700;">${a.titulo}</div><div style="font-size:13px;margin-top:4px;line-height:1.5;">${a.detalhe}</div>${a.prazo?`<div style="font-size:11px;color:#007aff;font-weight:700;margin-top:6px;">⏱ ${a.prazo}</div>`:''}</div></div>`;});
-            return h;
+        if(/ajuda|o que (voc[eê]|vc) faz|comandos/.test(low))return 'Pergunte em linguagem normal: como estou, padrões, gastos, parcelas, assinaturas, metas, tendência, o que fazer, ou se pode comprar algo. Se eu apontar um gasto estranho, responda sim ou não.';
+        const novos=window.novosAchadosIA();
+        if(novos[0]){
+            window.marcarAchadoIA(novos[0].key);
+            chat.pending={key:novos[0].key,tipo:'confirmar'};
+            return `Não tenho certeza do que você quis, mas vi isto nos seus números:\n\n${novos[0].texto}\n\nPode confirmar? Ou pergunte “como estou?” / “o que fazer”.`;
         }
-        return '<p style="color:#8e8e93;">Análise não disponível.</p>';
+        return 'Pode perguntar: como estou, padrões, gastos, parcelas, metas ou o que fazer agora. Se eu apontar algo estranho, responda sim ou não.';
     };
+    window.enviarIAChat=function(textoOpt){
+        const inp=document.getElementById('ia-chat-inp');
+        const texto=(textoOpt!=null?textoOpt:(inp?inp.value:'')).trim();
+        if(!texto)return;
+        if(inp&&textoOpt==null)inp.value='';
+        window.ensureIAChat();
+        window.pushIAMsg('user',texto);
+        const resp=window.responderIntencaoIA(texto);
+        window.pushIAMsg('ia',resp);
+        window.renderIAChat();
+        if(window.scheduleSync)window.scheduleSync();
+    };
+    window.analisarGastosIA=function(){window.abrirModalIA();};
     window.abrirModalComprar=()=>{document.getElementById('c-nome').value='';document.getElementById('c-valor').value='';document.getElementById('c-parcelas').value='1';document.getElementById('compra-res').innerHTML='';window.setNeed('sim');document.getElementById('modal-comprar').style.display='flex';};
 
     window.mesesEntre=function(m1,y1,m2,y2){return(y2-y1)*12+(m2-m1);};
