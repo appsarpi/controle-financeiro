@@ -3560,6 +3560,7 @@
             'Use APENAS os números do dossiê abaixo. Não invente lançamentos, valores ou meses. Dinheiro em R$.',
             'Se algo parecer errado ou duplicado, PERGUNTE se está correto. Se o usuário confirmar ou negar, respeite isso.',
             'Não use listas de menu. Responda à pergunta feita. Seja específica (cite nomes e valores). 4 a 10 frases bastam, a menos que o usuário peça detalhe.',
+            'NUNCA corte a frase no meio. Se for citar um valor, escreva o número completo na mesma frase. Termine sempre com ponto.',
             'Dossiê atual (JSON): '+JSON.stringify(d)
         ].join('\n');
     };
@@ -3669,7 +3670,7 @@
         const cand=data&&data.candidates&&data.candidates[0];
         const parts=cand&&cand.content&&cand.content.parts;
         if(!parts)return '';
-        return parts.map(p=>p.text||'').join('').trim();
+        return parts.filter(p=>p&&p.text&&!p.thought).map(p=>p.text).join('').trim();
     };
     window.montarConteudoGeminiIA=function(messages){
         const sys=messages.find(m=>m.role==='system');
@@ -3683,7 +3684,7 @@
             }
         });
         if(rows[0]&&rows[0].role!=='user')rows.unshift({role:'user',parts:[{text:'Analise os números e responda.'}]});
-        const body={contents:rows,generationConfig:{maxOutputTokens:900}};
+        const body={contents:rows,generationConfig:{maxOutputTokens:4096,thinkingConfig:{thinkingLevel:'minimal'}}};
         if(sys)body.systemInstruction={parts:[{text:sys.content}]};
         return body;
     };
@@ -3698,7 +3699,7 @@
         let lastErr=null;
         for(let m=0;m<models.length;m++){
             const ctrl=new AbortController();
-            const t=setTimeout(()=>ctrl.abort(),28000);
+            const t=setTimeout(()=>ctrl.abort(),45000);
             try{
                 const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+models[m]+':generateContent',{
                     method:'POST',
