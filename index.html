@@ -39,6 +39,15 @@
         .dark-theme .ia-chat-input { background: #2c2c2e; color: #fff; border-color: #3a3a3c; }
         .dark-theme .ia-chat-msg.thinking { color: #8e8e93; }
         .dark-theme .ia-chip { background: #2c2c2e; color: #64b5f6; border-color: #3a3a3c; }
+        .dark-theme .mcd-voltar { color: #64b5f6; }
+        .dark-theme .mcd-tab { background: #2c2c2e; color: #8e8e93; border-color: #3a3a3c; }
+        .dark-theme .mcd-tab.ativo { background: #007aff; color: #fff; border-color: #007aff; }
+        .dark-theme .mcd-table th { color: #8e8e93; border-bottom-color: #3a3a3c; }
+        .dark-theme .mcd-table td { color: #f2f2f7; border-bottom-color: #3a3a3c; }
+        .dark-theme .mcd-pedrinho { background: #2c2c2e; border-color: #3a3a3c; }
+        .dark-theme .mcd-pedrinho-tit { color: #f2f2f7; }
+        .dark-theme #mcd-pedrinho-res { color: #e5e5ea; }
+        .dark-theme .mcd-btn-txt { color: #64b5f6; }
         .dark-theme .cal-cell.cal-bg-gray { background: #2c2c2e; }
         .dark-theme .btn-secondary, .dark-theme .btn-close-modal, .dark-theme .btn-small { background: #2c2c2e; color: #007aff; border-color: #3a3a3c; }
         .dark-theme .mes-selector { background: #000; }
@@ -205,6 +214,27 @@
         .ia-chat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
         .ia-chip { border: 1.5px solid #e5e5ea; background: #fff; color: #007aff; border-radius: 16px; padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
         .ia-chip:active { transform: scale(0.97); }
+        .mcd-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
+        .mcd-head h3 { flex: 1; text-align: center; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mcd-voltar { border: none; background: transparent; color: #007aff; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; padding: 4px 0; white-space: nowrap; flex-shrink: 0; }
+        .mcd-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+        .mcd-tab { flex: 1; border: 1.5px solid #e5e5ea; background: #fff; color: #8e8e93; border-radius: 12px; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .mcd-tab.ativo { background: #007aff; color: #fff; border-color: #007aff; }
+        .mcd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .mcd-table th { text-align: left; font-size: 11px; color: #8e8e93; font-weight: 700; padding: 6px 4px; border-bottom: 1px solid #e5e5ea; }
+        .mcd-table td { padding: 8px 4px; border-bottom: 0.5px solid #e5e5ea; color: #1c1c1e; vertical-align: middle; }
+        .mcd-table th:nth-child(n+2), .mcd-table td:nth-child(n+2) { text-align: right; }
+        .mcd-delta.up { color: #ff453a; font-weight: 700; }
+        .mcd-delta.down { color: #30d158; font-weight: 700; }
+        .mcd-delta.same { color: #8e8e93; font-weight: 600; }
+        .mcd-pedrinho { margin-top: 16px; background: #f9f9f9; border: 1px solid #e5e5ea; border-radius: 16px; padding: 14px; }
+        .mcd-pedrinho-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+        .mcd-pedrinho-top img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .mcd-pedrinho-tit { font-size: 14px; font-weight: 800; color: #1c1c1e; }
+        .mcd-pedrinho-sub { font-size: 12px; color: #8e8e93; margin-top: 4px; line-height: 1.4; }
+        #mcd-pedrinho-res { margin-top: 10px; font-size: 13px; line-height: 1.5; color: #3c3c43; white-space: pre-wrap; word-break: break-word; }
+        #mcd-pedrinho-res.thinking { color: #8e8e93; font-style: italic; }
+        .mcd-btn-txt { display: block; width: 100%; margin-top: 8px; border: none; background: transparent; color: #007aff; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; padding: 8px 0; }
         .ia-chat-input-row { display: flex; gap: 8px; align-items: center; }
         .ia-chat-input { flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid #e5e5ea; padding: 0 12px; font-size: 15px; font-family: inherit; background: #fff; color: #1c1c1e; }
         .ia-chat-send { width: 44px; height: 44px; border: none; border-radius: 12px; background: #007aff; color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0; }
@@ -1317,13 +1347,29 @@
 
 <div class="modal-overlay" id="modal-cat-detalhe">
   <div class="modal-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div class="mcd-head">
+      <button type="button" class="mcd-voltar" onclick="window.voltarDetalheCategoria()">← Voltar</button>
       <h3 style="font-weight:800;" id="mcd-titulo">Categoria</h3>
       <button class="btn-close-modal" onclick="window.fecharModal('modal-cat-detalhe')">&times;</button>
     </div>
     <p style="font-size:12px; color:#8e8e93; margin-bottom:12px;" id="mcd-sub"></p>
-    <div id="mcd-lista" style="display:flex; flex-direction:column; gap:8px; max-height:min(55vh,420px); overflow-y:auto;"></div>
-    <button class="btn-primary" style="background:#f2f2f7; color:#1c1c1e; margin-top:16px;" onclick="window.fecharModal('modal-cat-detalhe')">Fechar</button>
+    <div class="mcd-tabs">
+      <button type="button" class="mcd-tab ativo" id="mcd-tab-gastos" onclick="window.setMcdView('gastos')">Gastos</button>
+      <button type="button" class="mcd-tab" id="mcd-tab-meses" onclick="window.setMcdView('meses')">Através dos meses</button>
+    </div>
+    <div id="mcd-lista" style="display:flex; flex-direction:column; gap:8px; max-height:min(40vh,320px); overflow-y:auto;"></div>
+    <div class="mcd-pedrinho">
+      <div class="mcd-pedrinho-top">
+        <img src="pedrinho.png" alt="Pedrinho">
+        <div>
+          <div class="mcd-pedrinho-tit">Quer a opinião do Pedrinho?</div>
+          <div class="mcd-pedrinho-sub">Uma análise rápida dos acertos e do que melhorar nesta categoria.</div>
+        </div>
+      </div>
+      <button type="button" class="btn-primary" onclick="window.pedirOpiniaoPedrinhoCategoria()">Pedir opinião</button>
+      <div id="mcd-pedrinho-res"></div>
+      <button type="button" class="mcd-btn-txt" onclick="window.conversarPedrinhoCategoria()">Conversar com Pedrinho</button>
+    </div>
   </div>
 </div>
 
@@ -3473,10 +3519,30 @@
             });
         }
     };
-    window.abrirDetalheCategoria=function(cat){
+    window._mcdCat='';
+    window._mcdView='gastos';
+    window.coletaHistoricoCategoria=function(cat){
+        const keys=new Set(Object.keys(window.S.dataByMonth||{}));
+        keys.add(`${activeM}-${activeY}`);
+        const rows=[];
+        keys.forEach(k=>{
+            const parts=String(k).split('-');
+            const m=parseInt(parts[0],10),y=parseInt(parts[1],10);
+            if(Number.isNaN(m)||Number.isNaN(y))return;
+            const md=window.S.dataByMonth[k]||{};
+            const byCat=window.coletaGastosPorCategoriaMes(m,y);
+            const val=byCat[cat]||0;
+            const totals=window.calcTotals(md,m,y);
+            if(!(totals.hasData||val>0))return;
+            rows.push({m,y,val,totalGastos:totals.tReal||0,isCurrent:m===activeM&&y===activeY});
+        });
+        rows.sort((a,b)=>a.y-b.y||a.m-b.m);
+        return rows;
+    };
+    window.renderMcdGastos=function(){
+        const cat=window._mcdCat;
         const itens=window.coletaItensPorCategoria(cat);
         const total=itens.reduce((a,i)=>a+i.val,0);
-        document.getElementById('mcd-titulo').textContent=cat;
         document.getElementById('mcd-sub').textContent=`${MESES_CURTO[activeM]} ${activeY} • ${itens.length} conta${itens.length===1?'':'s'} • total ${window.R(total)}`;
         const lista=document.getElementById('mcd-lista');
         lista.innerHTML='';
@@ -3491,7 +3557,95 @@
                 lista.appendChild(el);
             });
         }
+    };
+    window.renderMcdMeses=function(){
+        const hist=window.coletaHistoricoCategoria(window._mcdCat);
+        const comGasto=hist.filter(r=>r.val>0);
+        const media=comGasto.length?comGasto.reduce((a,r)=>a+r.val,0)/comGasto.length:0;
+        document.getElementById('mcd-sub').textContent=`${comGasto.length} ${comGasto.length===1?'mês':'meses'} com gasto · média ${window.R(media)}`;
+        const lista=document.getElementById('mcd-lista');
+        if(!hist.length){
+            lista.innerHTML='<p style="font-size:13px;color:#8e8e93;text-align:center;padding:16px 0;">Ainda não há histórico desta categoria.</p>';
+            return;
+        }
+        let html='<table class="mcd-table"><thead><tr><th>Mês</th><th>Valor</th><th>% gastos</th><th>vs. anterior</th></tr></thead><tbody>';
+        hist.forEach((r,i)=>{
+            const prev=i>0?hist[i-1].val:null;
+            const pct=r.totalGastos>0?Math.round(r.val/r.totalGastos*100)+'%':'—';
+            const mesLbl=`${MESES_CURTO[r.m]} ${String(r.y).slice(-2)}${r.isCurrent?' <span style="color:#007aff;font-size:10px;font-weight:800;">atual</span>':''}`;
+            let deltaHtml='<span class="mcd-delta same">—</span>';
+            if(prev!=null){
+                if(r.val>prev)deltaHtml=`<span class="mcd-delta up">+${window.R(r.val-prev)}</span>`;
+                else if(r.val<prev)deltaHtml=`<span class="mcd-delta down">-${window.R(prev-r.val)}</span>`;
+                else deltaHtml='<span class="mcd-delta same">igual</span>';
+            }
+            html+=`<tr><td>${mesLbl}</td><td>${window.R(r.val)}</td><td>${pct}</td><td>${deltaHtml}</td></tr>`;
+        });
+        html+='</tbody></table>';
+        lista.innerHTML=html;
+    };
+    window.setMcdView=function(view){
+        window._mcdView=view==='meses'?'meses':'gastos';
+        const tabG=document.getElementById('mcd-tab-gastos');
+        const tabM=document.getElementById('mcd-tab-meses');
+        if(tabG)tabG.classList.toggle('ativo',window._mcdView==='gastos');
+        if(tabM)tabM.classList.toggle('ativo',window._mcdView==='meses');
+        if(window._mcdView==='meses')window.renderMcdMeses();
+        else window.renderMcdGastos();
+    };
+    window.voltarDetalheCategoria=function(){
+        if(window._mcdView!=='gastos')window.setMcdView('gastos');
+        else window.fecharModal('modal-cat-detalhe');
+    };
+    window.abrirDetalheCategoria=function(cat){
+        window._mcdCat=cat;
+        window._mcdView='gastos';
+        document.getElementById('mcd-titulo').textContent=cat;
+        const res=document.getElementById('mcd-pedrinho-res');
+        if(res){res.className='';res.textContent='';}
+        window.setMcdView('gastos');
         document.getElementById('modal-cat-detalhe').style.display='flex';
+    };
+    window.pedirOpiniaoPedrinhoCategoria=async function(){
+        const cat=window._mcdCat;
+        const res=document.getElementById('mcd-pedrinho-res');
+        if(!res||!cat)return;
+        if(!window.temChaveGemini()){
+            res.className='';
+            res.textContent='Ative o Pedrinho com a chave do Google AI Studio para pedir a opinião.';
+            window.abrirModalAtivarIA();
+            return;
+        }
+        res.className='thinking';
+        res.textContent=window.IA_THINKING||'Pensando nos seus números…';
+        const itens=window.coletaItensPorCategoria(cat);
+        const hist=window.coletaHistoricoCategoria(cat);
+        const sys='Você é o Pedrinho, analista financeiro do app. Responda em português do Brasil, em 5 a 8 frases curtas. Diga (1) o que está indo bem nesta categoria e (2) o que pode melhorar, com base no histórico mensal. Sem JSON, sem markdown pesado. Não peça dados que já estão no contexto.';
+        const user=[
+            `Categoria: ${cat}`,
+            `Itens deste mês (${MESES_CURTO[activeM]} ${activeY}):`,
+            itens.length?itens.map(it=>`- ${it.nome}: ${window.R(it.val)} (${it.tipo})`).join('\n'):'- nenhum item neste mês',
+            'Histórico mês a mês:',
+            hist.length?hist.map(r=>`- ${MESES_CURTO[r.m]} ${r.y}: ${window.R(r.val)} de ${window.R(r.totalGastos)} em gastos (${r.totalGastos>0?Math.round(r.val/r.totalGastos*100):0}%)${r.isCurrent?' [atual]':''}`).join('\n'):'- sem histórico',
+            'Dossiê geral do usuário:',
+            JSON.stringify(window.montarDossieIA())
+        ].join('\n');
+        try{
+            const txt=await window.chamarGeminiIA([{role:'system',content:sys},{role:'user',content:user}]);
+            res.className='';
+            res.innerHTML=window.escapeHtmlIA(txt||'Não consegui montar a opinião agora. Tente de novo.');
+        }catch(e){
+            console.warn('Pedrinho categoria',e);
+            res.className='';
+            res.textContent=window.traduzErroGeminiIA?window.traduzErroGeminiIA(e&&e.message):'Não consegui falar com o Pedrinho agora.';
+            if(/api_key_invalid|invalid.*key|api key not valid|unregistered|sem chave/i.test(String(e&&e.message||'')))window.abrirModalAtivarIA();
+        }
+    };
+    window.conversarPedrinhoCategoria=function(){
+        const cat=window._mcdCat||'esta categoria';
+        window.fecharModal('modal-cat-detalhe');
+        window.abrirModalIA();
+        setTimeout(()=>window.enviarIAChat(`Quero conversar sobre a categoria ${cat}. Como estou nela e o que posso melhorar?`),80);
     };
     // compat: chamadas antigas
     window.renderHistPieChart=window.renderSaudePieChart;
@@ -3659,6 +3813,7 @@
     window.chaveGeminiIA=function(){
         try{return(localStorage.getItem('iaGeminiKey')||'').replace(/\s+/g,'').trim();}catch(e){return '';}
     };
+    window.temChaveGemini=function(){return!!window.chaveGeminiIA();};
     window.iaJaAtivada=function(){
         try{return!!(window.chaveGeminiIA()&&localStorage.getItem('iaGeminiAtiva')==='1');}catch(e){return!!window.chaveGeminiIA();}
     };
