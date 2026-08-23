@@ -950,11 +950,6 @@
             </div>
         </div>
         <p style="font-size:12px; color:#8e8e93; margin-bottom:8px; line-height:1.4;">A analista lê seus números, pensa e escreve a resposta — de graça. A conversa fica salva em qualquer mês.</p>
-        <details id="ia-key-box" style="font-size:12px; color:#8e8e93; margin-bottom:10px; line-height:1.4;">
-            <summary style="cursor:pointer; font-weight:600;">Ativar IA que pensa (grátis, 1 minuto)</summary>
-            <p style="margin:8px 0;">1. Abra o <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> e crie uma chave — é de graça.<br>2. Cole aqui. Fica só neste aparelho, não vai para a nuvem do app.</p>
-            <input type="password" id="ia-gemini-key" class="ia-chat-input" placeholder="Cole a chave (começa com AQ. ou AIza)" autocomplete="off" style="width:100%; height:38px; margin-bottom:6px;" onchange="window.salvarChaveGeminiIA(this.value)">
-        </details>
         <div class="ia-chat-wrap">
             <div id="ia-chat-log" class="ia-chat-log"></div>
             <div class="ia-chat-chips">
@@ -968,6 +963,22 @@
                 <button type="button" class="ia-chat-send" onclick="window.enviarIAChat()" aria-label="Enviar">➤</button>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-ia-ativar" style="z-index:1200;">
+    <div class="modal-content" style="max-width:420px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="font-weight:800; font-size:18px;">🤖 Ativar IA</h3>
+            <button class="btn-close-modal" onclick="window.fecharModal('modal-ia-ativar')">&times;</button>
+        </div>
+        <p style="font-size:14px; color:#3c3c43; line-height:1.5; margin-bottom:12px;">Uma vez só neste aparelho. Depois ela pensa e responde sozinha.</p>
+        <ol style="font-size:14px; color:#3c3c43; line-height:1.5; padding-left:18px; margin:0 0 14px;">
+            <li style="margin-bottom:8px;">Abra o <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> e copie sua chave — é de graça.</li>
+            <li>Cole abaixo. Fica só neste aparelho.</li>
+        </ol>
+        <input type="password" id="ia-gemini-key" class="ia-chat-input" placeholder="Cole a chave (começa com AQ. ou AIza)" autocomplete="off" style="width:100%; height:44px; margin-bottom:14px;" onkeydown="if(event.key==='Enter'){event.preventDefault();window.confirmarAtivarIA();}">
+        <button class="btn-primary" onclick="window.confirmarAtivarIA()">OK, ativar</button>
     </div>
 </div>
 
@@ -3614,6 +3625,12 @@
     window.chaveGeminiIA=function(){
         try{return(localStorage.getItem('iaGeminiKey')||'').replace(/\s+/g,'').trim();}catch(e){return '';}
     };
+    window.iaJaAtivada=function(){
+        try{return!!(window.chaveGeminiIA()&&localStorage.getItem('iaGeminiAtiva')==='1');}catch(e){return!!window.chaveGeminiIA();}
+    };
+    window.marcarIAAtivada=function(){
+        try{localStorage.setItem('iaGeminiAtiva','1');}catch(e){}
+    };
     window.salvarChaveGeminiIA=function(v){
         try{
             const t=String(v||'').replace(/\s+/g,'').trim();
@@ -3621,14 +3638,30 @@
             else localStorage.removeItem('iaGeminiKey');
         }catch(e){}
     };
+    window.abrirModalAtivarIA=function(){
+        const inp=document.getElementById('ia-gemini-key');
+        if(inp)inp.value=window.chaveGeminiIA();
+        document.getElementById('modal-ia-ativar').style.display='flex';
+        setTimeout(()=>{if(inp)inp.focus();},80);
+    };
+    window.confirmarAtivarIA=function(){
+        const inp=document.getElementById('ia-gemini-key');
+        const chave=((inp&&inp.value)||'').replace(/\s+/g,'').trim();
+        if(!chave){alert('Cole a chave do Google AI Studio para ativar.');if(inp)inp.focus();return;}
+        window.salvarChaveGeminiIA(chave);
+        window.marcarIAAtivada();
+        window.fecharModal('modal-ia-ativar');
+        const chatInp=document.getElementById('ia-chat-inp');
+        if(chatInp)chatInp.focus();
+    };
     window.traduzErroGeminiIA=function(msg){
         const t=String(msg||'');
         const low=t.toLowerCase();
-        if(/api_key_invalid|invalid.*key|api key not valid|unregistered/.test(low))return 'O Google recusou a chave. Na lista do AI Studio, copie de novo pelo ícone de dois quadradinhos — a chave nova começa com AQ. ou AIza.';
+        if(/api_key_invalid|invalid.*key|api key not valid|unregistered/.test(low))return 'O Google recusou a chave. Abra de novo a ativação e cole a chave inteira — ela começa com AQ. ou AIza.';
         if(/referrer|referer|ios bundle|android apps/.test(low))return 'A chave está com restrição de site. No AI Studio, edite a chave e libere https://appsarpi.github.io/* ou tire a restrição de HTTP.';
         if(/blocked|permission|not enabled|has not been used|forbidden/.test(low))return 'O projeto do Google ainda não liberou o Gemini. No AI Studio, abra essa chave e confirme que está no nível gratuito e ativa.';
         if(/quota|resource.?exhausted|rate.?limit|429/.test(low))return 'O limite grátis do Gemini estourou por agora. Tente de novo daqui a alguns minutos.';
-        if(/not found|not supported|unknown model/.test(low))return 'O modelo mudou no Google. Atualize o app e tente de novo.';
+        if(/no longer available|not found|not supported|unknown model/.test(low))return 'O modelo mudou no Google. Atualize o app e tente de novo.';
         if(/failed to fetch|network|cors|aborted/.test(low))return 'Não consegui falar com o Google daqui. Confira a internet e se algum bloqueador está barrando o Gemini.';
         return t?('O Google respondeu: '+t):'O Google não aceitou a chamada com essa chave.';
     };
@@ -3650,14 +3683,17 @@
             }
         });
         if(rows[0]&&rows[0].role!=='user')rows.unshift({role:'user',parts:[{text:'Analise os números e responda.'}]});
-        const body={contents:rows,generationConfig:{temperature:0.45,maxOutputTokens:900}};
+        const body={contents:rows,generationConfig:{maxOutputTokens:900}};
         if(sys)body.systemInstruction={parts:[{text:sys.content}]};
         return body;
+    };
+    window.modeloIndisponivelIA=function(msg){
+        return /no longer available|not found|not supported|unknown model/i.test(String(msg||''));
     };
     window.chamarGeminiIA=async function(messages){
         const key=window.chaveGeminiIA();
         if(!key)throw new Error('sem chave');
-        const models=['gemini-2.5-flash','gemini-2.0-flash','gemini-2.5-flash-lite','gemini-2.0-flash-lite'];
+        const models=['gemini-3.6-flash','gemini-3.5-flash-lite','gemini-2.0-flash'];
         const body=window.montarConteudoGeminiIA(messages);
         let lastErr=null;
         for(let m=0;m<models.length;m++){
@@ -3673,7 +3709,7 @@
                 const data=await r.json().catch(()=>null);
                 if(!r.ok){
                     const apiMsg=(data&&data.error&&data.error.message)||('http '+r.status);
-                    if(/not found|not supported|unknown model/i.test(apiMsg)){lastErr=new Error(apiMsg);continue;}
+                    if(window.modeloIndisponivelIA(apiMsg)){lastErr=new Error(apiMsg);continue;}
                     throw new Error(apiMsg);
                 }
                 const txt=window.extrairTextoGeminiIA(data);
@@ -3683,7 +3719,7 @@
             }catch(e){
                 lastErr=e;
                 console.warn('IA gemini',models[m],e);
-                if(e&&e.message&&!/not found|not supported|unknown model/i.test(e.message))throw e;
+                if(e&&e.message&&!window.modeloIndisponivelIA(e.message))throw e;
             }finally{clearTimeout(t);}
         }
         throw lastErr||new Error('gemini');
@@ -3700,17 +3736,15 @@
         }
         const messages=[{role:'system',content:window.promptSistemaIA()},...hist];
         if(!window.chaveGeminiIA()){
-            const box=document.getElementById('ia-key-box');
-            if(box)box.open=true;
-            return 'Quero pensar de verdade na sua pergunta, mas preciso da chave gratuita do Google. Abra o Google AI Studio (link acima), crie a chave — é de graça — e cole no campo. Aí eu leio seus números e escrevo a resposta, sem texto pronto.';
+            window.abrirModalAtivarIA();
+            return 'Ative a IA no aviso que abriu — é só colar a chave gratuita e tocar em OK. Depois ela pensa sozinha.';
         }
         try{
             const txt=await window.chamarGeminiIA(messages);
             if(txt)return txt;
         }catch(e){
             console.warn('IA gemini',e);
-            const box=document.getElementById('ia-key-box');
-            if(box)box.open=true;
+            if(/api_key_invalid|invalid.*key|api key not valid|unregistered|sem chave/i.test(String(e&&e.message||'')))window.abrirModalAtivarIA();
             return window.traduzErroGeminiIA(e&&e.message);
         }
         return 'O modelo respondeu vazio. Tente perguntar de novo em alguns segundos.';
@@ -3805,12 +3839,9 @@
         }
         document.getElementById('modal-ia').style.display='flex';
         window.renderIAChat();
-        const keyInp=document.getElementById('ia-gemini-key');
-        const keyBox=document.getElementById('ia-key-box');
-        const temChave=!!window.chaveGeminiIA();
-        if(keyInp)keyInp.value=window.chaveGeminiIA();
-        if(keyBox)keyBox.open=!temChave;
-        setTimeout(()=>{const inp=document.getElementById('ia-chat-inp');if(inp)inp.focus();},80);
+        if(window.chaveGeminiIA()&&!window.iaJaAtivada())window.marcarIAAtivada();
+        if(!window.iaJaAtivada())window.abrirModalAtivarIA();
+        else setTimeout(()=>{const inp=document.getElementById('ia-chat-inp');if(inp)inp.focus();},80);
     };
     window.limparConversaIA=function(){
         if(!confirm('Apagar o histórico desta conversa com a IA?'))return;
