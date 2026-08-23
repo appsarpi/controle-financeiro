@@ -4374,24 +4374,83 @@
         return{veredito,titulo_curto:titulo,frase_principal:frase,opiniao_compra,impacto_parcela_mensal:pm,comprometimento_pos_compra_pct:Math.round(novoComp),alertas_concretos:alertas,alternativas};
     };
 
-    window.analisarCompra=function(){
+    window.necessidadeCompraLabel=function(){
+        return window.needVal==='nao'?'É impulso':window.needVal==='talvez'?'Quero muito':'Sim, necessário';
+    };
+    window.parseJsonCompraIA=function(txt){
+        const raw=String(txt||'').trim();
+        const bloco=raw.match(/\{[\s\S]*\}/);
+        if(!bloco)return null;
+        try{return JSON.parse(bloco[0]);}catch(e){return null;}
+    };
+    window.analisarCompraIA=async function(nome,valor,parcelas,base){
+        const necessidade=window.necessidadeCompraLabel();
+        const dossie=window.montarDossieIA();
+        const sys=[
+            'Você é a analista financeira do app Controle Financeiro. Responda em português do Brasil.',
+            'Use APENAS o dossiê e os dados da compra. Não invente lançamentos nem valores.',
+            'Pense na saúde da conta inteira: saldo, receita, parcelas, assinaturas, metas, histórico e se a pessoa marcou necessidade, vontade ou impulso.',
+            'Nunca corte frase no meio. Sempre feche com ponto e cite valores completos em R$.',
+            'Responda SOMENTE um JSON válido, sem markdown, neste formato:',
+            '{"veredito":"VAI_FUNDO"|"PENSE_BEM"|"NAO_RECOMENDADO","titulo_curto":"texto curto","frase_principal":"1 ou 2 frases","opiniao_compra":"opinião direta com números da conta","alertas_concretos":["alerta 1"],"alternativas":["alternativa 1"]}',
+            'veredito: VAI_FUNDO se cabe com folga, PENSE_BEM se aperta, NAO_RECOMENDADO se piora dívida ou zera a margem.',
+            'Dossiê da conta (JSON): '+JSON.stringify(dossie)
+        ].join('\n');
+        const user=[
+            `Compra: ${nome}.`,
+            `Valor total: ${valor}.`,
+            `Parcelas: ${parcelas}x (cerca de ${base.impacto_parcela_mensal}/mês).`,
+            `O usuário marcou a necessidade como: ${necessidade}.`,
+            `Cálculo local já feito: após a 1ª parcela o comprometimento seria ~${base.comprometimento_pos_compra_pct}% e o veredito automático foi ${base.veredito}.`,
+            'Analise se essa compra faz sentido agora com TODOS os dados da conta e devolva só o JSON.'
+        ].join(' ');
+        const txt=await window.chamarGeminiIA([{role:'system',content:sys},{role:'user',content:user}]);
+        const parsed=window.parseJsonCompraIA(txt);
+        if(!parsed||!parsed.veredito)throw new Error('json compra');
+        const verd=['VAI_FUNDO','PENSE_BEM','NAO_RECOMENDADO'].indexOf(parsed.veredito)>=0?parsed.veredito:base.veredito;
+        return{
+            veredito:verd,
+            titulo_curto:parsed.titulo_curto||base.titulo_curto,
+            frase_principal:parsed.frase_principal||base.frase_principal,
+            opiniao_compra:parsed.opiniao_compra||base.opiniao_compra,
+            impacto_parcela_mensal:base.impacto_parcela_mensal,
+            comprometimento_pos_compra_pct:base.comprometimento_pos_compra_pct,
+            alertas_concretos:Array.isArray(parsed.alertas_concretos)&&parsed.alertas_concretos.length?parsed.alertas_concretos.map(String):base.alertas_concretos,
+            alternativas:Array.isArray(parsed.alternativas)&&parsed.alternativas.length?parsed.alternativas.map(String):base.alternativas
+        };
+    };
+    window.analisarCompra=async function(){
+        if(window._compraBusy)return;
         const nome=document.getElementById("c-nome").value.trim()||"este item";
         const valor=window.parseMoney(document.getElementById("c-valor").value);
         const parcelas=+(document.getElementById("c-parcelas").value)||1;
         const resDiv=document.getElementById("compra-res");
         if(!valor)return resDiv.innerHTML=`<p style="color:#ff453a;font-size:14px;margin-top:10px">Informe o valor do item.</p>`;
+        window._compraBusy=true;
         resDiv.innerHTML=`<div style="text-align:center;padding:16px;font-size:14px;color:#8e8e93;">🔒 Analisando localmente...</div>`;
-        setTimeout(()=>{window.renderRiskPurchase(window.analisarCompraLocal(nome,valor,parcelas),nome,valor);},80);
+        const base=window.analisarCompraLocal(nome,valor,parcelas);
+        try{
+            if(!window.chaveGeminiIA()){
+                window.abrirModalAtivarIA();
+                window.renderRiskPurchase(base,nome,valor);
+                return;
+            }
+            const ia=await window.analisarCompraIA(nome,valor,parcelas,base);
+            window.renderRiskPurchase(ia,nome,valor);
+        }catch(e){
+            console.warn('IA compra',e);
+            window.renderRiskPurchase(base,nome,valor);
+        }finally{window._compraBusy=false;}
     };
 
     window.renderRiskPurchase=function(res,nome,valor){
         const resDiv=document.getElementById("compra-res");const verd=res.veredito||"PENSE_BEM";
         const corMap={"VAI_FUNDO":{bg:"#d1f7e0",border:"#1a6b3a",tc:"#1a6b3a",emoji:"✅"},"PENSE_BEM":{bg:"#fff3cd",border:"#856404",tc:"#856404",emoji:"⚠️"},"NAO_RECOMENDADO":{bg:"#ffe5e5",border:"#c0392b",tc:"#c0392b",emoji:"🚨"}};
-        const cores=corMap[verd]||corMap.PENSE_BEM;const titulo=res.titulo_curto||verd.replace(/_/g,' ');const frase=res.frase_principal||"";const pm=res.impacto_parcela_mensal||(valor/(parseInt(document.getElementById("c-parcelas").value)||1));const compr=res.comprometimento_pos_compra_pct||0;const alertas=res.alertas_concretos||[];const alternativas=res.alternativas||[];
-        const opiniao=res.opiniao_compra||'';
-        let html=`<div style="background:${cores.bg};border:2px solid ${cores.border};border-radius:14px;padding:16px;margin-top:12px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="font-size:28px;">${cores.emoji}</span><div style="flex:1;"><div style="font-size:11px;font-weight:800;color:${cores.tc};letter-spacing:0.5px;">VEREDITO DA IA</div><div style="font-size:16px;font-weight:800;color:${cores.tc};">${titulo}</div></div></div><div style="font-size:13px;color:#1c1c1e;line-height:1.4;margin-bottom:12px;">${frase}</div>${opiniao?`<div style="font-size:13px;color:#3c3c43;line-height:1.45;margin-bottom:12px;padding:10px;background:#fff;border-radius:10px;">${opiniao}</div>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><div style="background:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;">📦 ${nome}: <b>${window.R(valor)}</b></div><div style="background:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;">💳 ${window.R(pm)}/mês</div>${compr?`<div style="background:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;">📊 ${compr.toFixed(0)}% comprometido</div>`:''}</div>`;
-        if(alertas.length>0){html+=`<div style="background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;"><div style="font-size:11px;font-weight:800;color:${cores.tc};margin-bottom:6px;">⚠️ ALERTAS</div>`;alertas.forEach(a=>{html+=`<div style="font-size:12px;color:#3c3c43;line-height:1.4;margin-bottom:4px;">• ${a}</div>`;});html+=`</div>`;}
-        if(alternativas.length>0){html+=`<div style="background:#fff;border-radius:10px;padding:10px;"><div style="font-size:11px;font-weight:800;color:#007aff;margin-bottom:6px;">💡 ALTERNATIVAS</div>`;alternativas.forEach(a=>{html+=`<div style="font-size:12px;color:#3c3c43;line-height:1.4;margin-bottom:4px;">→ ${a}</div>`;});html+=`</div>`;}
+        const cores=corMap[verd]||corMap.PENSE_BEM;const esc=window.escapeHtmlIA;const titulo=esc(res.titulo_curto||verd.replace(/_/g,' '));const frase=esc(res.frase_principal||"");const pm=res.impacto_parcela_mensal||(valor/(parseInt(document.getElementById("c-parcelas").value)||1));const compr=res.comprometimento_pos_compra_pct||0;const alertas=res.alertas_concretos||[];const alternativas=res.alternativas||[];
+        const opiniao=esc(res.opiniao_compra||'');
+        let html=`<div style="background:${cores.bg};border:2px solid ${cores.border};border-radius:14px;padding:16px;margin-top:12px;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><span style="font-size:28px;">${cores.emoji}</span><div style="flex:1;"><div style="font-size:11px;font-weight:800;color:${cores.tc};letter-spacing:0.5px;">VEREDITO DA IA</div><div style="font-size:16px;font-weight:800;color:${cores.tc};">${titulo}</div></div></div><div style="font-size:13px;color:#1c1c1e;line-height:1.4;margin-bottom:12px;">${frase}</div>${opiniao?`<div style="font-size:13px;color:#3c3c43;line-height:1.45;margin-bottom:12px;padding:10px;background:#fff;border-radius:10px;">${opiniao}</div>`:''}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><div style="background:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;">📦 ${esc(nome)}: <b>${window.R(valor)}</b></div><div style="background:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;">💳 ${window.R(pm)}/mês</div>${compr?`<div style="background:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;">📊 ${compr.toFixed(0)}% comprometido</div>`:''}</div>`;
+        if(alertas.length>0){html+=`<div style="background:#fff;border-radius:10px;padding:10px;margin-bottom:8px;"><div style="font-size:11px;font-weight:800;color:${cores.tc};margin-bottom:6px;">⚠️ ALERTAS</div>`;alertas.forEach(a=>{html+=`<div style="font-size:12px;color:#3c3c43;line-height:1.4;margin-bottom:4px;">• ${esc(a)}</div>`;});html+=`</div>`;}
+        if(alternativas.length>0){html+=`<div style="background:#fff;border-radius:10px;padding:10px;"><div style="font-size:11px;font-weight:800;color:#007aff;margin-bottom:6px;">💡 ALTERNATIVAS</div>`;alternativas.forEach(a=>{html+=`<div style="font-size:12px;color:#3c3c43;line-height:1.4;margin-bottom:4px;">→ ${esc(a)}</div>`;});html+=`</div>`;}
         html+=`</div>`;resDiv.innerHTML=html;
     };
 
