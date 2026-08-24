@@ -28,8 +28,8 @@
         .dark-theme .gastos-total-sticky { background: rgba(28,28,30,0.95); border-bottom-color: #333; }
         .dark-theme .gastos-search-wrap { background: #2c2c2e; border-color: #3a3a3c; }
         .dark-theme .gastos-search-wrap input { color: #fff; }
-        .dark-theme .gastos-filtro-data { background: #1c1c1e; border-color: #3a3a3c; }
-        .dark-theme .gastos-filtro-data label { color: #aeaeb2; }
+        .dark-theme .classif-wrap { background: #1c1c1e; border-color: #3a3a3c; }
+        .dark-theme .classif-wrap label { color: #aeaeb2; }
         .dark-theme .gasto-row { border-bottom-color: #3a3a3c; }
         .dark-theme .receita-header input[type=text] { color: #fff !important; }
         .dark-theme .ia-bloco { background: #2c2c2e; color: #f2f2f7; }
@@ -177,10 +177,9 @@
         .gasto-row-pendente .gasto-nome-titulo, .gasto-row-pendente .gasto-valor { opacity: 0.5; }
         .gastos-search-wrap { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 8px 12px; background: #fff; border-radius: 12px; border: 1.5px solid #e5e5ea; }
         .gastos-search-wrap input { flex: 1; border: none; background: transparent; height: 36px; font-size: 15px; outline: none; font-family: inherit; }
-        .gastos-filtro-data { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; padding: 10px 12px; background: #fff; border-radius: 12px; border: 1.5px solid #e5e5ea; }
-        .gastos-filtro-data label { font-size: 12px; font-weight: 700; color: #6c6c70; white-space: nowrap; }
-        .gastos-filtro-data input[type=date] { flex: 1; min-width: 120px; height: 36px; font-size: 14px; }
-        .gastos-filtro-data .btn-limpar-filtro { flex-shrink: 0; padding: 6px 10px; font-size: 12px; }
+        .classif-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; padding: 8px 12px; background: #fff; border-radius: 12px; border: 1.5px solid #e5e5ea; }
+        .classif-wrap label { font-size: 12px; font-weight: 700; color: #6c6c70; white-space: nowrap; }
+        .classif-wrap select.form-sel { flex: 1; min-width: 140px; height: 36px; font-size: 13px; width: auto; }
         .gasto-nome-data { display: block; font-size: 11px; font-weight: 600; color: #aeaeb2; margin-top: 2px; line-height: 1.2; }
         .ad-slot-app { display: none; }
         .ad-pc-side { display: none; }
@@ -748,14 +747,18 @@
 
                 <div class="gastos-search-wrap">
                     <span style="font-size:18px;" aria-hidden="true">🔍</span>
-                    <input type="search" id="gastos-search-inp" placeholder="Buscar por nome ou valor..." oninput="window.onGastosSearch(this.value)" autocomplete="off">
+                    <input type="search" id="gastos-search-inp" placeholder="Buscar por nome, banco ou Pix..." oninput="window.onGastosSearch(this.value)" autocomplete="off">
                 </div>
-                <div class="gastos-filtro-data">
-                    <label for="gastos-filtro-de">De</label>
-                    <input type="date" id="gastos-filtro-de" onchange="window.onGastosDateFilter()">
-                    <label for="gastos-filtro-ate">Até</label>
-                    <input type="date" id="gastos-filtro-ate" onchange="window.onGastosDateFilter()">
-                    <button type="button" class="btn-small btn-limpar-filtro" onclick="window.limparFiltroDataGastos()">Limpar</button>
+                <div class="classif-wrap">
+                    <label for="gastos-sort">Classificação</label>
+                    <select class="form-sel" id="gastos-sort" onchange="window.onGastosSortChange(this.value)">
+                        <option value="az">Alfabética (A–Z)</option>
+                        <option value="za">Alfabética (Z–A)</option>
+                        <option value="val-desc">Maior valor</option>
+                        <option value="val-asc">Menor valor</option>
+                        <option value="date-desc">Mais recente</option>
+                        <option value="date-asc">Mais antigo</option>
+                    </select>
                 </div>
                 <div id="gastos-search-results" class="card" style="display:none; padding:4px 16px; margin-bottom:12px;"></div>
 
@@ -803,6 +806,18 @@
                     </div>
                 </div>
                 <div id="total-metas-det" style="display:none; background:#fff; margin:-16px -16px 16px -16px; padding:12px 16px; border-bottom:0.5px solid rgba(0,0,0,0.1); border-radius:0 0 16px 16px;"></div>
+                <div class="classif-wrap">
+                    <label for="metas-sort">Classificação</label>
+                    <select class="form-sel" id="metas-sort" onchange="window.onMetasSortChange(this.value)">
+                        <option value="az">Alfabética (A–Z)</option>
+                        <option value="za">Alfabética (Z–A)</option>
+                        <option value="invest-desc">Mais investimentos</option>
+                        <option value="invest-asc">Menos investimentos</option>
+                        <option value="pct-desc">Maior % concluído</option>
+                        <option value="pct-asc">Menor % concluído</option>
+                        <option value="prazo">Prazo mais próximo</option>
+                    </select>
+                </div>
                 <div id="metas-list" style="display:flex; flex-direction:column;"></div>
             </div>
 
@@ -1821,10 +1836,8 @@
         anoSelMeta.innerHTML += `<option value="${i}">${i}</option>`;
     }
     window.gastosSearchQuery = "";
-    window.gastosFiltroDe = "";
     window._mgEmojiPick = "🏷️";
     window._mgEmojiManual = false;
-    window.gastosFiltroAte = "";
 
     window.dataFromGastoId = function(id) {
         const m = (id || '').match(/^(?:gf|gv)_(\d{10,13})$/);
@@ -2318,43 +2331,56 @@
 
     window.getGastoTipoLabel=function(tipo){return tipo==='sub'||tipo==='assinatura'?'Assinatura':tipo==='var'||tipo==='unico'?'Compra única':'Parcelado';};
     window.getGastoTipoTagClass=function(tipo){return tipo==='sub'||tipo==='assinatura'?'tag-assinatura':tipo==='var'||tipo==='unico'?'tag-unico':'tag-parcelado';};
-    window.gastoMatchesSearch=function(q,nome,val){
+    window.foldSearchText=function(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');};
+    window.gastoPaySearchText=function(pay){
+        const p=pay||'none';
+        const lbl=window.getPayLabel(p);
+        const parts=[p,lbl];
+        if(p==='pix')parts.push('pix','pagamento');
+        return parts.join(' ');
+    };
+    window.gastoMatchesSearch=function(q,nome,val,pay){
         if(!q)return true;
-        const n=(nome||'').toLowerCase();
+        const qn=window.foldSearchText(q);
+        const n=window.foldSearchText(nome);
+        const payTxt=window.foldSearchText(window.gastoPaySearchText(pay));
         const vStr=String(val||0).replace('.','');
         const qNum=q.replace(/[^\d]/g,'');
-        return n.includes(q)||(qNum&&vStr.includes(qNum))||window.R(val).toLowerCase().includes(q);
+        return n.includes(qn)||payTxt.includes(qn)||(qNum&&vStr.includes(qNum))||window.foldSearchText(window.R(val)).includes(qn);
     };
-    window.gastoMatchesDate=function(data){
-        if(!window.gastosFiltroDe&&!window.gastosFiltroAte)return true;
-        if(!data)return false;
-        if(window.gastosFiltroDe&&data<window.gastosFiltroDe)return false;
-        if(window.gastosFiltroAte&&data>window.gastosFiltroAte)return false;
-        return true;
+    window.GASTOS_SORTS=['az','za','val-desc','val-asc','date-desc','date-asc'];
+    window.getGastosSort=function(){
+        const v=(window.S&&window.S.config&&window.S.config.gastosSort)||'az';
+        return window.GASTOS_SORTS.indexOf(v)>=0?v:'az';
     };
-    window.gastoMatchesFiltros=function(q,nome,val,data){
-        return window.gastoMatchesSearch(q,nome,val)&&window.gastoMatchesDate(data);
+    window.onGastosSortChange=function(val){
+        window.S.config=window.S.config||{};
+        window.S.config.gastosSort=window.GASTOS_SORTS.indexOf(val)>=0?val:'az';
+        window.buildGastos();
+        window.scheduleSync();
+    };
+    window.cmpGastosSort=function(mode,nomeA,valA,dataA,nomeB,valB,dataB){
+        const na=window.nomeSemEmojiTexto(nomeA||'');
+        const nb=window.nomeSemEmojiTexto(nomeB||'');
+        const byNome=()=>na.localeCompare(nb,'pt-BR',{sensitivity:'base'});
+        if(mode==='az')return byNome();
+        if(mode==='za')return nb.localeCompare(na,'pt-BR',{sensitivity:'base'});
+        if(mode==='val-desc')return (valB||0)-(valA||0)||byNome();
+        if(mode==='val-asc')return (valA||0)-(valB||0)||byNome();
+        if(mode==='date-desc')return String(dataB||'').localeCompare(String(dataA||''))||byNome();
+        if(mode==='date-asc')return String(dataA||'').localeCompare(String(dataB||''))||byNome();
+        return 0;
+    };
+    window.sortGastosArr=function(arr,getNome,getVal,getData){
+        const mode=window.getGastosSort();
+        return arr.slice().sort((a,b)=>window.cmpGastosSort(mode,getNome(a),getVal(a),getData(a),getNome(b),getVal(b),getData(b)));
     };
     window.onGastosSearch=function(val){window.gastosSearchQuery=(val||'').trim().toLowerCase();window.buildGastos();};
-    window.onGastosDateFilter=function(){
-        const deEl=document.getElementById('gastos-filtro-de');
-        const ateEl=document.getElementById('gastos-filtro-ate');
-        window.gastosFiltroDe=deEl?deEl.value:'';
-        window.gastosFiltroAte=ateEl?ateEl.value:'';
-        window.buildGastos();
-    };
-    window.limparFiltroDataGastos=function(){
-        const deEl=document.getElementById('gastos-filtro-de');
-        const ateEl=document.getElementById('gastos-filtro-ate');
-        if(deEl)deEl.value='';
-        if(ateEl)ateEl.value='';
-        window.gastosFiltroDe='';
-        window.gastosFiltroAte='';
-        window.buildGastos();
-    };
 
     window.buildGastos=function(){
         const q=window.gastosSearchQuery||'';
+        const sortSel=document.getElementById('gastos-sort');
+        if(sortSel)sortSel.value=window.getGastosSort();
         const sectionsWrap=document.getElementById('gastos-sections-wrap');
         const searchPanel=document.getElementById('gastos-search-results');
         const pList=document.getElementById("gastos-pendentes-list");
@@ -2376,7 +2402,7 @@
         const appendFixoRow=function(gf,container,listTipo,badgeExtra){
             const ga=getGa(gf);
             const dataGasto=window.getDataGastoFixo(gf);
-            if(!window.gastoMatchesFiltros(q,gf.n,ga.val,dataGasto))return false;
+            if(!window.gastoMatchesSearch(q,gf.n,ga.val,ga.pay))return false;
             const editTipo=listTipo==='sub'?'sub':'fixo';
             const temCheck=window.gastoFTemChecklist(gf,ga);
             const pago=window.gastoFContaNoCalculo(gf,ga);
@@ -2387,6 +2413,7 @@
             container.appendChild(el);
             return true;
         };
+        const sortFixos=function(list){return window.sortGastosArr(list,gf=>gf.n,gf=>getGa(gf).val,gf=>window.getDataGastoFixo(gf));};
         if(q&&searchPanel){
             sectionsWrap.style.display='none';
             searchPanel.style.display='block';
@@ -2396,14 +2423,14 @@
                 const tipo=window.isSubscription(gf)?'sub':'fixo';
                 const ga=getGa(gf);
                 const dataGasto=window.getDataGastoFixo(gf);
-                if(window.gastoMatchesFiltros(q,gf.n,ga.val,dataGasto))hits.push({tipo,id:gf.id,nome:gf.n,val:ga.val,pay:ga.pay,gf,ga,data:dataGasto});
+                if(window.gastoMatchesSearch(q,gf.n,ga.val,ga.pay))hits.push({tipo,id:gf.id,nome:gf.n,val:ga.val,pay:ga.pay,gf,ga,data:dataGasto});
             });
             (activeData.gastosV||[]).forEach(gv=>{
                 const dataGasto=window.getDataGastoVar(gv,activeM,activeY);
-                if(window.gastoMatchesFiltros(q,gv.n,gv.val,dataGasto))hits.push({tipo:'var',id:gv.id,nome:gv.n,val:gv.val,pay:gv.pay,data:dataGasto});
+                if(window.gastoMatchesSearch(q,gv.n,gv.val,gv.pay))hits.push({tipo:'var',id:gv.id,nome:gv.n,val:gv.val,pay:gv.pay,data:dataGasto});
             });
             if(hits.length===0){searchPanel.innerHTML=`<p style="font-size:13px;color:#8e8e93;padding:12px 0;text-align:center">Nenhum gasto encontrado para "${q}".</p>`;return;}
-            hits.forEach(h=>{
+            window.sortGastosArr(hits,h=>h.nome,h=>h.val,h=>h.data).forEach(h=>{
                 const tipoLbl=window.getGastoTipoLabel(h.tipo);
                 const tagCls=window.getGastoTipoTagClass(h.tipo);
                 const el=document.createElement('div');el.className='gasto-row';
@@ -2422,14 +2449,15 @@
         if(pList)pList.innerHTML="";
         fList.innerHTML="";vList.innerHTML="";if(sList)sList.innerHTML="";
         const allActive=(window.S.gastosFixos||[]).filter(gf=>window.isItemActive(gf,activeM,activeY));
-        const parcelasFixas=allActive.filter(gf=>!window.isSubscription(gf));
-        const assinaturas=allActive.filter(gf=>window.isSubscription(gf));
+        const parcelasFixas=sortFixos(allActive.filter(gf=>!window.isSubscription(gf)));
+        const assinaturas=sortFixos(allActive.filter(gf=>window.isSubscription(gf)));
         if(pList){
             let pc=0;
-            allActive.forEach(gf=>{
+            const pendentes=sortFixos(allActive.filter(gf=>{
                 const ga=getGa(gf);
-                if(!window.gastoFTemChecklist(gf,ga))return;
-                if(window.gastoFContaNoCalculo(gf,ga))return;
+                return window.gastoFTemChecklist(gf,ga)&&!window.gastoFContaNoCalculo(gf,ga);
+            }));
+            pendentes.forEach(gf=>{
                 const listTipo=window.isSubscription(gf)?'sub':'fixo';
                 const tipoTag=`<span class="gasto-tipo-tag ${listTipo==='sub'?'tag-assinatura':'tag-parcelado'}" style="margin-left:6px;">${listTipo==='sub'?'Assinatura':'Parcelado'}</span>`;
                 if(appendFixoRow(gf,pList,listTipo,badgeFixo(gf,listTipo)+tipoTag))pc++;
@@ -2443,9 +2471,9 @@
             if(sc===0)sList.innerHTML=`<p style="font-size:13px;color:#8e8e93;padding:12px 0;text-align:center">${q?'Nenhuma assinatura encontrada.':'Nenhuma assinatura cadastrada.'}</p>`;
         }
         let vc=0;
-        activeData.gastosV.forEach(gv=>{
+        window.sortGastosArr(activeData.gastosV||[],gv=>gv.n,gv=>gv.val,gv=>window.getDataGastoVar(gv,activeM,activeY)).forEach(gv=>{
             const dataGasto=window.getDataGastoVar(gv,activeM,activeY);
-            if(!window.gastoMatchesFiltros(q,gv.n,gv.val,dataGasto))return;
+            if(!window.gastoMatchesSearch(q,gv.n,gv.val,gv.pay))return;
             vc++;
             const el=document.createElement("div");el.className="gasto-row";
             el.innerHTML=window.renderGastoLinhaHtml({nome:gv.n,val:gv.val,pay:gv.pay,badgeHtml:'<span class="gasto-tipo-tag tag-unico">Compra única neste mês</span>',editTipo:'var',id:gv.id,onDelete:'var',cor:'#007aff',data:dataGasto});
@@ -3110,9 +3138,40 @@
         Object.keys(window.S.dataByMonth).forEach(k=>{const[km,ky]=k.split('-').map(Number);if(ky<activeY||(ky===activeY&&km<=activeM)){ac+=((window.S.dataByMonth[k].metasAcum||{})[m.id]||0);ac-=((window.S.dataByMonth[k].metasSaidas||{})[m.id]||0);}});
         return ac;
     };
+    window.METAS_SORTS=['az','za','invest-desc','invest-asc','pct-desc','pct-asc','prazo'];
+    window.getMetasSort=function(){
+        const v=(window.S&&window.S.config&&window.S.config.metasSort)||'az';
+        return window.METAS_SORTS.indexOf(v)>=0?v:'az';
+    };
+    window.onMetasSortChange=function(val){
+        window.S.config=window.S.config||{};
+        window.S.config.metasSort=window.METAS_SORTS.indexOf(val)>=0?val:'az';
+        window.buildMetas();
+        window.scheduleSync();
+    };
+    window.sortMetasList=function(list){
+        const mode=window.getMetasSort();
+        const byNome=(a,b)=>window.nomeSemEmojiTexto(a.n||'').localeCompare(window.nomeSemEmojiTexto(b.n||''),'pt-BR',{sensitivity:'base'});
+        const prazoKey=m=>(m.pY!=null&&m.pM!=null)?(m.pY*12+m.pM):999999;
+        return list.slice().sort((a,b)=>{
+            const acA=window.calcMetaAcumulado(a),acB=window.calcMetaAcumulado(b);
+            const pctA=a.obj>0?Math.min(100,(acA/a.obj)*100):0;
+            const pctB=b.obj>0?Math.min(100,(acB/b.obj)*100):0;
+            if(mode==='az')return byNome(a,b);
+            if(mode==='za')return byNome(b,a);
+            if(mode==='invest-desc')return acB-acA||byNome(a,b);
+            if(mode==='invest-asc')return acA-acB||byNome(a,b);
+            if(mode==='pct-desc')return pctB-pctA||byNome(a,b);
+            if(mode==='pct-asc')return pctA-pctB||byNome(a,b);
+            if(mode==='prazo')return prazoKey(a)-prazoKey(b)||byNome(a,b);
+            return 0;
+        });
+    };
     window.buildMetas=function(){
         const list=document.getElementById("metas-list");list.innerHTML="";
-        const am=(window.S.metas||[]).filter(m=>window.isItemActive(m,activeM,activeY));
+        const sortSel=document.getElementById('metas-sort');
+        if(sortSel)sortSel.value=window.getMetasSort();
+        const am=window.sortMetasList((window.S.metas||[]).filter(m=>window.isItemActive(m,activeM,activeY)));
         if(am.length===0){list.innerHTML=`<p style="font-size:13px;color:#8e8e93;padding:12px 0;text-align:center">Nenhuma meta ativa.</p>`;return;}
         const mostraLocal=(window.S.config&&window.S.config.mostrarLocalMeta==='ambos');
         am.forEach(m=>{
