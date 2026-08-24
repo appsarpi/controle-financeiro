@@ -220,6 +220,15 @@
         .mcd-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
         .mcd-tab { flex: 1; border: 1.5px solid #e5e5ea; background: #fff; color: #8e8e93; border-radius: 12px; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
         .mcd-tab.ativo { background: #007aff; color: #fff; border-color: #007aff; }
+        .mcd-chart-wrap { position: relative; width: 100%; height: 240px; }
+        #mcd-chart-canvas { display: block; width: 100% !important; height: 240px !important; }
+        .mcd-opiniao { background: #f2f2f7; border-radius: 14px; padding: 14px; font-size: 14px; line-height: 1.55; color: #1c1c1e; white-space: pre-wrap; word-break: break-word; }
+        .mcd-opiniao.thinking { color: #8e8e93; font-style: italic; }
+        #modal-cat-detalhe.mcd-em-opiniao .mcd-tabs,
+        #modal-cat-detalhe.mcd-em-opiniao .mcd-pedrinho-top,
+        #modal-cat-detalhe.mcd-em-opiniao #mcd-pedir-opiniao { display: none; }
+        #modal-cat-detalhe.mcd-em-opiniao #mcd-lista { max-height: min(55vh, 420px); }
+        .dark-theme .mcd-opiniao { background: #2c2c2e; color: #f2f2f7; }
         .mcd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .mcd-table th { text-align: left; font-size: 11px; color: #8e8e93; font-weight: 700; padding: 6px 4px; border-bottom: 1px solid #e5e5ea; }
         .mcd-table td { padding: 8px 4px; border-bottom: 0.5px solid #e5e5ea; color: #1c1c1e; vertical-align: middle; }
@@ -1353,7 +1362,7 @@
       <button class="btn-close-modal" onclick="window.fecharModal('modal-cat-detalhe')">&times;</button>
     </div>
     <p style="font-size:12px; color:#8e8e93; margin-bottom:12px;" id="mcd-sub"></p>
-    <div class="mcd-tabs">
+    <div class="mcd-tabs" id="mcd-tabs">
       <button type="button" class="mcd-tab ativo" id="mcd-tab-gastos" onclick="window.setMcdView('gastos')">Gastos</button>
       <button type="button" class="mcd-tab" id="mcd-tab-meses" onclick="window.setMcdView('meses')">Através dos meses</button>
     </div>
@@ -1366,7 +1375,7 @@
           <div class="mcd-pedrinho-sub">Uma análise rápida dos acertos e do que melhorar nesta categoria.</div>
         </div>
       </div>
-      <button type="button" class="btn-primary" onclick="window.pedirOpiniaoPedrinhoCategoria()">Pedir opinião</button>
+      <button type="button" class="btn-primary" id="mcd-pedir-opiniao" onclick="window.pedirOpiniaoPedrinhoCategoria()">Pedir opinião</button>
       <div id="mcd-pedrinho-res"></div>
       <button type="button" class="mcd-btn-txt" onclick="window.conversarPedrinhoCategoria()">Conversar com Pedrinho</button>
     </div>
@@ -2050,6 +2059,13 @@
     window.fecharModal = id => {
         document.getElementById(id).style.display="none";
         if(id==='modal-gasto')window.limparFormGasto();
+        if(id==='modal-cat-detalhe'){
+            if(window.destroyMcdChart)window.destroyMcdChart();
+            if(window.limparOpiniaoMcd)window.limparOpiniaoMcd();
+            window._mcdView='gastos';
+            window._mcdPrevView='gastos';
+            if(window.applyMcdChrome)window.applyMcdChrome();
+        }
     };
     window.limparFormGasto=function(){
         const eid=document.getElementById('mg-edit-id');if(eid)eid.value='';
@@ -3521,6 +3537,36 @@
     };
     window._mcdCat='';
     window._mcdView='gastos';
+    window._mcdPrevView='gastos';
+    window._mcdChart=null;
+    window.destroyMcdChart=function(){
+        if(window._mcdChart){
+            try{window._mcdChart.destroy();}catch(e){}
+            window._mcdChart=null;
+        }
+    };
+    window.limparOpiniaoMcd=function(){
+        const res=document.getElementById('mcd-pedrinho-res');
+        if(res){res.className='';res.innerHTML='';res.textContent='';}
+    };
+    window.applyMcdChrome=function(){
+        const overlay=document.getElementById('modal-cat-detalhe');
+        if(overlay)overlay.classList.toggle('mcd-em-opiniao',window._mcdView==='opiniao');
+        const tabView=window._mcdView==='opiniao'?(window._mcdPrevView||'gastos'):window._mcdView;
+        const tabG=document.getElementById('mcd-tab-gastos');
+        const tabM=document.getElementById('mcd-tab-meses');
+        if(tabG)tabG.classList.toggle('ativo',tabView==='gastos');
+        if(tabM)tabM.classList.toggle('ativo',tabView==='meses');
+    };
+    window.coletaJanelaCategoria=function(cat,raio=6){
+        const rows=[];
+        for(let i=-raio;i<=raio;i++){
+            const o=window.offsetMonth(activeM,activeY,i);
+            const byCat=window.coletaGastosPorCategoriaMes(o.m,o.y);
+            rows.push({m:o.m,y:o.y,val:byCat[cat]||0,isCurrent:i===0});
+        }
+        return rows;
+    };
     window.coletaHistoricoCategoria=function(cat){
         const keys=new Set(Object.keys(window.S.dataByMonth||{}));
         keys.add(`${activeM}-${activeY}`);
@@ -3559,65 +3605,130 @@
         }
     };
     window.renderMcdMeses=function(){
+        window.destroyMcdChart();
         const hist=window.coletaHistoricoCategoria(window._mcdCat);
         const comGasto=hist.filter(r=>r.val>0);
         const media=comGasto.length?comGasto.reduce((a,r)=>a+r.val,0)/comGasto.length:0;
         document.getElementById('mcd-sub').textContent=`${comGasto.length} ${comGasto.length===1?'mês':'meses'} com gasto · média ${window.R(media)}`;
         const lista=document.getElementById('mcd-lista');
-        if(!hist.length){
-            lista.innerHTML='<p style="font-size:13px;color:#8e8e93;text-align:center;padding:16px 0;">Ainda não há histórico desta categoria.</p>';
-            return;
-        }
-        let html='<table class="mcd-table"><thead><tr><th>Mês</th><th>Valor</th><th>% gastos</th><th>vs. anterior</th></tr></thead><tbody>';
-        hist.forEach((r,i)=>{
-            const prev=i>0?hist[i-1].val:null;
-            const pct=r.totalGastos>0?Math.round(r.val/r.totalGastos*100)+'%':'—';
-            const mesLbl=`${MESES_CURTO[r.m]} ${String(r.y).slice(-2)}${r.isCurrent?' <span style="color:#007aff;font-size:10px;font-weight:800;">atual</span>':''}`;
-            let deltaHtml='<span class="mcd-delta same">—</span>';
-            if(prev!=null){
-                if(r.val>prev)deltaHtml=`<span class="mcd-delta up">+${window.R(r.val-prev)}</span>`;
-                else if(r.val<prev)deltaHtml=`<span class="mcd-delta down">-${window.R(prev-r.val)}</span>`;
-                else deltaHtml='<span class="mcd-delta same">igual</span>';
+        const janela=window.coletaJanelaCategoria(window._mcdCat,6);
+        lista.innerHTML='<div class="mcd-chart-wrap"><canvas id="mcd-chart-canvas"></canvas></div>';
+        const canvas=document.getElementById('mcd-chart-canvas');
+        if(!canvas||typeof Chart==='undefined')return;
+        const isDark=document.body.classList.contains('dark-theme');
+        const labels=janela.map(r=>r.isCurrent?`${MESES_CURTO[r.m]} ${String(r.y).slice(-2)}`:`${MESES_CURTO[r.m]}`);
+        const cores=janela.map(r=>r.isCurrent?'#007aff':'#9cc9f5');
+        const tickCores=janela.map(r=>r.isCurrent?'#007aff':(isDark?'#aeaeb2':'#8e8e93'));
+        window._mcdChart=new Chart(canvas.getContext('2d'),{
+            type:'bar',
+            data:{labels,datasets:[{label:'Gasto',data:janela.map(r=>r.val),backgroundColor:cores,hoverBackgroundColor:janela.map(r=>r.isCurrent?'#0066d6':'#7ab4e8'),borderRadius:5,maxBarThickness:22}]},
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                plugins:{
+                    legend:{display:false},
+                    tooltip:{callbacks:{
+                        title:items=>{
+                            const r=janela[items[0]&&items[0].dataIndex];
+                            if(!r)return '';
+                            return `${MESES_CURTO[r.m]} ${r.y}${r.isCurrent?' · atual':''}`;
+                        },
+                        label:ctx=>window.R(ctx.parsed.y||0)
+                    }}
+                },
+                scales:{
+                    x:{
+                        ticks:{
+                            color:ctx=>tickCores[ctx.index]||'#8e8e93',
+                            font:ctx=>{
+                                const atual=!!(janela[ctx.index]&&janela[ctx.index].isCurrent);
+                                return{size:atual?11:9,family:'inherit',weight:atual?'800':'600'};
+                            },
+                            maxRotation:65,minRotation:50,autoSkip:false
+                        },
+                        grid:{display:false}
+                    },
+                    y:{
+                        beginAtZero:true,
+                        ticks:{
+                            color:'#8e8e93',
+                            font:{size:10,family:'inherit'},
+                            callback:v=>{
+                                if(!v)return 'R$ 0';
+                                if(Math.abs(v)>=1000)return 'R$ '+(v/1000).toFixed(Math.abs(v)>=10000?0:1)+'k';
+                                return 'R$ '+Math.round(v);
+                            }
+                        },
+                        grid:{color:isDark?'#333':'#e5e5ea'}
+                    }
+                }
             }
-            html+=`<tr><td>${mesLbl}</td><td>${window.R(r.val)}</td><td>${pct}</td><td>${deltaHtml}</td></tr>`;
         });
-        html+='</tbody></table>';
-        lista.innerHTML=html;
     };
     window.setMcdView=function(view){
+        if(view==='opiniao'){
+            window.entrarOpiniaoMcd();
+            return;
+        }
+        window.destroyMcdChart();
+        if(window._mcdView==='opiniao')window.limparOpiniaoMcd();
         window._mcdView=view==='meses'?'meses':'gastos';
-        const tabG=document.getElementById('mcd-tab-gastos');
-        const tabM=document.getElementById('mcd-tab-meses');
-        if(tabG)tabG.classList.toggle('ativo',window._mcdView==='gastos');
-        if(tabM)tabM.classList.toggle('ativo',window._mcdView==='meses');
+        window.applyMcdChrome();
         if(window._mcdView==='meses')window.renderMcdMeses();
         else window.renderMcdGastos();
     };
+    window.entrarOpiniaoMcd=function(){
+        if(window._mcdView!=='opiniao'){
+            window._mcdPrevView=window._mcdView==='meses'?'meses':'gastos';
+            window.destroyMcdChart();
+        }
+        window._mcdView='opiniao';
+        window.applyMcdChrome();
+        const sub=document.getElementById('mcd-sub');
+        if(sub)sub.textContent='Opinião do Pedrinho';
+    };
     window.voltarDetalheCategoria=function(){
-        if(window._mcdView!=='gastos')window.setMcdView('gastos');
-        else window.fecharModal('modal-cat-detalhe');
+        if(window._mcdView==='opiniao'){
+            window.limparOpiniaoMcd();
+            window.setMcdView(window._mcdPrevView||'gastos');
+            return;
+        }
+        if(window._mcdView==='meses'){
+            window.setMcdView('gastos');
+            return;
+        }
+        window.fecharModal('modal-cat-detalhe');
     };
     window.abrirDetalheCategoria=function(cat){
         window._mcdCat=cat;
         window._mcdView='gastos';
+        window._mcdPrevView='gastos';
+        window.destroyMcdChart();
+        window.limparOpiniaoMcd();
         document.getElementById('mcd-titulo').textContent=cat;
-        const res=document.getElementById('mcd-pedrinho-res');
-        if(res){res.className='';res.textContent='';}
+        window.applyMcdChrome();
         window.setMcdView('gastos');
         document.getElementById('modal-cat-detalhe').style.display='flex';
     };
     window.pedirOpiniaoPedrinhoCategoria=async function(){
         const cat=window._mcdCat;
-        const res=document.getElementById('mcd-pedrinho-res');
-        if(!res||!cat)return;
+        const lista=document.getElementById('mcd-lista');
+        if(!cat||!lista)return;
+        window.entrarOpiniaoMcd();
+        window._mcdOpiniaoSeq=(window._mcdOpiniaoSeq||0)+1;
+        const seq=window._mcdOpiniaoSeq;
+        const aindaOpiniao=()=>window._mcdView==='opiniao'&&window._mcdOpiniaoSeq===seq;
+        const mostrar=(html,thinking)=>{
+            if(!aindaOpiniao())return;
+            lista.innerHTML=`<div class="mcd-opiniao${thinking?' thinking':''}">${html}</div>`;
+            window.limparOpiniaoMcd();
+        };
         if(!window.temChaveGemini()){
-            res.className='';
-            res.textContent='Ative o Pedrinho com a chave do Google AI Studio para pedir a opinião.';
+            mostrar('Ative o Pedrinho com a chave do Google AI Studio para pedir a opinião.');
             window.abrirModalAtivarIA();
             return;
         }
-        res.className='thinking';
-        res.textContent=window.IA_THINKING||'Pensando nos seus números…';
+        mostrar(window.escapeHtmlIA(window.IA_THINKING||'Pensando nos seus números…'),true);
         const itens=window.coletaItensPorCategoria(cat);
         const hist=window.coletaHistoricoCategoria(cat);
         const sys='Você é o Pedrinho, analista financeiro do app. Responda em português do Brasil, em 5 a 8 frases curtas. Diga (1) o que está indo bem nesta categoria e (2) o que pode melhorar, com base no histórico mensal. Sem JSON, sem markdown pesado. Não peça dados que já estão no contexto.';
@@ -3632,12 +3743,11 @@
         ].join('\n');
         try{
             const txt=await window.chamarGeminiIA([{role:'system',content:sys},{role:'user',content:user}]);
-            res.className='';
-            res.innerHTML=window.escapeHtmlIA(txt||'Não consegui montar a opinião agora. Tente de novo.');
+            mostrar(window.escapeHtmlIA(txt||'Não consegui montar a opinião agora. Tente de novo.'));
         }catch(e){
             console.warn('Pedrinho categoria',e);
-            res.className='';
-            res.textContent=window.traduzErroGeminiIA?window.traduzErroGeminiIA(e&&e.message):'Não consegui falar com o Pedrinho agora.';
+            const msg=window.traduzErroGeminiIA?window.traduzErroGeminiIA(e&&e.message):'Não consegui falar com o Pedrinho agora.';
+            mostrar(window.escapeHtmlIA(msg));
             if(/api_key_invalid|invalid.*key|api key not valid|unregistered|sem chave/i.test(String(e&&e.message||'')))window.abrirModalAtivarIA();
         }
     };
