@@ -220,8 +220,8 @@
         .mcd-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
         .mcd-tab { flex: 1; border: 1.5px solid #e5e5ea; background: #fff; color: #8e8e93; border-radius: 12px; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
         .mcd-tab.ativo { background: #007aff; color: #fff; border-color: #007aff; }
-        .mcd-chart-wrap { position: relative; width: 100%; height: 240px; }
-        #mcd-chart-canvas { display: block; width: 100% !important; height: 240px !important; }
+        .mcd-chart-wrap { position: relative; width: 100%; height: 210px; }
+        #mcd-chart-canvas { display: block; width: 100% !important; height: 210px !important; }
         .mcd-opiniao { background: #f2f2f7; border-radius: 14px; padding: 14px; font-size: 14px; line-height: 1.55; color: #1c1c1e; white-space: pre-wrap; word-break: break-word; }
         .mcd-opiniao.thinking { color: #8e8e93; font-style: italic; }
         #modal-cat-detalhe.mcd-em-opiniao .mcd-tabs,
@@ -3619,6 +3619,22 @@
         const labels=janela.map(r=>r.isCurrent?`${MESES_CURTO[r.m]} ${String(r.y).slice(-2)}`:`${MESES_CURTO[r.m]}`);
         const cores=janela.map(r=>r.isCurrent?'#007aff':'#9cc9f5');
         const tickCores=janela.map(r=>r.isCurrent?'#007aff':(isDark?'#aeaeb2':'#8e8e93'));
+        const vals=janela.map(r=>r.val).filter(v=>v>0);
+        let yMin=0,yMax=10;
+        if(vals.length){
+            const minV=Math.min(...vals);
+            const maxV=Math.max(...vals);
+            if(minV<50||minV<maxV*0.15){
+                yMin=0;
+                yMax=maxV+Math.max(maxV*0.08,10);
+            }else{
+                const range=Math.max(maxV-minV,minV*0.15);
+                const padMin=Math.min(Math.max(range*0.2,minV*0.08),minV*0.18);
+                const padMax=Math.max(range*0.12,maxV*0.05,20);
+                yMin=Math.max(0,minV-padMin);
+                yMax=maxV+padMax;
+            }
+        }
         window._mcdChart=new Chart(canvas.getContext('2d'),{
             type:'bar',
             data:{labels,datasets:[{label:'Gasto',data:janela.map(r=>r.val),backgroundColor:cores,hoverBackgroundColor:janela.map(r=>r.isCurrent?'#0066d6':'#7ab4e8'),borderRadius:5,maxBarThickness:22}]},
@@ -3649,7 +3665,9 @@
                         grid:{display:false}
                     },
                     y:{
-                        beginAtZero:true,
+                        beginAtZero:false,
+                        min:yMin,
+                        max:yMax,
                         ticks:{
                             color:'#8e8e93',
                             font:{size:10,family:'inherit'},
